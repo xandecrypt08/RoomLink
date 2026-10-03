@@ -24,8 +24,6 @@
         href="{{ asset('css/auth.css') }}"
     >
 
-    @stack('styles')
-
 </head>
 
 <body>
