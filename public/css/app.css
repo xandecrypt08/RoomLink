@@ -1,0 +1,35 @@
+:root{
+    --primary:#486D87;
+    --secondary:#789DB7;
+    --accent:#FFB838;
+    --soft:#FEE5A5;
+    --background:#F7F6EE;
+    --white:#FFFFFF;
+    --text:#243746;
+    --radius:18px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Poppins",sans-serif;
+}
+
+body{
+    background:var(--background);
+    color:var(--text);
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+input, button{
+    font-family:inherit;
+}
+
+.page-body{
+    padding:30px;
+}
