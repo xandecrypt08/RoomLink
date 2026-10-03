@@ -6,61 +6,58 @@
 
 <div class="login-page">
 
-    {{-- Decorative background elements --}}
-    <div class="login-decoration decoration-one"></div>
-    <div class="login-decoration decoration-two"></div>
+    <div class="login-background">
+        <div class="login-circle circle-one"></div>
+        <div class="login-circle circle-two"></div>
+        <div class="login-grid"></div>
+    </div>
 
     <div class="login-card">
 
-        {{-- Branding --}}
+        {{-- Brand --}}
         <div class="login-brand">
 
             <div class="brand-mark">
-                RL
+                <span>R</span>
+                <span>L</span>
             </div>
 
-            <h1>RoomLink</h1>
-
-            <p class="brand-tagline">
-                Smart Spaces. Seamless Classes.
-            </p>
+            <div>
+                <h1>RoomLink</h1>
+                <p>Smart Spaces. Seamless Classes.</p>
+            </div>
 
         </div>
 
-
-        {{-- Login heading --}}
+        {{-- Heading --}}
         <div class="login-heading">
+            <span class="login-eyebrow">ROOMLINK PORTAL</span>
 
-            <h2>Welcome back</h2>
+            <h2>Welcome back.</h2>
 
             <p>
-                Sign in to access the RoomLink platform.
+                Sign in to access your classroom management and
+                faculty locator tools.
             </p>
-
         </div>
 
-
-        {{-- Error message --}}
+        {{-- Error Message --}}
         @if ($errors->any())
 
             <div class="login-alert">
 
-                <span class="alert-icon">!</span>
+                <div class="alert-symbol">!</div>
 
                 <div>
                     <strong>Login failed</strong>
-
-                    <p>
-                        {{ $errors->first() }}
-                    </p>
+                    <p>{{ $errors->first() }}</p>
                 </div>
 
             </div>
 
         @endif
 
-
-        {{-- Login form --}}
+        {{-- Login Form --}}
         <form
             method="POST"
             action="{{ route('login.submit') }}"
@@ -68,7 +65,6 @@
         >
 
             @csrf
-
 
             {{-- Email --}}
             <div class="login-field">
@@ -113,7 +109,7 @@
                 <div class="input-wrapper">
 
                     <span class="input-icon">
-                        ●
+                        •
                     </span>
 
                     <input
@@ -129,7 +125,6 @@
                         type="button"
                         class="password-toggle"
                         id="passwordToggle"
-                        aria-label="Show password"
                     >
                         Show
                     </button>
@@ -139,7 +134,7 @@
             </div>
 
 
-            {{-- Remember me --}}
+            {{-- Remember Me --}}
             <div class="login-options">
 
                 <label class="remember-option">
@@ -159,13 +154,20 @@
             </div>
 
 
-            {{-- Login button --}}
+            {{-- Submit --}}
             <button
                 type="submit"
                 class="login-button"
             >
-                <span>Sign In</span>
-                <span class="button-arrow">→</span>
+
+                <span>
+                    Sign In
+                </span>
+
+                <span class="button-arrow">
+                    →
+                </span>
+
             </button>
 
         </form>
@@ -174,8 +176,11 @@
         {{-- Footer --}}
         <div class="login-footer">
 
+            <div class="footer-line"></div>
+
             <p>
-                QR Code-Based Smart Classroom Utilization<br>
+                QR Code-Based Smart Classroom Utilization
+                <br>
                 and Faculty Locator System
             </p>
 
@@ -196,8 +201,12 @@
 
 <script>
 
-    const passwordInput = document.getElementById('password');
-    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInput =
+        document.getElementById('password');
+
+    const passwordToggle =
+        document.getElementById('passwordToggle');
+
 
     if (passwordInput && passwordToggle) {
 
@@ -211,13 +220,6 @@
 
             passwordToggle.textContent =
                 isPassword ? 'Hide' : 'Show';
-
-            passwordToggle.setAttribute(
-                'aria-label',
-                isPassword
-                    ? 'Hide password'
-                    : 'Show password'
-            );
 
         });
 
