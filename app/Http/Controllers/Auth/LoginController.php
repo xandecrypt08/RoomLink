@@ -20,7 +20,7 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors([
@@ -28,19 +28,20 @@ class LoginController extends Controller
                 ]);
         }
 
-        $request->session()->regenerate();
+        $dashboardRoute = Auth::user()->dashboardRoute();
 
-        $user = Auth::user();
+        if ($dashboardRoute === null) {
+            Auth::logout();
 
-        return match ($user->role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'faculty' => redirect()->route('faculty.dashboard'),
-            'student' => redirect()->route('student.dashboard'),
-            default => redirect()->route('login')
+            return redirect()->route('login')
                 ->withErrors([
                     'email' => 'Your account does not have a valid role.',
-                ]),
-        };
+                ]);
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->route($dashboardRoute);
     }
 
     public function logout(Request $request)

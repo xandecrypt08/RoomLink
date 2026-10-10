@@ -6,8 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * The create_rooms_table migration was later edited to include these
+     * columns, so on a fresh database they already exist and must be skipped.
+     */
     public function up(): void
     {
+        if (Schema::hasColumn('rooms', 'floor_id')) {
+            return;
+        }
+
         Schema::table('rooms', function (Blueprint $table) {
             $table->foreignId('floor_id')
                 ->after('id')
@@ -23,7 +31,7 @@ return new class extends Migration
             $table->enum('status', [
                 'available',
                 'occupied',
-                'maintenance'
+                'maintenance',
             ])
                 ->default('available')
                 ->after('capacity');
@@ -43,7 +51,7 @@ return new class extends Migration
                 'room_name',
                 'capacity',
                 'status',
-                'description'
+                'description',
             ]);
         });
     }

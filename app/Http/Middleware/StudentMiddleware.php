@@ -9,12 +9,16 @@ use Symfony\Component\HttpFoundation\Response;
 class StudentMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Only allow users with the student role through.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->user()?->isStudent()) {
+            abort(403);
+        }
+
         return $next($request);
     }
 }
