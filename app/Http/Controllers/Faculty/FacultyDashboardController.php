@@ -26,15 +26,7 @@ class FacultyDashboardController extends Controller
 
         $currentDay = $dayMap[$today];
 
-        /*
-         * The User account and Faculty record currently use
-         * different tables, so we match using employee_student_id
-         * and employee_id.
-         */
-        $facultyRecord = \App\Models\Faculty::where(
-            'employee_id',
-            $faculty->employee_student_id
-        )->first();
+        $facultyRecord = $faculty->faculty;
 
         $todaySchedules = collect();
 
@@ -53,13 +45,13 @@ class FacultyDashboardController extends Controller
 
         $currentTime = now()->format('H:i:s');
 
-        $currentClass = $todaySchedules->first(function ($schedule) use ($currentTime) {
-            return $schedule->start_time <= $currentTime
-                && $schedule->end_time > $currentTime;
+        $currentClass = $todaySchedules->first(function (ClassSession $schedule) use ($currentTime) {
+            return $schedule->start_time->format('H:i:s') <= $currentTime
+                && $schedule->end_time->format('H:i:s') > $currentTime;
         });
 
-        $nextClass = $todaySchedules->first(function ($schedule) use ($currentTime) {
-            return $schedule->start_time > $currentTime;
+        $nextClass = $todaySchedules->first(function (ClassSession $schedule) use ($currentTime) {
+            return $schedule->start_time->format('H:i:s') > $currentTime;
         });
 
         return view('faculty.dashboard', compact(

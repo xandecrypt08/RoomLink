@@ -211,7 +211,7 @@
                                     In Session
                                 </span>
 
-                            @elseif($schedule->start_time > now()->format('H:i:s'))
+                            @elseif($schedule->start_time->format('H:i:s') > now()->format('H:i:s'))
 
                                 <span class="status-badge">
                                     Upcoming
