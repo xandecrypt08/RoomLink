@@ -80,7 +80,7 @@ class FacultyController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'unique:faculties,employee_id,' . $faculty->id,
+                'unique:faculties,employee_id,'.$faculty->id,
             ],
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
@@ -89,7 +89,7 @@ class FacultyController extends Controller
                 'nullable',
                 'email',
                 'max:150',
-                'unique:faculties,email,' . $faculty->id,
+                'unique:faculties,email,'.$faculty->id,
             ],
             'department' => 'nullable|string|max:150',
         ]);
@@ -103,12 +103,12 @@ class FacultyController extends Controller
 
     public function destroy(Faculty $faculty)
     {
-        if ($faculty->classSessions()->exists()) {
+        if ($faculty->classSessions()->exists() || $faculty->roomSessions()->exists()) {
             return redirect()
                 ->route('faculties.index')
                 ->with(
                     'error',
-                    'This faculty member cannot be deleted because they have class sessions.'
+                    'This faculty member cannot be deleted because they have class schedules or session history.'
                 );
         }
 

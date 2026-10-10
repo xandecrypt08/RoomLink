@@ -148,13 +148,6 @@
                 </option>
 
                 <option
-                    value="occupied"
-                    {{ old('status') === 'occupied' ? 'selected' : '' }}
-                >
-                    Occupied
-                </option>
-
-                <option
                     value="maintenance"
                     {{ old('status') === 'maintenance' ? 'selected' : '' }}
                 >
