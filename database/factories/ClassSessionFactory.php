@@ -27,8 +27,8 @@ class ClassSessionFactory extends Factory
             'subject_id' => Subject::factory(),
             'section_id' => Section::factory(),
             'day' => 'M',
-            'start_time' => '08:00',
-            'end_time' => '10:00',
+            'start_time' => '08:00:00',
+            'end_time' => '10:00:00',
             'status' => 'active',
         ];
     }

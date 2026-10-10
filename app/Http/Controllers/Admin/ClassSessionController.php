@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
-use App\Models\Room;
 use App\Models\Faculty;
-use App\Models\Subject;
+use App\Models\Room;
 use App\Models\Section;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 
 class ClassSessionController extends Controller
@@ -35,26 +35,23 @@ class ClassSessionController extends Controller
                             "%{$search}%"
                         );
                     })
-
-                    ->orWhereHas('faculty', function ($facultyQuery) use ($search) {
-                        $facultyQuery
-                            ->where('first_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%");
-                    })
-
-                    ->orWhereHas('subject', function ($subjectQuery) use ($search) {
-                        $subjectQuery
-                            ->where('subject_code', 'like', "%{$search}%")
-                            ->orWhere('subject_name', 'like', "%{$search}%");
-                    })
-
-                    ->orWhereHas('section', function ($sectionQuery) use ($search) {
-                        $sectionQuery->where(
-                            'section_name',
-                            'like',
-                            "%{$search}%"
-                        );
-                    });
+                        ->orWhereHas('faculty', function ($facultyQuery) use ($search) {
+                            $facultyQuery
+                                ->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('subject', function ($subjectQuery) use ($search) {
+                            $subjectQuery
+                                ->where('subject_code', 'like', "%{$search}%")
+                                ->orWhere('subject_name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('section', function ($sectionQuery) use ($search) {
+                            $sectionQuery->where(
+                                'section_name',
+                                'like',
+                                "%{$search}%"
+                            );
+                        });
 
                 });
 
@@ -95,7 +92,6 @@ class ClassSessionController extends Controller
         ));
     }
 
-
     public function create()
     {
         $rooms = Room::with('floor.building.campus')
@@ -120,7 +116,6 @@ class ClassSessionController extends Controller
         ));
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -135,24 +130,14 @@ class ClassSessionController extends Controller
             'description' => 'nullable|string|max:500',
         ]);
 
-        $conflict = false;
+        $validated = $this->normalizeTimes($validated);
 
-        if ($validated['status'] === 'active') {
-            $conflict = $this->hasConflict(
-                $validated['room_id'],
-                $validated['day'],
-                $validated['start_time'],
-                $validated['end_time']
-            );
-        }
+        $conflicts = $this->findConflicts($validated);
 
-        if ($conflict) {
+        if ($conflicts !== []) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'start_time' =>
-                        'This room already has an active class session during the selected time.',
-                ]);
+                ->withErrors($conflicts);
         }
 
         ClassSession::create($validated);
@@ -161,7 +146,6 @@ class ClassSessionController extends Controller
             ->route('schedules.index')
             ->with('success', 'Class session created successfully.');
     }
-
 
     public function show(ClassSession $schedule)
     {
@@ -177,7 +161,6 @@ class ClassSessionController extends Controller
             'schedule'
         ));
     }
-
 
     public function edit(ClassSession $schedule)
     {
@@ -204,7 +187,6 @@ class ClassSessionController extends Controller
         ));
     }
 
-
     public function update(Request $request, ClassSession $schedule)
     {
         $validated = $request->validate([
@@ -219,25 +201,14 @@ class ClassSessionController extends Controller
             'description' => 'nullable|string|max:500',
         ]);
 
-        $conflict = false;
+        $validated = $this->normalizeTimes($validated);
 
-        if ($validated['status'] === 'active') {
-            $conflict = $this->hasConflict(
-                $validated['room_id'],
-                $validated['day'],
-                $validated['start_time'],
-                $validated['end_time'],
-                $schedule->id
-            );
-        }
+        $conflicts = $this->findConflicts($validated, $schedule->id);
 
-        if ($conflict) {
+        if ($conflicts !== []) {
             return back()
                 ->withInput()
-                ->withErrors([
-                    'start_time' =>
-                        'This room already has an active class session during the selected time.',
-                ]);
+                ->withErrors($conflicts);
         }
 
         $schedule->update($validated);
@@ -246,7 +217,6 @@ class ClassSessionController extends Controller
             ->route('schedules.index')
             ->with('success', 'Class session updated successfully.');
     }
-
 
     public function destroy(ClassSession $schedule)
     {
@@ -257,31 +227,84 @@ class ClassSessionController extends Controller
             ->with('success', 'Class session deleted successfully.');
     }
 
+    /**
+     * Store times as H:i:s so they compare correctly with the existing
+     * values in every database.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function normalizeTimes(array $validated): array
+    {
+        $validated['start_time'] .= ':00';
+        $validated['end_time'] .= ':00';
 
-    private function hasConflict(
-        int $roomId,
-        string $day,
-        string $startTime,
-        string $endTime,
-        ?int $ignoreId = null
-    ): bool {
+        return $validated;
+    }
 
-        return ClassSession::where('room_id', $roomId)
-            ->where('day', $day)
+    /**
+     * Find active schedules on the same day whose time overlaps the given
+     * one and that share its room, faculty member or section.
+     *
+     * Inactive schedules never conflict, and a schedule touching another
+     * (one ends at 10:00, the next starts at 10:00) is not an overlap.
+     *
+     * @param  array{room_id: int|string, faculty_id: int|string, section_id: int|string, day: string, start_time: string, end_time: string, status: string}  $schedule
+     * @return array<string, string> Error messages keyed by form field.
+     */
+    private function findConflicts(array $schedule, ?int $ignoreId = null): array
+    {
+        if ($schedule['status'] !== 'active') {
+            return [];
+        }
+
+        $overlapping = ClassSession::with(['room', 'faculty', 'subject', 'section'])
+            ->where('day', $schedule['day'])
             ->where('status', 'active')
-
-            ->when($ignoreId, function ($query) use ($ignoreId) {
-                $query->where('id', '!=', $ignoreId);
+            ->where('start_time', '<', $schedule['end_time'])
+            ->where('end_time', '>', $schedule['start_time'])
+            ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->where(function ($query) use ($schedule) {
+                $query->where('room_id', $schedule['room_id'])
+                    ->orWhere('faculty_id', $schedule['faculty_id'])
+                    ->orWhere('section_id', $schedule['section_id']);
             })
+            ->orderBy('start_time')
+            ->get();
 
-            ->where(function ($query) use ($startTime, $endTime) {
+        $messages = [
+            'room_id' => 'This room is already booked',
+            'faculty_id' => 'This faculty member is already teaching',
+            'section_id' => 'This section already has a class',
+        ];
 
-                $query
-                    ->where('start_time', '<', $endTime)
-                    ->where('end_time', '>', $startTime);
+        $errors = [];
 
-            })
+        foreach ($messages as $field => $message) {
+            $clash = $overlapping->first(fn (ClassSession $existing) => (int) $existing->{$field} === (int) $schedule[$field]);
 
-            ->exists();
+            if ($clash !== null) {
+                $errors[$field] = $message.' at that time: '.$this->describe($clash).'.';
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Short description of a schedule for error messages,
+     * e.g. "IT 101 (BSIT-1A) with Juan Dela Cruz in Room 101, 08:00–10:00".
+     */
+    private function describe(ClassSession $schedule): string
+    {
+        return sprintf(
+            '%s (%s) with %s in %s, %s–%s',
+            $schedule->subject->subject_code,
+            $schedule->section->section_name,
+            $schedule->faculty->full_name,
+            $schedule->room->room_name,
+            $schedule->start_time->format('H:i'),
+            $schedule->end_time->format('H:i'),
+        );
     }
 }
