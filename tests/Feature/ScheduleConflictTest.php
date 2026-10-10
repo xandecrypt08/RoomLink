@@ -19,7 +19,7 @@ class ScheduleConflictTest extends TestCase
     private User $admin;
 
     /**
-     * Monday 08:00–10:00 in Room 101, taught by Juan Dela Cruz to BSIT-1A.
+     * Monday 08:00–10:00 in Room 101, taught by Juan Dela Cruz to TEST-SECTION (CS 999).
      */
     private ClassSession $existing;
 
@@ -33,8 +33,8 @@ class ScheduleConflictTest extends TestCase
         $this->existing = ClassSession::factory()->create([
             'room_id' => Room::factory()->create(['room_name' => 'Room 101']),
             'faculty_id' => Faculty::factory()->create(['first_name' => 'Juan', 'last_name' => 'Dela Cruz']),
-            'subject_id' => Subject::factory()->create(['subject_code' => 'IT 101']),
-            'section_id' => Section::factory()->create(['section_name' => 'BSIT-1A']),
+            'subject_id' => Subject::factory()->create(['subject_code' => 'CS 999']),
+            'section_id' => Section::factory()->create(['section_name' => 'TEST-SECTION']),
             'day' => 'M',
             'start_time' => '08:00:00',
             'end_time' => '10:00:00',
@@ -91,7 +91,7 @@ class ScheduleConflictTest extends TestCase
             ->post(route('schedules.store'), $this->payload(['faculty_id' => $this->existing->faculty_id]));
 
         $response->assertSessionHasErrors([
-            'faculty_id' => 'This faculty member is already teaching at that time: IT 101 (BSIT-1A) with Juan Dela Cruz in Room 101, 08:00–10:00.',
+            'faculty_id' => 'This faculty member is already teaching at that time: CS 999 (TEST-SECTION) with Juan Dela Cruz in Room 101, 08:00–10:00.',
         ]);
     }
 
