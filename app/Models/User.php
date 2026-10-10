@@ -38,7 +38,7 @@ class User extends Authenticatable
     // Display full name anywhere in the system
     public function getFullNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     public function isAdmin(): bool
@@ -54,5 +54,18 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * Name of the dashboard route for this user's role, or null if the role is not recognised.
+     */
+    public function dashboardRoute(): ?string
+    {
+        return match ($this->role) {
+            'admin' => 'admin.dashboard',
+            'faculty' => 'faculty.dashboard',
+            'student' => 'student.dashboard',
+            default => null,
+        };
     }
 }
