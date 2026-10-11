@@ -8,6 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
+        /*
+         * The create_rooms_table migration already defines these
+         * columns, so skip on fresh installs to avoid duplicates.
+         */
+        if (Schema::hasColumn('rooms', 'floor_id')) {
+            return;
+        }
+
         Schema::table('rooms', function (Blueprint $table) {
             $table->foreignId('floor_id')
                 ->after('id')
@@ -23,7 +31,7 @@ return new class extends Migration
             $table->enum('status', [
                 'available',
                 'occupied',
-                'maintenance'
+                'maintenance',
             ])
                 ->default('available')
                 ->after('capacity');
@@ -43,7 +51,7 @@ return new class extends Migration
                 'room_name',
                 'capacity',
                 'status',
-                'description'
+                'description',
             ]);
         });
     }

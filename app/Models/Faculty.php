@@ -25,8 +25,8 @@ class Faculty extends Model
     public function getFullNameAttribute(): string
     {
         return trim(
-            $this->first_name . ' ' .
-            ($this->middle_name ? $this->middle_name . ' ' : '') .
+            $this->first_name.' '.
+            ($this->middle_name ? $this->middle_name.' ' : '').
             $this->last_name
         );
     }
@@ -34,5 +34,25 @@ class Faculty extends Model
     public function classSessions()
     {
         return $this->hasMany(ClassSession::class);
+    }
+
+    /**
+     * The login account of this faculty member. The User account and
+     * Faculty record use different tables, so they are matched using
+     * employee_id and employee_student_id.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'employee_id', 'employee_student_id');
+    }
+
+    public function temporaryClassroomRequests()
+    {
+        return $this->hasMany(TemporaryClassroomRequest::class, 'requester_id');
+    }
+
+    public function incomingTemporaryClassroomRequests()
+    {
+        return $this->hasMany(TemporaryClassroomRequest::class, 'scheduled_faculty_id');
     }
 }

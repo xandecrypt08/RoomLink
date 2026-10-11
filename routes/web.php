@@ -1,19 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\BuildingController;
-use App\Http\Controllers\Admin\FloorController;
-use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\CampusController;
+use App\Http\Controllers\Admin\ClassSessionController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
-use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\FloorController;
+use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SectionController;
-use App\Http\Controllers\Admin\ClassSessionController;
+use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
+use Illuminate\Support\Facades\Route;
 
 /* Authentication */
 Route::get('/', [LoginController::class, 'showLogin'])->name('login');
@@ -59,6 +60,17 @@ Route::prefix('admin')->group(function () {
 Route::prefix('faculty')->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
+            ->name('faculty.temporary-requests.index');
+
+        Route::get('/temporary-requests/create', [TemporaryClassroomRequestController::class, 'create'])
+            ->name('faculty.temporary-requests.create');
+
+        Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
+            ->name('faculty.temporary-requests.store');
+    });
 });
 
 Route::prefix('student')->group(function () {

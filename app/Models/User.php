@@ -38,7 +38,7 @@ class User extends Authenticatable
     // Display full name anywhere in the system
     public function getFullNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     public function isAdmin(): bool
@@ -54,5 +54,14 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * The Faculty record linked to this account through
+     * employee_student_id and employee_id.
+     */
+    public function faculty()
+    {
+        return $this->hasOne(Faculty::class, 'employee_id', 'employee_student_id');
     }
 }
