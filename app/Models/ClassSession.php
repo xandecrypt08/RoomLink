@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -28,6 +29,34 @@ class ClassSession extends Model
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
     ];
+
+    /**
+     * Convert a date to the day code stored in the day column
+     * (M, T, W, Th, F, S, Su).
+     */
+    public static function dayCodeFor(CarbonInterface $date): string
+    {
+        return [
+            'Mon' => 'M',
+            'Tue' => 'T',
+            'Wed' => 'W',
+            'Thu' => 'Th',
+            'Fri' => 'F',
+            'Sat' => 'S',
+            'Sun' => 'Su',
+        ][$date->format('D')];
+    }
+
+    /**
+     * Determine if the session is running at the given moment's time of day.
+     */
+    public function isOngoingAt(CarbonInterface $moment): bool
+    {
+        $time = $moment->format('H:i:s');
+
+        return $this->start_time->format('H:i:s') <= $time
+            && $this->end_time->format('H:i:s') > $time;
+    }
 
     public function roomSessions(): HasMany
     {

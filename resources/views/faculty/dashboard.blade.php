@@ -15,6 +15,12 @@
         </p>
     </div>
 
+    <div class="page-header-actions">
+        <a href="{{ route('faculty.temporary-requests.index') }}" class="btn btn-primary">
+            Temporary Classroom Requests
+        </a>
+    </div>
+
 </div>
 
 {{-- Current Class --}}

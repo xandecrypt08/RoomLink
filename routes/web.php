@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,6 +65,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
+
+    Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
+        ->name('faculty.temporary-requests.index');
+
+    Route::get('/temporary-requests/create', [TemporaryClassroomRequestController::class, 'create'])
+        ->name('faculty.temporary-requests.create');
+
+    Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
+        ->name('faculty.temporary-requests.store');
 });
 
 Route::middleware(['auth', 'student'])->prefix('student')->group(function () {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -63,6 +64,24 @@ class Room extends Model
     public function activeSession(): HasOne
     {
         return $this->hasOne(RoomSession::class)->active();
+    }
+
+    public function temporaryClassroomRequests(): HasMany
+    {
+        return $this->hasMany(TemporaryClassroomRequest::class);
+    }
+
+    /**
+     * Find the active class session scheduled in this room at the given moment.
+     */
+    public function scheduledClassSessionAt(CarbonInterface $moment): ?ClassSession
+    {
+        return $this->classSessions()
+            ->with(['faculty', 'subject', 'section'])
+            ->where('day', ClassSession::dayCodeFor($moment))
+            ->where('status', 'active')
+            ->get()
+            ->first(fn (ClassSession $session) => $session->isOngoingAt($moment));
     }
 
     public function isUnderMaintenance(): bool
