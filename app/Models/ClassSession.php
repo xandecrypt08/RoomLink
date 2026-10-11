@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClassSession extends Model
 {
@@ -55,6 +56,11 @@ class ClassSession extends Model
 
         return $this->start_time->format('H:i:s') <= $time
             && $this->end_time->format('H:i:s') > $time;
+    }
+
+    public function roomSessions(): HasMany
+    {
+        return $this->hasMany(RoomSession::class);
     }
 
     public function room()

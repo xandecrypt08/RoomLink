@@ -39,6 +39,15 @@ class TemporaryClassroomRequestTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_faculty_account_without_a_faculty_record_is_forbidden(): void
+    {
+        $unlinkedFacultyUser = User::factory()->faculty()->create();
+
+        $this->actingAs($unlinkedFacultyUser)
+            ->get(route('faculty.temporary-requests.create'))
+            ->assertForbidden();
+    }
+
     public function test_scanning_a_room_shows_the_faculty_scheduled_in_it(): void
     {
         [$requesterUser] = $this->createFacultyMember();
@@ -313,11 +322,8 @@ class TemporaryClassroomRequestTest extends TestCase
      */
     private function createFacultyMember(): array
     {
-        $faculty = Faculty::factory()->create();
-
-        $user = User::factory()->faculty()->create([
-            'employee_student_id' => $faculty->employee_id,
-        ]);
+        $user = User::factory()->faculty()->create();
+        $faculty = Faculty::factory()->for($user)->create();
 
         return [$user, $faculty];
     }

@@ -20,7 +20,7 @@ class BuildingFactory extends Factory
     {
         return [
             'campus_id' => Campus::factory(),
-            'building_name' => fake()->lastName().' Building',
+            'building_name' => fake()->words(2, true).' Building',
             'building_code' => fake()->unique()->bothify('BLD-###'),
             'number_of_floors' => 3,
         ];

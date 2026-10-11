@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Room;
-use App\Models\Floor;
 use App\Models\Facility;
+use App\Models\Floor;
+use App\Models\Room;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -67,7 +67,7 @@ class RoomController extends Controller
             'floor_id' => 'required|exists:floors,id',
             'room_name' => 'required|string|max:100',
             'capacity' => 'nullable|integer|min:1',
-            'status' => 'required|in:available,occupied,maintenance',
+            'status' => 'required|in:available,maintenance',
             'description' => 'nullable|string|max:500',
             'facilities' => 'nullable|array',
             'facilities.*' => 'exists:facilities,id',
@@ -125,7 +125,7 @@ class RoomController extends Controller
             'floor_id' => 'required|exists:floors,id',
             'room_name' => 'required|string|max:100',
             'capacity' => 'nullable|integer|min:1',
-            'status' => 'required|in:available,occupied,maintenance',
+            'status' => 'required|in:available,maintenance',
             'description' => 'nullable|string|max:500',
             'facilities' => 'nullable|array',
             'facilities.*' => 'exists:facilities,id',
@@ -135,7 +135,7 @@ class RoomController extends Controller
             'floor_id' => $validated['floor_id'],
             'room_name' => $validated['room_name'],
             'capacity' => $validated['capacity'] ?? null,
-            'status' => $validated['status'],
+            'status' => $this->resolveStatus($room, $validated['status']),
             'description' => $validated['description'] ?? null,
         ]);
 
@@ -148,12 +148,12 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
-        if ($room->classSessions()->exists()) {
+        if ($room->classSessions()->exists() || $room->roomSessions()->exists()) {
             return redirect()
                 ->route('rooms.index')
                 ->with(
                     'error',
-                    'This room cannot be deleted because it has class sessions.'
+                    'This room cannot be deleted because it has class schedules or session history.'
                 );
         }
 
@@ -190,5 +190,19 @@ class RoomController extends Controller
             'room',
             'qrData'
         ));
+    }
+
+    /**
+     * Occupied is set by starting and ending sessions, not by the admin form.
+     * An admin can put a room under maintenance at any time; otherwise a room
+     * with a running session stays occupied.
+     */
+    private function resolveStatus(Room $room, string $requestedStatus): string
+    {
+        if ($requestedStatus === 'maintenance') {
+            return 'maintenance';
+        }
+
+        return $room->activeSession()->exists() ? 'occupied' : 'available';
     }
 }

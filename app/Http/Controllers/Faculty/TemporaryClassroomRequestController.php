@@ -110,7 +110,7 @@ class TemporaryClassroomRequestController extends Controller
 
         $room = Room::findOrFail($validated['room_id']);
 
-        if ($room->status === 'maintenance') {
+        if ($room->isUnderMaintenance()) {
             return back()
                 ->withInput()
                 ->withErrors([
@@ -166,14 +166,14 @@ class TemporaryClassroomRequestController extends Controller
      */
     private function currentFaculty(Request $request): Faculty
     {
-        $user = $request->user();
+        $faculty = $request->user()->faculty;
 
         abort_unless(
-            $user->isFaculty() && $user->faculty,
+            $faculty,
             403,
-            'Only faculty members with a faculty record can request classrooms.'
+            'Your account is not linked to a faculty record.'
         );
 
-        return $user->faculty;
+        return $faculty;
     }
 }

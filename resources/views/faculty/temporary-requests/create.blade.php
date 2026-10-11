@@ -158,7 +158,7 @@
 
     {{-- Step 2: Submit Request --}}
 
-    @if ($room->status === 'maintenance')
+    @if ($room->isUnderMaintenance())
 
         <div class="alert alert-error">
             This room is under maintenance and cannot be requested.

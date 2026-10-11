@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * The create_rooms_table migration was later edited to include these
+     * columns, so on a fresh database they already exist and must be skipped.
+     */
     public function up(): void
     {
-        /*
-         * The create_rooms_table migration already defines these
-         * columns, so skip on fresh installs to avoid duplicates.
-         */
         if (Schema::hasColumn('rooms', 'floor_id')) {
             return;
         }

@@ -162,16 +162,9 @@
 
                 <option
                     value="available"
-                    {{ old('status', $room->status) === 'available' ? 'selected' : '' }}
+                    {{ old('status', $room->status) !== 'maintenance' ? 'selected' : '' }}
                 >
                     Available
-                </option>
-
-                <option
-                    value="occupied"
-                    {{ old('status', $room->status) === 'occupied' ? 'selected' : '' }}
-                >
-                    Occupied
                 </option>
 
                 <option
@@ -182,6 +175,16 @@
                 </option>
 
             </select>
+
+            @if($room->status === 'occupied')
+                <div class="form-note">
+                    A class is in session in this room, so it shows as Occupied until the session ends.
+                </div>
+            @endif
+
+            @error('status')
+                <span class="form-error">{{ $message }}</span>
+            @enderror
 
         </div>
 

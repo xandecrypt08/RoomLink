@@ -5,6 +5,8 @@ namespace App\Models;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Room extends Model
@@ -48,7 +50,23 @@ class Room extends Model
         return $this->hasMany(ClassSession::class);
     }
 
-    public function temporaryClassroomRequests()
+    /**
+     * Every actual use of this room (the session log).
+     */
+    public function roomSessions(): HasMany
+    {
+        return $this->hasMany(RoomSession::class);
+    }
+
+    /**
+     * The session currently running in this room, if any.
+     */
+    public function activeSession(): HasOne
+    {
+        return $this->hasOne(RoomSession::class)->active();
+    }
+
+    public function temporaryClassroomRequests(): HasMany
     {
         return $this->hasMany(TemporaryClassroomRequest::class);
     }
@@ -64,5 +82,10 @@ class Room extends Model
             ->where('status', 'active')
             ->get()
             ->first(fn (ClassSession $session) => $session->isOngoingAt($moment));
+    }
+
+    public function isUnderMaintenance(): bool
+    {
+        return $this->status === 'maintenance';
     }
 }

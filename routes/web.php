@@ -17,12 +17,17 @@ use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /* Authentication */
-Route::get('/', [LoginController::class, 'showLogin'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::middleware('guest')->group(function () {
+    Route::get('/', [LoginController::class, 'showLogin'])->name('login');
+    Route::post('/login', [LoginController::class, 'login'])->name('login.submit');
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
 /* Administrator */
-Route::prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
@@ -57,23 +62,21 @@ Route::prefix('admin')->group(function () {
 
 });
 
-Route::prefix('faculty')->group(function () {
+Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
 
-    Route::middleware('auth')->group(function () {
-        Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
-            ->name('faculty.temporary-requests.index');
+    Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
+        ->name('faculty.temporary-requests.index');
 
-        Route::get('/temporary-requests/create', [TemporaryClassroomRequestController::class, 'create'])
-            ->name('faculty.temporary-requests.create');
+    Route::get('/temporary-requests/create', [TemporaryClassroomRequestController::class, 'create'])
+        ->name('faculty.temporary-requests.create');
 
-        Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
-            ->name('faculty.temporary-requests.store');
-    });
+    Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
+        ->name('faculty.temporary-requests.store');
 });
 
-Route::prefix('student')->group(function () {
+Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])
         ->name('student.dashboard');
 });

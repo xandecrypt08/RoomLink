@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -41,6 +42,14 @@ class User extends Authenticatable
         return trim($this->first_name.' '.$this->last_name);
     }
 
+    /**
+     * The faculty record (schedules, department) for a faculty account.
+     */
+    public function faculty(): HasOne
+    {
+        return $this->hasOne(Faculty::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -57,11 +66,15 @@ class User extends Authenticatable
     }
 
     /**
-     * The Faculty record linked to this account through
-     * employee_student_id and employee_id.
+     * Name of the dashboard route for this user's role, or null if the role is not recognised.
      */
-    public function faculty()
+    public function dashboardRoute(): ?string
     {
-        return $this->hasOne(Faculty::class, 'employee_id', 'employee_student_id');
+        return match ($this->role) {
+            'admin' => 'admin.dashboard',
+            'faculty' => 'faculty.dashboard',
+            'student' => 'student.dashboard',
+            default => null,
+        };
     }
 }
