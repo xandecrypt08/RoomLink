@@ -30,6 +30,11 @@ class FacultyDashboardController extends Controller
 
         $todaySchedules = collect();
 
+        $activeSession = $facultyRecord?->roomSessions()
+            ->active()
+            ->with(['room.floor.building', 'classSession.subject', 'classSession.section'])
+            ->first();
+
         if ($facultyRecord) {
             $todaySchedules = ClassSession::with([
                 'room.floor.building.campus',
@@ -59,7 +64,8 @@ class FacultyDashboardController extends Controller
             'facultyRecord',
             'todaySchedules',
             'currentClass',
-            'nextClass'
+            'nextClass',
+            'activeSession'
         ));
     }
 }
