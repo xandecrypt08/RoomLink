@@ -41,7 +41,22 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route($dashboardRoute);
+        return redirect($this->intendedUrlFor(Auth::user()->role) ?? route($dashboardRoute));
+    }
+
+    /**
+     * The page the user tried to open before logging in (such as a scanned
+     * room QR code), if it belongs to their own role's area.
+     */
+    private function intendedUrlFor(string $role): ?string
+    {
+        $intendedUrl = session()->pull('url.intended');
+
+        if (! is_string($intendedUrl) || ! str_starts_with($intendedUrl, url($role).'/')) {
+            return null;
+        }
+
+        return $intendedUrl;
     }
 
     public function logout(Request $request)
