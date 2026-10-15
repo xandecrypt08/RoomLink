@@ -56,7 +56,7 @@
                     @foreach ($rooms as $room)
                         <option
                             value="{{ $room->id }}"
-                            {{ old('room_id') == $room->id ? 'selected' : '' }}
+                            {{ old('room_id', request('room_id')) == $room->id ? 'selected' : '' }}
                         >
                             {{ $room->room_name }}
                             —

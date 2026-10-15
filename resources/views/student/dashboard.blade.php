@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Student Dashboard')
+@section('title', 'Classrooms')
 
 @section('content')
 
@@ -8,11 +8,12 @@
 
     <div>
 
-        <h1>Student Dashboard</h1>
+        <span class="page-eyebrow">STUDENT PORTAL</span>
+
+        <h1>Classrooms</h1>
 
         <p>
-            Welcome back,
-            {{ $student->full_name }}.
+            Welcome back, {{ $student->full_name }}. See which classrooms are free right now.
         </p>
 
     </div>
@@ -22,73 +23,42 @@
 
 {{-- Room Summary --}}
 
-<div class="dashboard-grid">
+<div class="dashboard-stats">
 
-    <div class="dashboard-card">
-
-        <div class="card-label">
-            TOTAL ROOMS
+    <div class="dashboard-stat-card">
+        <div class="stat-icon campus-icon">▣</div>
+        <div class="stat-content">
+            <span>Total Rooms</span>
+            <strong>{{ $totalRooms }}</strong>
+            <small>Registered classrooms</small>
         </div>
-
-        <h2>
-            {{ $totalRooms }}
-        </h2>
-
-        <p>
-            Classrooms registered in RoomLink.
-        </p>
-
     </div>
 
-
-    <div class="dashboard-card">
-
-        <div class="card-label">
-            AVAILABLE
+    <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-available">●</div>
+        <div class="stat-content">
+            <span>Available</span>
+            <strong>{{ $availableRooms }}</strong>
+            <small>Free to use now</small>
         </div>
-
-        <h2>
-            {{ $availableRooms }}
-        </h2>
-
-        <p>
-            Rooms currently available.
-        </p>
-
     </div>
 
-
-    <div class="dashboard-card">
-
-        <div class="card-label">
-            OCCUPIED
+    <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-occupied">●</div>
+        <div class="stat-content">
+            <span>Occupied</span>
+            <strong>{{ $occupiedRooms }}</strong>
+            <small>Class in session</small>
         </div>
-
-        <h2>
-            {{ $occupiedRooms }}
-        </h2>
-
-        <p>
-            Rooms currently occupied.
-        </p>
-
     </div>
 
-
-    <div class="dashboard-card">
-
-        <div class="card-label">
-            MAINTENANCE
+    <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-maintenance">●</div>
+        <div class="stat-content">
+            <span>Maintenance</span>
+            <strong>{{ $maintenanceRooms }}</strong>
+            <small>Unavailable</small>
         </div>
-
-        <h2>
-            {{ $maintenanceRooms }}
-        </h2>
-
-        <p>
-            Rooms unavailable due to maintenance.
-        </p>
-
     </div>
 
 </div>
@@ -98,109 +68,77 @@
 
 <div class="content-card">
 
-    <div class="section-header">
-
+    <div class="table-toolbar">
         <div>
-
             <h2>Find a Classroom</h2>
+            <span class="table-count">
+                {{ $totalRooms }} classroom{{ $totalRooms != 1 ? 's' : '' }}
+            </span>
+        </div>
+    </div>
 
-            <p>
-                Check classroom availability and location.
-            </p>
+    @if($rooms->isEmpty())
+
+        <div class="empty-state">
+            <div class="empty-state-icon">▣</div>
+            <h3>No classrooms yet</h3>
+            <p>Classrooms appear here once the administrator adds them.</p>
+        </div>
+
+    @else
+
+        <div class="table-responsive">
+
+            <table class="roomlink-table">
+
+                <thead>
+                    <tr>
+                        <th>Room</th>
+                        <th>Location</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach($rooms as $room)
+
+                        <tr>
+
+                            <td>
+                                <div class="table-primary">{{ $room->room_name }}</div>
+                            </td>
+
+                            <td>
+                                <div class="table-primary">{{ $room->floor?->building?->building_name }}</div>
+                                <div class="table-secondary">
+                                    Floor {{ $room->floor?->floor_number }}
+                                    · {{ $room->floor?->building?->campus?->campus_name }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {{ $room->capacity ? $room->capacity.' seats' : '—' }}
+                            </td>
+
+                            <td>
+                                <span class="room-status status-{{ $room->status }}">
+                                    {{ ucfirst($room->status) }}
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
 
         </div>
 
-    </div>
-
-
-    <div class="table-container">
-
-        <table class="data-table">
-
-            <thead>
-
-                <tr>
-                    <th>Room</th>
-                    <th>Campus</th>
-                    <th>Building</th>
-                    <th>Floor</th>
-                    <th>Capacity</th>
-                    <th>Status</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @forelse($rooms as $room)
-
-                    <tr>
-
-                        <td>
-                            <strong>
-                                {{ $room->room_name }}
-                            </strong>
-                        </td>
-
-                        <td>
-                            {{ $room->floor->building->campus->campus_name }}
-                        </td>
-
-                        <td>
-                            {{ $room->floor->building->building_name }}
-                        </td>
-
-                        <td>
-                            Floor {{ $room->floor->floor_number }}
-                        </td>
-
-                        <td>
-                            {{ $room->capacity }}
-                        </td>
-
-                        <td>
-
-                            @if($room->status === 'available')
-
-                                <span class="status-badge status-active">
-                                    Available
-                                </span>
-
-                            @elseif($room->status === 'occupied')
-
-                                <span class="status-badge">
-                                    Occupied
-                                </span>
-
-                            @else
-
-                                <span class="status-badge">
-                                    Maintenance
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="6" class="empty-state">
-                            No classrooms available.
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
+    @endif
 
 </div>
 

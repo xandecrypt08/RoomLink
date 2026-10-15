@@ -1,18 +1,23 @@
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
-    <div class="sidebar-logo">
-        <strong>RoomLink</strong>
+    <div class="brand">
+        <h2>RoomLink</h2>
         <span>Student Portal</span>
     </div>
 
-    <nav class="sidebar-nav">
+
+    <nav class="sidebar-menu">
+
+        <div class="sidebar-section-label">
+            OVERVIEW
+        </div>
 
         <a
             href="{{ route('student.dashboard') }}"
-            class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
+            class="{{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
-            <span>Dashboard</span>
+            <span class="menu-icon">⌂</span>
+            <span>Classrooms</span>
         </a>
 
         <a
@@ -25,14 +30,14 @@
 
     </nav>
 
-    <div class="sidebar-footer">
 
-        <form action="{{ route('logout') }}" method="POST">
+    <div class="sidebar-bottom">
 
+        <form method="POST" action="{{ route('logout') }}">
             @csrf
 
-            <button type="submit" class="sidebar-link logout-link">
-                <span class="sidebar-icon">●</span>
+            <button type="submit" class="sidebar-logout">
+                <span class="menu-icon">↪</span>
                 <span>Logout</span>
             </button>
 

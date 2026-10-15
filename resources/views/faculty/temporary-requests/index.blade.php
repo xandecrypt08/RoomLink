@@ -151,7 +151,9 @@
     @else
 
         <div class="empty-state">
-            No one has requested your classrooms.
+            <div class="empty-state-icon">✉</div>
+            <h3>No incoming requests</h3>
+            <p>No one has requested your classrooms.</p>
         </div>
 
     @endif
@@ -258,7 +260,9 @@
     @else
 
         <div class="empty-state">
-            You have not requested any temporary classrooms yet.
+            <div class="empty-state-icon">▣</div>
+            <h3>No requests yet</h3>
+            <p>You have not requested any temporary classrooms yet.</p>
         </div>
 
     @endif

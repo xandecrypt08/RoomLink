@@ -243,13 +243,22 @@
                     CLASS SCHEDULE
                 </span>
 
-                <h2>Sessions</h2>
+                <h2 class="title-with-badge">
+                    Sessions
+
+                    <span class="count-badge">
+                        {{ $room->classSessions->count() }}
+                    </span>
+                </h2>
 
             </div>
 
-            <span class="count-badge">
-                {{ $room->classSessions->count() }}
-            </span>
+            <a
+                href="{{ route('schedules.create', ['room_id' => $room->id]) }}"
+                class="btn-primary"
+            >
+                + Add Schedule Slot
+            </a>
 
         </div>
 
@@ -269,7 +278,7 @@
                         <div class="floor-info">
 
                             <strong>
-                                {{ $session->day }}
+                                {{ $session->day_name }}
                             </strong>
 
                             <span>
@@ -289,6 +298,13 @@
                             </span>
 
                         </div>
+
+                        <a
+                            href="{{ route('schedules.edit', $session) }}"
+                            class="btn-secondary"
+                        >
+                            Edit
+                        </a>
 
                     </div>
 

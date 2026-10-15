@@ -17,11 +17,6 @@
         </p>
     </div>
 
-    <div class="dashboard-date">
-        <span>Today</span>
-        <strong>{{ now()->format('F d, Y') }}</strong>
-    </div>
-
 </div>
 
 
@@ -209,50 +204,51 @@
     </div>
 
 
-    {{-- QUICK OVERVIEW --}}
+    {{-- HAPPENING NOW --}}
     <div class="dashboard-panel">
 
         <div class="panel-header">
 
             <div>
-                <span class="panel-eyebrow">ROOM OPERATIONS</span>
-                <h2>Availability Overview</h2>
+                <span class="panel-eyebrow">LIVE</span>
+                <h2>Happening Now</h2>
             </div>
+
+            <span class="count-badge">{{ $activeSessions->count() }}</span>
 
         </div>
 
+        @forelse($activeSessions as $activeSession)
 
-        <div class="availability-content">
+            <div class="live-session-row">
 
-            <div class="availability-number">
-                <strong>{{ $availableRooms }}</strong>
-                <span>available rooms</span>
-            </div>
+                <span class="status-dot occupied"></span>
 
-
-            <div class="availability-details">
-
-                <div class="availability-item">
-                    <span class="status-dot available"></span>
-                    <span>Available</span>
-                    <strong>{{ $availableRooms }}</strong>
+                <div>
+                    <strong>{{ $activeSession->room->room_name }}</strong>
+                    <span>
+                        {{ $activeSession->faculty->full_name }}
+                        @if($activeSession->classSession)
+                            · {{ $activeSession->classSession->subject->subject_code }}
+                            · {{ $activeSession->classSession->section->section_name }}
+                        @else
+                            · Temporary session
+                        @endif
+                    </span>
                 </div>
 
-                <div class="availability-item">
-                    <span class="status-dot occupied"></span>
-                    <span>Occupied</span>
-                    <strong>{{ $occupiedRooms }}</strong>
-                </div>
-
-                <div class="availability-item">
-                    <span class="status-dot maintenance"></span>
-                    <span>Maintenance</span>
-                    <strong>{{ $maintenanceRooms }}</strong>
-                </div>
+                <small>since {{ $activeSession->started_at->format('g:i A') }}</small>
 
             </div>
 
-        </div>
+        @empty
+
+            <div class="small-empty-state">
+                <strong>No classes in session</strong>
+                <span>Rooms appear here when a faculty member starts a class.</span>
+            </div>
+
+        @endforelse
 
     </div>
 
@@ -267,7 +263,7 @@
 
         <div>
             <span class="panel-eyebrow">SCHEDULES</span>
-            <h2>Recent Class Sessions</h2>
+            <h2>Class Schedules</h2>
         </div>
 
         <a href="{{ route('schedules.index') }}" class="panel-link">
@@ -323,7 +319,7 @@
                     <div class="session-time">
 
                         <strong>
-                            {{ ucfirst($session->day) }}
+                            {{ $session->day_name }}
                         </strong>
 
                         <span>
