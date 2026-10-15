@@ -326,13 +326,8 @@
                                 @endif
 
                                 @if($temporaryRequest->isApproved() && ! $temporaryRequest->isExpiredAt($now))
-                                    <div>
-                                        <a
-                                            href="{{ route('faculty.sessions.scan', $temporaryRequest->room->qr_code) }}"
-                                            class="table-action action-view"
-                                        >
-                                            Start Session
-                                        </a>
+                                    <div class="table-secondary">
+                                        Scan the QR code in {{ $temporaryRequest->room->room_name }} to start.
                                     </div>
                                 @endif
                             </td>

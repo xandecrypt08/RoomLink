@@ -15,12 +15,20 @@ class StartRoomSession
     /**
      * Start a session in the room and mark the room as occupied.
      *
+     * $startedVia records how the session was started (RoomSession::STARTED_VIA_*);
+     * a manual start keeps the faculty member's reason for not scanning.
+     *
      * @throws RoomUnavailableException when the room is under maintenance or already in use.
      */
-    public function handle(Room $room, Faculty $faculty, ?ClassSession $classSession = null): RoomSession
-    {
+    public function handle(
+        Room $room,
+        Faculty $faculty,
+        ?ClassSession $classSession = null,
+        string $startedVia = RoomSession::STARTED_VIA_QR,
+        ?string $manualStartReason = null,
+    ): RoomSession {
         try {
-            return DB::transaction(function () use ($room, $faculty, $classSession): RoomSession {
+            return DB::transaction(function () use ($room, $faculty, $classSession, $startedVia, $manualStartReason): RoomSession {
                 $room = Room::query()->lockForUpdate()->findOrFail($room->id);
 
                 if ($room->isUnderMaintenance()) {
@@ -35,6 +43,8 @@ class StartRoomSession
                     'faculty_id' => $faculty->id,
                     'class_session_id' => $classSession?->id,
                     'status' => RoomSession::STATUS_ACTIVE,
+                    'started_via' => $startedVia,
+                    'manual_start_reason' => $startedVia === RoomSession::STARTED_VIA_MANUAL ? $manualStartReason : null,
                     'started_at' => now(),
                 ]);
 

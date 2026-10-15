@@ -225,7 +225,15 @@
                 <span class="status-dot occupied"></span>
 
                 <div>
-                    <strong>{{ $activeSession->room->room_name }}</strong>
+                    <strong>
+                        {{ $activeSession->room->room_name }}
+
+                        @if($activeSession->wasStartedManually())
+                            <span class="manual-start-tag" title="Started without scanning: {{ $activeSession->manual_start_reason }}">
+                                Manual
+                            </span>
+                        @endif
+                    </strong>
                     <span>
                         {{ $activeSession->faculty->full_name }}
                         @if($activeSession->classSession)
@@ -235,6 +243,12 @@
                             · Temporary session
                         @endif
                     </span>
+
+                    @if($activeSession->wasStartedManually())
+                        <span class="manual-start-reason">
+                            Not scanned: {{ $activeSession->manual_start_reason }}
+                        </span>
+                    @endif
                 </div>
 
                 <small>since {{ $activeSession->started_at->format('g:i A') }}</small>

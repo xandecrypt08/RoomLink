@@ -229,14 +229,15 @@ class TemporaryClassroomRequestDecisionTest extends TestCase
         $this->assertSame('occupied', $this->room->fresh()->status);
     }
 
-    public function test_requester_sees_a_start_session_link_once_approved(): void
+    public function test_requester_is_told_to_scan_the_room_once_approved(): void
     {
         $this->pendingRequest(['status' => 'approved']);
 
         $this->actingAs($this->requesterUser)
             ->get(route('faculty.temporary-requests.index'))
             ->assertOk()
-            ->assertSee(route('faculty.sessions.scan', $this->room->qr_code));
+            ->assertSee('Scan the QR code in ACAD 301 to start.')
+            ->assertDontSee($this->room->qr_code);
     }
 
     public function test_pending_request_does_not_let_the_requester_start_a_session(): void

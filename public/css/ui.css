@@ -360,6 +360,65 @@ textarea {
     margin: 16px 0 0;
 }
 
+.alert-warning {
+    padding: 12px 16px;
+    border: 1px solid #f3dfa8;
+    border-radius: 8px;
+    background: var(--warn-soft);
+    color: var(--warn);
+}
+
+.manual-start-form .form-group {
+    margin-top: 18px;
+}
+
+.scan-hint {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.scan-hint-icon {
+    flex: none;
+    color: var(--brand);
+    font-size: 18px;
+    line-height: 1.2;
+}
+
+.scan-hint a {
+    color: var(--brand);
+    font-weight: 600;
+}
+
+.live-session-row .manual-start-reason {
+    display: block;
+    margin-top: 2px;
+    color: var(--warn);
+    font-size: 11px;
+}
+
+/* Marks a session that was started without scanning the room's QR code. */
+.manual-start-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--warn-soft);
+    color: var(--warn);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
 .details-grid {
     align-items: start;
     margin-bottom: 20px;

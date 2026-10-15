@@ -156,10 +156,13 @@
             </div>
 
             @if(! $activeSession)
-                <div class="panel-actions">
-                    <a href="{{ route('faculty.sessions.scan', $currentClass->room->qr_code) }}" class="btn btn-primary">
-                        Start This Class
-                    </a>
+                <div class="scan-hint">
+                    <span class="scan-hint-icon" aria-hidden="true">▣</span>
+                    <span>
+                        To start this class, scan the QR code posted in
+                        <strong>{{ $currentClass->room->room_name }}</strong> with your phone's camera.
+                        <a href="{{ route('faculty.rooms.index') }}">Can't scan it?</a>
+                    </span>
                 </div>
             @endif
 

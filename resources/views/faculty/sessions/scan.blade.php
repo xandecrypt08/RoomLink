@@ -4,11 +4,15 @@
 
 @section('content')
 
+@php
+    $manual = $manual ?? false;
+@endphp
+
 <div class="page-header">
 
     <div>
 
-        <span class="page-eyebrow">CLASSROOM SESSION</span>
+        <span class="page-eyebrow">{{ $manual ? 'START WITHOUT SCANNING' : 'CLASSROOM SESSION' }}</span>
 
         <h1>{{ $room?->room_name ?? 'Unknown Room' }}</h1>
 
@@ -119,12 +123,58 @@
                 <a href="{{ route('faculty.rooms.index') }}" class="btn btn-primary">
                     Find the Room Manually
                 </a>
+            @elseif($manual)
+                {{-- Requests need the room's QR code, which proves you are there. --}}
+                <span class="form-help">
+                    To request this room, scan the QR code posted in it.
+                </span>
             @elseif(! $room->isUnderMaintenance())
                 <a href="{{ route('faculty.temporary-requests.create', ['code' => $room->qr_code]) }}" class="btn btn-secondary">
                     Request This Room Temporarily
                 </a>
             @endif
         </div>
+
+    @elseif($manual)
+
+        <form
+            action="{{ route('faculty.rooms.start.store', $room) }}"
+            method="POST"
+            class="manual-start-form"
+        >
+            @csrf
+
+            <div class="alert alert-warning verify-message">
+                You are starting this class without scanning the room's QR code.
+                Tell us why. Your administrator will see this session marked as a manual start.
+            </div>
+
+            <div class="form-group">
+                <label for="manual_start_reason">
+                    Why can't you scan the QR code? <span class="required">*</span>
+                </label>
+
+                <input
+                    type="text"
+                    id="manual_start_reason"
+                    name="manual_start_reason"
+                    value="{{ old('manual_start_reason') }}"
+                    maxlength="255"
+                    placeholder="e.g. The QR code in the room is torn"
+                    required
+                >
+
+                @error('manual_start_reason')
+                    <span class="form-error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">
+                    Start Without Scanning
+                </button>
+            </div>
+        </form>
 
     @else
 
