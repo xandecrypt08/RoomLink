@@ -175,11 +175,17 @@ class RoomController extends Controller
             'retiredQrCodes' => fn ($query) => $query->latest('retired_at'),
         ]);
 
-        $qrData = route('faculty.sessions.scan', $room->qr_code);
+        $qrData = $room->scanUrl();
+
+        // localhost and Laragon's .test names only work on this computer.
+        $qrHost = (string) parse_url($qrData, PHP_URL_HOST);
+        $qrOnlyWorksOnThisComputer = in_array($qrHost, ['localhost', '127.0.0.1'], true)
+            || str_ends_with($qrHost, '.test');
 
         return view('admin.rooms.qr', compact(
             'room',
-            'qrData'
+            'qrData',
+            'qrOnlyWorksOnThisComputer'
         ));
     }
 
@@ -189,7 +195,7 @@ class RoomController extends Controller
             'floor.building.campus',
         ]);
 
-        $qrData = route('faculty.sessions.scan', $room->qr_code);
+        $qrData = $room->scanUrl();
 
         return view('admin.rooms.qr-print', compact(
             'room',
