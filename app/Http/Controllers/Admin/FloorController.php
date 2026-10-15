@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Floor;
 use App\Models\Building;
+use App\Models\Floor;
 use Illuminate\Http\Request;
 
 class FloorController extends Controller
@@ -49,7 +49,7 @@ class FloorController extends Controller
     {
         $validated = $request->validate([
             'building_id' => 'required|exists:buildings,id',
-            'floor_number' => 'required|string|max:50',
+            'floor_number' => 'required|integer|min:0|max:255',
             'description' => 'nullable|string|max:500',
         ]);
 
@@ -86,7 +86,7 @@ class FloorController extends Controller
     {
         $validated = $request->validate([
             'building_id' => 'required|exists:buildings,id',
-            'floor_number' => 'required|string|max:50',
+            'floor_number' => 'required|integer|min:0|max:255',
             'description' => 'nullable|string|max:500',
         ]);
 

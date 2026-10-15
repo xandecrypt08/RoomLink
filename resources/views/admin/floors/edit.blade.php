@@ -119,11 +119,13 @@
             </label>
 
             <input
-                type="text"
+                type="number"
+                min="0"
+                max="255"
                 id="floor_number"
                 name="floor_number"
                 value="{{ old('floor_number', $floor->floor_number) }}"
-                placeholder="e.g. 1, 2, 3, Ground"
+                placeholder="e.g. 0 for Ground, 1, 2, 3"
                 required
             >
 

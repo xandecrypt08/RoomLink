@@ -48,7 +48,7 @@ class CampusController extends Controller
     {
         $validated = $request->validate([
             'campus_name' => 'required|string|max:255',
-            'campus_code' => 'nullable|string|max:50',
+            'campus_code' => 'nullable|string|max:50|unique:campuses,campus_code',
             'address' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ]);
@@ -85,7 +85,7 @@ class CampusController extends Controller
     {
         $validated = $request->validate([
             'campus_name' => 'required|string|max:255',
-            'campus_code' => 'nullable|string|max:50',
+            'campus_code' => 'nullable|string|max:50|unique:campuses,campus_code,'.$campus->id,
             'address' => 'nullable|string|max:255',
             'description' => 'nullable|string',
         ]);
