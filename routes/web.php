@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
+
+    /* Classroom transfer (RLNK-24) */
+    Route::get('/transfer', [ClassroomTransferController::class, 'create'])
+        ->name('faculty.transfer.create');
+
+    Route::post('/transfer', [ClassroomTransferController::class, 'store'])
+        ->name('faculty.transfer.store');
 });
 
 Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
