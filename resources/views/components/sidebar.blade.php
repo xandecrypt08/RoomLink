@@ -1,4 +1,4 @@
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
     <div class="brand">
         <h2>RoomLink</h2>

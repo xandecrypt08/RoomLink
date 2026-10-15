@@ -49,16 +49,7 @@
             <div class="detail-item">
                 <span class="detail-label">Day</span>
                 <strong>
-                    @switch($schedule->day)
-                        @case('M') Monday @break
-                        @case('T') Tuesday @break
-                        @case('W') Wednesday @break
-                        @case('Th') Thursday @break
-                        @case('F') Friday @break
-                        @case('S') Saturday @break
-                        @case('Su') Sunday @break
-                        @default {{ $schedule->day }}
-                    @endswitch
+                    {{ $schedule->day_name }}
                 </strong>
             </div>
 
@@ -75,10 +66,8 @@
                 <span class="detail-label">Subject</span>
                 <strong>
                     {{ $schedule->subject->subject_code }}
+                    · {{ $schedule->subject->subject_name }}
                 </strong>
-                <span>
-                    {{ $schedule->subject->subject_name }}
-                </span>
             </div>
 
             <div class="detail-item">

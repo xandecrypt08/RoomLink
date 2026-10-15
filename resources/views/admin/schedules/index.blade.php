@@ -172,7 +172,7 @@
 
                                 <div class="table-primary">
 
-                                    {{ $schedule->day }}
+                                    {{ $schedule->day_name }}
 
                                     ·
 

@@ -276,7 +276,7 @@
                         <div class="floor-info">
 
                             <strong>
-                                {{ $session->day }}
+                                {{ $session->day_name }}
                             </strong>
 
                             <span>

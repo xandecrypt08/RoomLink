@@ -82,31 +82,40 @@
                             {{ $campus->buildings()->count() }}
                         </td>
 
-                        <td class="action-buttons">
+                        <td>
+                            <div class="table-actions">
 
-                            <a
-                                href="{{ route('campuses.edit', $campus) }}"
-                                class="btn-small btn-edit"
-                            >
-                                Edit
-                            </a>
-
-                            <form
-                                method="POST"
-                                action="{{ route('campuses.destroy', $campus) }}"
-                                onsubmit="return confirm('Delete this campus?');"
-                            >
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn-small btn-delete"
+                                <a
+                                    href="{{ route('campuses.show', $campus) }}"
+                                    class="action-view"
                                 >
-                                    Delete
-                                </button>
-                            </form>
+                                    View
+                                </a>
 
+                                <a
+                                    href="{{ route('campuses.edit', $campus) }}"
+                                    class="action-edit"
+                                >
+                                    Edit
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ route('campuses.destroy', $campus) }}"
+                                    onsubmit="return confirm('Delete this campus?');"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        type="submit"
+                                        class="action-delete"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
                         </td>
 
                     </tr>

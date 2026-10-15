@@ -7,11 +7,12 @@
 <div class="page-header">
 
     <div>
-        <h1>Faculty Dashboard</h1>
+        <span class="page-eyebrow">FACULTY PORTAL</span>
+
+        <h1>Welcome back, {{ $faculty->first_name }}</h1>
 
         <p>
-            Welcome back,
-            {{ $faculty->full_name }}.
+            Your classes and classroom sessions for {{ now()->format('l, F j') }}.
         </p>
     </div>
 
@@ -21,213 +22,193 @@
         </a>
 
         <a href="{{ route('faculty.temporary-requests.index') }}" class="btn btn-primary">
-            Temporary Classroom Requests
+            Room Requests
         </a>
     </div>
 
 </div>
 
 @if(session('success'))
-    <div class="alert-success">
+    <div class="alert alert-success">
         {{ session('success') }}
     </div>
 @endif
 
 @if(session('error'))
-    <div class="alert-error">
+    <div class="alert alert-error">
         {{ session('error') }}
     </div>
 @endif
 
-{{-- Active Session (RLNK-22) --}}
+@if($facultyRecord === null)
+    <div class="alert alert-error">
+        Your account is not linked to a faculty record yet, so no classes can be shown. Please contact the administrator.
+    </div>
+@endif
+
+
+{{-- Active Session (RLNK-21/22) --}}
 
 @if($activeSession)
 
-<div class="content-card active-session-card">
+    <div class="dashboard-panel active-session-card">
 
-    <div class="section-header">
+        <div class="panel-header">
 
-        <div>
-            <div class="card-label">
-                ACTIVE SESSION
+            <div>
+                <span class="panel-eyebrow">ACTIVE SESSION</span>
+
+                <h2>{{ $activeSession->room->room_name }}</h2>
+
+                <p class="panel-subtitle">
+                    {{ $activeSession->room->floor?->building?->building_name }}
+                    · Floor {{ $activeSession->room->floor?->floor_number }}
+                </p>
             </div>
 
-            <h2>
-                {{ $activeSession->room->room_name }}
-            </h2>
+            <span class="room-status status-occupied">
+                In Session
+            </span>
 
-            <p>
-                {{ $activeSession->room->floor?->building?->building_name }}
-            </p>
         </div>
 
-        <span class="status-badge status-occupied">
-            OCCUPIED
-        </span>
+        <div class="session-facts">
+
+            @if($activeSession->classSession)
+                <div>
+                    <span>Class</span>
+                    <strong>
+                        {{ $activeSession->classSession->subject->subject_code }}
+                        · {{ $activeSession->classSession->section->section_name }}
+                    </strong>
+                </div>
+            @else
+                <div>
+                    <span>Class</span>
+                    <strong>Temporary session</strong>
+                </div>
+            @endif
+
+            <div>
+                <span>Started</span>
+                <strong>
+                    {{ $activeSession->started_at->format('g:i A') }}
+                    ({{ $activeSession->started_at->diffForHumans(null, true) }} ago)
+                </strong>
+            </div>
+
+        </div>
+
+        <form
+            action="{{ route('faculty.sessions.end', $activeSession) }}"
+            method="POST"
+            class="panel-actions"
+            onsubmit="return confirm('End your session in {{ addslashes($activeSession->room->room_name) }}? The room will be released for other classes.');"
+        >
+            @csrf
+
+            <a href="{{ route('faculty.transfer.create') }}" class="btn btn-secondary">
+                Transfer Class
+            </a>
+
+            <button type="submit" class="btn btn-delete">
+                End Session
+            </button>
+        </form>
 
     </div>
-
-    @if($activeSession->classSession)
-
-        <div class="card-detail">
-            Subject:
-            <strong>
-                {{ $activeSession->classSession->subject->subject_code }}
-                -
-                {{ $activeSession->classSession->subject->subject_name }}
-            </strong>
-        </div>
-
-        <div class="card-detail">
-            Section:
-            <strong>
-                {{ $activeSession->classSession->section->section_name }}
-            </strong>
-        </div>
-
-    @endif
-
-    <div class="card-detail">
-        Started:
-        <strong>
-            {{ $activeSession->started_at->format('g:i A') }}
-            ({{ $activeSession->started_at->diffForHumans(null, true) }} ago)
-        </strong>
-    </div>
-
-    <form
-        action="{{ route('faculty.sessions.end', $activeSession) }}"
-        method="POST"
-        class="form-actions"
-        onsubmit="return confirm('End your session in {{ addslashes($activeSession->room->room_name) }}? The room will be released for other classes.');"
-    >
-        @csrf
-
-        <a href="{{ route('faculty.transfer.create') }}" class="btn btn-secondary">
-            Transfer Class
-        </a>
-
-        <button type="submit" class="btn btn-delete">
-            End Session
-        </button>
-    </form>
-
-</div>
 
 @endif
 
-{{-- Current Class --}}
+
+{{-- Current & Next Class --}}
 
 <div class="dashboard-grid">
 
-    <div class="dashboard-card">
+    <div class="dashboard-panel">
 
-        <div class="card-label">
-            CURRENT CLASS
-        </div>
+        <span class="panel-eyebrow">CURRENT CLASS</span>
 
         @if($currentClass)
 
-            <h2>
+            <h2 class="panel-title">
                 {{ $currentClass->subject->subject_code }}
             </h2>
 
-            <p>
-                {{ $currentClass->subject->subject_name }}
-            </p>
+            <p class="panel-subtitle">{{ $currentClass->subject->subject_name }}</p>
 
-            <div class="card-detail">
-                Room:
-                <strong>
-                    {{ $currentClass->room->room_name }}
-                </strong>
+            <div class="session-facts">
+                <div>
+                    <span>Room</span>
+                    <strong>{{ $currentClass->room->room_name }}</strong>
+                </div>
+                <div>
+                    <span>Section</span>
+                    <strong>{{ $currentClass->section->section_name }}</strong>
+                </div>
+                <div>
+                    <span>Time</span>
+                    <strong>
+                        {{ $currentClass->start_time->format('g:i A') }}
+                        – {{ $currentClass->end_time->format('g:i A') }}
+                    </strong>
+                </div>
             </div>
 
-            <div class="card-detail">
-                Section:
-                <strong>
-                    {{ $currentClass->section->section_name }}
-                </strong>
-            </div>
-
-            <div class="card-detail">
-                Time:
-                <strong>
-                    {{ \Carbon\Carbon::parse($currentClass->start_time)->format('g:i A') }}
-                    -
-                    {{ \Carbon\Carbon::parse($currentClass->end_time)->format('g:i A') }}
-                </strong>
-            </div>
-
-            <div class="status-badge status-active">
-                CLASS IN SESSION
-            </div>
+            @if(! $activeSession)
+                <div class="panel-actions">
+                    <a href="{{ route('faculty.sessions.scan', $currentClass->room->qr_code) }}" class="btn btn-primary">
+                        Start This Class
+                    </a>
+                </div>
+            @endif
 
         @else
 
-            <h2>No Active Class</h2>
+            <h2 class="panel-title">No class right now</h2>
 
-            <p>
-                You currently have no class in session.
-            </p>
-
-            <div class="status-badge">
-                AVAILABLE
-            </div>
+            <p class="panel-subtitle">You have no class scheduled at this time.</p>
 
         @endif
 
     </div>
 
 
-    {{-- Next Class --}}
+    <div class="dashboard-panel">
 
-    <div class="dashboard-card">
-
-        <div class="card-label">
-            NEXT CLASS
-        </div>
+        <span class="panel-eyebrow">NEXT CLASS</span>
 
         @if($nextClass)
 
-            <h2>
+            <h2 class="panel-title">
                 {{ $nextClass->subject->subject_code }}
             </h2>
 
-            <p>
-                {{ $nextClass->subject->subject_name }}
-            </p>
+            <p class="panel-subtitle">{{ $nextClass->subject->subject_name }}</p>
 
-            <div class="card-detail">
-                Room:
-                <strong>
-                    {{ $nextClass->room->room_name }}
-                </strong>
-            </div>
-
-            <div class="card-detail">
-                Section:
-                <strong>
-                    {{ $nextClass->section->section_name }}
-                </strong>
-            </div>
-
-            <div class="card-detail">
-                Time:
-                <strong>
-                    {{ \Carbon\Carbon::parse($nextClass->start_time)->format('g:i A') }}
-                    -
-                    {{ \Carbon\Carbon::parse($nextClass->end_time)->format('g:i A') }}
-                </strong>
+            <div class="session-facts">
+                <div>
+                    <span>Room</span>
+                    <strong>{{ $nextClass->room->room_name }}</strong>
+                </div>
+                <div>
+                    <span>Section</span>
+                    <strong>{{ $nextClass->section->section_name }}</strong>
+                </div>
+                <div>
+                    <span>Time</span>
+                    <strong>
+                        {{ $nextClass->start_time->format('g:i A') }}
+                        – {{ $nextClass->end_time->format('g:i A') }}
+                    </strong>
+                </div>
             </div>
 
         @else
 
-            <h2>No More Classes</h2>
+            <h2 class="panel-title">No more classes</h2>
 
-            <p>
-                You have no more scheduled classes today.
-            </p>
+            <p class="panel-subtitle">You have no more classes scheduled today.</p>
 
         @endif
 
@@ -240,68 +221,43 @@
 
 <div class="content-card">
 
-    <div class="section-header">
-
+    <div class="table-toolbar">
         <div>
             <h2>Today's Schedule</h2>
-
-            <p>
-                Your scheduled classes for today.
-            </p>
+            <span class="table-count">
+                {{ $todaySchedules->count() }} class{{ $todaySchedules->count() != 1 ? 'es' : '' }} on {{ now()->format('l') }}
+            </span>
         </div>
-
     </div>
 
-    <div class="table-container">
+    @if($todaySchedules->isEmpty())
 
-        <table class="data-table">
+        <div class="empty-state">
+            <div class="empty-state-icon">◷</div>
+            <h3>No classes today</h3>
+            <p>Enjoy the free day. Classes scheduled for today will appear here.</p>
+        </div>
 
-            <thead>
+    @else
 
-                <tr>
-                    <th>Time</th>
-                    <th>Subject</th>
-                    <th>Section</th>
-                    <th>Room</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
+        <div class="table-responsive">
 
-            </thead>
+            <table class="roomlink-table">
 
-            <tbody>
-
-                @forelse($todaySchedules as $schedule)
-
+                <thead>
                     <tr>
+                        <th>Time</th>
+                        <th>Subject</th>
+                        <th>Section</th>
+                        <th>Room</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-                        <td>
-                            {{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i A') }}
-                            -
-                            {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}
-                        </td>
+                <tbody>
 
-                        <td>
-
-                            <strong>
-                                {{ $schedule->subject->subject_code }}
-                            </strong>
-
-                            <br>
-
-                            <small>
-                                {{ $schedule->subject->subject_name }}
-                            </small>
-
-                        </td>
-
-                        <td>
-                            {{ $schedule->section->section_name }}
-                        </td>
-
-                        <td>
-                            {{ $schedule->room->room_name }}
-                        </td>
+                    @foreach($todaySchedules as $schedule)
 
                         @php
                             $sessionStatuses = $todaysSessionStatuses->get($schedule->id, collect());
@@ -310,75 +266,57 @@
                                 && $sessionStatuses->every(fn ($status) => $status === 'active');
                         @endphp
 
-                        <td>
+                        <tr>
 
-                            @if($sessionStatuses->contains('not_held'))
+                            <td class="nowrap">
+                                <div class="table-primary">{{ $schedule->start_time->format('g:i A') }}</div>
+                                <div class="table-secondary">until {{ $schedule->end_time->format('g:i A') }}</div>
+                            </td>
 
-                                <span class="status-badge status-maintenance">
-                                    Not Held
-                                </span>
+                            <td>
+                                <div class="table-primary">{{ $schedule->subject->subject_code }}</div>
+                                <div class="table-secondary">{{ $schedule->subject->subject_name }}</div>
+                            </td>
 
-                            @elseif($isRunning)
+                            <td>{{ $schedule->section->section_name }}</td>
 
-                                <span class="status-badge status-active">
-                                    In Session
-                                </span>
+                            <td>{{ $schedule->room->room_name }}</td>
 
-                            @elseif($sessionStatuses->isNotEmpty())
+                            <td>
+                                @if($sessionStatuses->contains('not_held'))
+                                    <span class="room-status status-maintenance">Not Held</span>
+                                @elseif($isRunning)
+                                    <span class="room-status status-occupied">In Session</span>
+                                @elseif($sessionStatuses->isNotEmpty())
+                                    <span class="room-status status-available">Held</span>
+                                @elseif($currentClass && $currentClass->id === $schedule->id)
+                                    <span class="room-status status-occupied">Now</span>
+                                @elseif($schedule->start_time->format('H:i:s') > now()->format('H:i:s'))
+                                    <span class="room-status status-neutral">Upcoming</span>
+                                @else
+                                    <span class="room-status status-neutral">Ended</span>
+                                @endif
+                            </td>
 
-                                <span class="status-badge">
-                                    Held
-                                </span>
+                            <td class="table-actions-cell">
+                                @if($canMarkNotHeld)
+                                    <a href="{{ route('faculty.not-held.create', $schedule) }}" class="action-delete table-action">
+                                        Mark Not Held
+                                    </a>
+                                @endif
+                            </td>
 
-                            @elseif($currentClass && $currentClass->id === $schedule->id)
+                        </tr>
 
-                                <span class="status-badge status-active">
-                                    Now
-                                </span>
+                    @endforeach
 
-                            @elseif($schedule->start_time->format('H:i:s') > now()->format('H:i:s'))
+                </tbody>
 
-                                <span class="status-badge">
-                                    Upcoming
-                                </span>
+            </table>
 
-                            @else
+        </div>
 
-                                <span class="status-badge">
-                                    Completed
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td>
-                            @if($canMarkNotHeld)
-                                <a href="{{ route('faculty.not-held.create', $schedule) }}" class="btn btn-secondary">
-                                    Mark Not Held
-                                </a>
-                            @endif
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="6" class="empty-state">
-                            No classes scheduled for today.
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
-
-    </div>
+    @endif
 
 </div>
 

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Campus;
 use App\Models\Building;
+use App\Models\Campus;
+use App\Models\ClassSession;
 use App\Models\Floor;
 use App\Models\Room;
-use App\Models\ClassSession;
+use App\Models\RoomSession;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,12 @@ class DashboardController extends Controller
         $occupiedRooms = Room::where('status', 'occupied')->count();
         $maintenanceRooms = Room::where('status', 'maintenance')->count();
 
+        // Rooms with a class in session right now
+        $activeSessions = RoomSession::active()
+            ->with(['room', 'faculty', 'classSession.subject', 'classSession.section'])
+            ->latest('started_at')
+            ->get();
+
         // Recent class sessions
         $recentSessions = ClassSession::with([
             'room.floor.building',
@@ -31,9 +38,9 @@ class DashboardController extends Controller
             'subject',
             'section',
         ])
-        ->orderBy('start_time')
-        ->take(5)
-        ->get();
+            ->orderBy('start_time')
+            ->take(5)
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalCampuses',
@@ -43,7 +50,8 @@ class DashboardController extends Controller
             'availableRooms',
             'occupiedRooms',
             'maintenanceRooms',
-            'recentSessions'
+            'recentSessions',
+            'activeSessions'
         ));
     }
 }

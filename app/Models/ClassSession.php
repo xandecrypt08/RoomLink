@@ -31,6 +31,29 @@ class ClassSession extends Model
     ];
 
     /**
+     * Full day names keyed by the codes stored in the day column.
+     *
+     * @var array<string, string>
+     */
+    public const DAY_NAMES = [
+        'M' => 'Monday',
+        'T' => 'Tuesday',
+        'W' => 'Wednesday',
+        'Th' => 'Thursday',
+        'F' => 'Friday',
+        'S' => 'Saturday',
+        'Su' => 'Sunday',
+    ];
+
+    /**
+     * The full day name for display, e.g. "Monday" for "M".
+     */
+    public function getDayNameAttribute(): string
+    {
+        return self::DAY_NAMES[$this->day] ?? (string) $this->day;
+    }
+
+    /**
      * Convert a date to the day code stored in the day column
      * (M, T, W, Th, F, S, Su).
      */
