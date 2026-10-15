@@ -67,4 +67,14 @@ class Faculty extends Model
     {
         return $this->hasMany(RoomSession::class);
     }
+
+    public function temporaryClassroomRequests(): HasMany
+    {
+        return $this->hasMany(TemporaryClassroomRequest::class, 'requester_id');
+    }
+
+    public function incomingTemporaryClassroomRequests(): HasMany
+    {
+        return $this->hasMany(TemporaryClassroomRequest::class, 'scheduled_faculty_id');
+    }
 }

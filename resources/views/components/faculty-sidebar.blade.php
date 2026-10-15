@@ -15,6 +15,14 @@
             <span>Dashboard</span>
         </a>
 
+        <a
+            href="{{ route('faculty.temporary-requests.index') }}"
+            class="sidebar-link {{ request()->routeIs('faculty.temporary-requests.*') ? 'active' : '' }}"
+        >
+            <span class="sidebar-icon">●</span>
+            <span>Room Requests</span>
+        </a>
+
     </nav>
 
     <div class="sidebar-footer">

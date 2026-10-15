@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -83,6 +84,16 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/transfer', [ClassroomTransferController::class, 'store'])
         ->name('faculty.transfer.store');
+
+    /* Temporary classroom requests (RLNK-23) */
+    Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
+        ->name('faculty.temporary-requests.index');
+
+    Route::get('/temporary-requests/create', [TemporaryClassroomRequestController::class, 'create'])
+        ->name('faculty.temporary-requests.create');
+
+    Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
+        ->name('faculty.temporary-requests.store');
 });
 
 Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
