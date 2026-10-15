@@ -170,7 +170,7 @@ class RoomController extends Controller
     {
         $room->load('floor.building.campus');
 
-        $qrData = route('rooms.qr', $room);
+        $qrData = route('faculty.sessions.scan', $room->qr_code);
 
         return view('admin.rooms.qr', compact(
             'room',
@@ -184,7 +184,7 @@ class RoomController extends Controller
             'floor.building.campus',
         ]);
 
-        $qrData = route('rooms.qr', $room);
+        $qrData = route('faculty.sessions.scan', $room->qr_code);
 
         return view('admin.rooms.qr-print', compact(
             'room',
