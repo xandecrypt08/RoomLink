@@ -775,6 +775,18 @@ textarea {
     text-align: center;
 }
 
+.qr-scan-url {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.qr-scan-url span {
+    font-family: ui-monospace, Consolas, monospace;
+    color: var(--ink-soft);
+}
+
 .qr-replace-card {
     max-width: 520px;
     margin: 20px auto 0;

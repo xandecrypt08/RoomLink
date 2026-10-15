@@ -232,13 +232,35 @@ class ClassroomSessionTest extends TestCase
             ->assertSessionHas('error');
     }
 
-    public function test_room_qr_code_opens_the_faculty_scan_page(): void
+    public function test_room_qr_code_opens_the_faculty_scan_page_at_app_url(): void
+    {
+        config(['app.url' => 'http://192.168.1.50:8000']);
+
+        $admin = User::factory()->admin()->create();
+
+        // The admin opens the page through a different address than APP_URL.
+        $this->actingAs($admin)
+            ->get('http://roomlink.test/admin/rooms/'.$this->room->id.'/qr')
+            ->assertViewHas('qrData', 'http://192.168.1.50:8000/faculty/scan/'.$this->room->qr_code)
+            ->assertSee('http://192.168.1.50:8000/faculty/scan/'.$this->room->qr_code)
+            ->assertDontSee("Phones can't open this address.", false);
+
+        $this->actingAs($admin)
+            ->get(route('rooms.qr.print', $this->room))
+            ->assertViewHas('qrData', 'http://192.168.1.50:8000/faculty/scan/'.$this->room->qr_code);
+    }
+
+    public function test_qr_page_warns_when_app_url_only_works_on_this_computer(): void
     {
         $admin = User::factory()->admin()->create();
 
-        $this->actingAs($admin)
-            ->get(route('rooms.qr', $this->room))
-            ->assertViewHas('qrData', route('faculty.sessions.scan', $this->room->qr_code));
+        foreach (['http://localhost:8000', 'http://127.0.0.1', 'http://roomlink.test'] as $appUrl) {
+            config(['app.url' => $appUrl]);
+
+            $this->actingAs($admin)
+                ->get(route('rooms.qr', $this->room))
+                ->assertSee("Phones can't open this address.", false);
+        }
     }
 
     public function test_faculty_who_scans_before_logging_in_returns_to_the_scanned_room(): void

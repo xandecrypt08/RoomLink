@@ -61,6 +61,17 @@
             Scan this QR code to identify the classroom.
         </p>
 
+        <p class="qr-scan-url">
+            Opens <span>{{ $qrData }}</span>
+        </p>
+
+        @if($qrOnlyWorksOnThisComputer)
+            <div class="alert alert-warning">
+                Phones can't open this address. Set <strong>APP_URL</strong> in the <strong>.env</strong> file
+                to an address phones can reach (for example this computer's network IP), then print the QR code again.
+            </div>
+        @endif
+
         <a
             href="{{ route('rooms.qr.print', $room) }}"
             target="_blank"

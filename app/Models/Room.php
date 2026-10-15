@@ -115,6 +115,17 @@ class Room extends Model
     }
 
     /**
+     * The address encoded in the room's QR code. It is built from APP_URL, not
+     * from whatever address the admin happened to open the page with, because
+     * printed QR codes must open on any phone on the school network.
+     */
+    public function scanUrl(): string
+    {
+        return rtrim((string) config('app.url'), '/')
+            .route('faculty.sessions.scan', $this->qr_code, false);
+    }
+
+    /**
      * Find the active class session scheduled in this room at the given moment.
      */
     public function scheduledClassSessionAt(CarbonInterface $moment): ?ClassSession
