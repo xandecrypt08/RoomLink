@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -94,6 +95,13 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
         ->name('faculty.temporary-requests.store');
+
+    /* Notifications (RLNK-30) */
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('faculty.notifications.index');
+
+    Route::post('/notifications/read', [NotificationController::class, 'markAllRead'])
+        ->name('faculty.notifications.read');
 });
 
 Route::middleware(['auth', 'student'])->prefix('student')->group(function () {

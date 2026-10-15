@@ -16,13 +16,32 @@
 
     <div class="topbar-right">
 
-        <button
-            type="button"
-            class="notification-btn"
-            title="Notifications"
-        >
-            <span>♢</span>
-        </button>
+        @if(auth()->user()?->isFaculty())
+
+            @php($unreadNotificationCount = auth()->user()->unreadNotifications()->count())
+
+            <a
+                href="{{ route('faculty.notifications.index') }}"
+                class="notification-btn"
+                title="Notifications"
+            >
+                <span>♢</span>
+                @if($unreadNotificationCount > 0)
+                    <span class="status-badge status-active">{{ $unreadNotificationCount }}</span>
+                @endif
+            </a>
+
+        @else
+
+            <button
+                type="button"
+                class="notification-btn"
+                title="Notifications"
+            >
+                <span>♢</span>
+            </button>
+
+        @endif
 
 
         <div class="profile-box">

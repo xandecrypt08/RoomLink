@@ -16,6 +16,10 @@
     </div>
 
     <div class="page-header-actions">
+        <a href="{{ route('faculty.notifications.index') }}" class="btn btn-secondary">
+            Notifications
+        </a>
+
         <a href="{{ route('faculty.temporary-requests.index') }}" class="btn btn-primary">
             Temporary Classroom Requests
         </a>

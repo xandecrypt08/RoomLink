@@ -23,6 +23,19 @@
             <span>Room Requests</span>
         </a>
 
+        @php($unreadNotificationCount = auth()->user()?->unreadNotifications()->count() ?? 0)
+
+        <a
+            href="{{ route('faculty.notifications.index') }}"
+            class="sidebar-link {{ request()->routeIs('faculty.notifications.*') ? 'active' : '' }}"
+        >
+            <span class="sidebar-icon">●</span>
+            <span>Notifications</span>
+            @if($unreadNotificationCount > 0)
+                <span class="status-badge status-active">{{ $unreadNotificationCount }}</span>
+            @endif
+        </a>
+
     </nav>
 
     <div class="sidebar-footer">
