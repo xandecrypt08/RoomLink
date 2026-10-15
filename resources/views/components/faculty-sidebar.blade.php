@@ -61,6 +61,14 @@
         </a>
 
         <a
+            href="{{ route('faculty-locator.index') }}"
+            class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon">⌖</span>
+            <span>Faculty Locator</span>
+        </a>
+
+        <a
             href="{{ route('faculty.notifications.index') }}"
             class="{{ request()->routeIs('faculty.notifications.*') ? 'active' : '' }}"
         >

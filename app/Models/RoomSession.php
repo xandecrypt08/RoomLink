@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -83,5 +84,21 @@ class RoomSession extends Model
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Determine if the faculty member's location may be shown on the faculty
+     * locator at the given moment. Besides being active, the session must have
+     * started that day and its scheduled class must not be over, so a session
+     * the faculty member forgot to end stops revealing their location.
+     */
+    public function isLocatableAt(CarbonInterface $moment): bool
+    {
+        if (! $this->isActive() || ! $this->started_at->isSameDay($moment)) {
+            return false;
+        }
+
+        return $this->classSession === null
+            || $this->classSession->end_time->format('H:i:s') > $moment->format('H:i:s');
     }
 }
