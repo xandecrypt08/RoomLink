@@ -23,6 +23,91 @@
 
 </div>
 
+@if(session('success'))
+    <div class="alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert-error">
+        {{ session('error') }}
+    </div>
+@endif
+
+{{-- Active Session (RLNK-22) --}}
+
+@if($activeSession)
+
+<div class="content-card active-session-card">
+
+    <div class="section-header">
+
+        <div>
+            <div class="card-label">
+                ACTIVE SESSION
+            </div>
+
+            <h2>
+                {{ $activeSession->room->room_name }}
+            </h2>
+
+            <p>
+                {{ $activeSession->room->floor?->building?->building_name }}
+            </p>
+        </div>
+
+        <span class="status-badge status-occupied">
+            OCCUPIED
+        </span>
+
+    </div>
+
+    @if($activeSession->classSession)
+
+        <div class="card-detail">
+            Subject:
+            <strong>
+                {{ $activeSession->classSession->subject->subject_code }}
+                -
+                {{ $activeSession->classSession->subject->subject_name }}
+            </strong>
+        </div>
+
+        <div class="card-detail">
+            Section:
+            <strong>
+                {{ $activeSession->classSession->section->section_name }}
+            </strong>
+        </div>
+
+    @endif
+
+    <div class="card-detail">
+        Started:
+        <strong>
+            {{ $activeSession->started_at->format('g:i A') }}
+            ({{ $activeSession->started_at->diffForHumans(null, true) }} ago)
+        </strong>
+    </div>
+
+    <form
+        action="{{ route('faculty.sessions.end', $activeSession) }}"
+        method="POST"
+        class="form-actions"
+        onsubmit="return confirm('End your session in {{ addslashes($activeSession->room->room_name) }}? The room will be released for other classes.');"
+    >
+        @csrf
+
+        <button type="submit" class="btn btn-delete">
+            End Session
+        </button>
+    </form>
+
+</div>
+
+@endif
+
 {{-- Current Class --}}
 
 <div class="dashboard-grid">

@@ -23,6 +23,7 @@ class RoomSession extends Model
         'room_id',
         'faculty_id',
         'class_session_id',
+        'transferred_from_id',
         'status',
         'started_at',
         'ended_at',
@@ -61,6 +62,14 @@ class RoomSession extends Model
     public function classSession(): BelongsTo
     {
         return $this->belongsTo(ClassSession::class);
+    }
+
+    /**
+     * The session this one continues after a classroom transfer.
+     */
+    public function transferredFrom(): BelongsTo
+    {
+        return $this->belongsTo(RoomSession::class, 'transferred_from_id');
     }
 
     /**

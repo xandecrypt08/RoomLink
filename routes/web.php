@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Faculty\ClassroomSessionController;
+use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
@@ -63,9 +65,27 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
+    /* Classroom sessions (RLNK-21, RLNK-22). Room QR codes open the scan page. */
+    Route::get('/scan/{code}', [ClassroomSessionController::class, 'scan'])
+        ->name('faculty.sessions.scan');
+
+    Route::post('/sessions', [ClassroomSessionController::class, 'store'])
+        ->name('faculty.sessions.store');
+
+    Route::post('/sessions/{roomSession}/end', [ClassroomSessionController::class, 'end'])
+        ->name('faculty.sessions.end');
+
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
 
+    /* Classroom transfer (RLNK-24) */
+    Route::get('/transfer', [ClassroomTransferController::class, 'create'])
+        ->name('faculty.transfer.create');
+
+    Route::post('/transfer', [ClassroomTransferController::class, 'store'])
+        ->name('faculty.transfer.store');
+
+    /* Temporary classroom requests (RLNK-23) */
     Route::get('/temporary-requests', [TemporaryClassroomRequestController::class, 'index'])
         ->name('faculty.temporary-requests.index');
 
