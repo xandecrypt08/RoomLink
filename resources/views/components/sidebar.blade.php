@@ -20,6 +20,14 @@
             <span>Dashboard</span>
         </a>
 
+        <a
+            href="{{ route('faculty-locator.index') }}"
+            class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon">⌖</span>
+            <span>Faculty Locator</span>
+        </a>
+
 
         <div class="sidebar-section-label">
             CLASSROOM MANAGEMENT

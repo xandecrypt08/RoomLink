@@ -15,6 +15,7 @@ use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
+use App\Http\Controllers\FacultyLocatorController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,11 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+/* Faculty locator (RLNK-29), open to every signed-in role */
+Route::get('/faculty-locator', [FacultyLocatorController::class, 'index'])
+    ->middleware('auth')
+    ->name('faculty-locator.index');
 
 /* Administrator */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
