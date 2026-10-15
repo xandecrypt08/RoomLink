@@ -25,7 +25,7 @@
 
 @if(session('success'))
 
-    <div class="alert-success">
+    <div class="alert alert-success">
         {{ session('success') }}
     </div>
 
@@ -73,11 +73,18 @@
 
 </div>
 
-<div class="content-card">
+<div class="content-card detail-card qr-replace-card">
 
-    <h2>Replace QR Code</h2>
+    <div class="detail-card-header">
 
-    <p>
+        <div>
+            <span class="panel-eyebrow">DAMAGED OR COPIED CODE</span>
+            <h2>Replace QR Code</h2>
+        </div>
+
+    </div>
+
+    <p class="qr-replace-text">
         If the posted QR code is damaged, unreadable, or was copied, generate a new one.
         The current code stops working immediately, so print the new code and post it in the room.
     </p>
@@ -92,7 +99,7 @@
 
         <button
             type="submit"
-            class="btn-secondary"
+            class="btn btn-delete"
         >
             Regenerate QR Code
         </button>
@@ -101,14 +108,16 @@
 
     @if($room->retiredQrCodes->isNotEmpty())
 
-        <p class="form-help">
-            Replaced codes:
+        <div class="detail-list qr-retired-list">
 
             @foreach($room->retiredQrCodes as $retiredQrCode)
-                <span class="code-badge">{{ $retiredQrCode->qr_code }}</span>
-                ({{ $retiredQrCode->retired_at->format('M j, Y g:i A') }}){{ $loop->last ? '' : ',' }}
+                <div class="detail-item">
+                    <span class="code-badge">{{ $retiredQrCode->qr_code }}</span>
+                    <strong>Replaced {{ $retiredQrCode->retired_at->format('M j, Y g:i A') }}</strong>
+                </div>
             @endforeach
-        </p>
+
+        </div>
 
     @endif
 

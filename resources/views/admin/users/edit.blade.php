@@ -75,11 +75,12 @@
 
 <div class="content-card form-card">
 
-    <h2>Reset Password</h2>
-
-    <p>
-        Set a new password for this account and share it with the user.
-    </p>
+    <div class="form-card-header">
+        <div>
+            <h2>Reset Password</h2>
+            <p>Set a new password for this account and share it with the user.</p>
+        </div>
+    </div>
 
     <form
         method="POST"
