@@ -23,6 +23,14 @@
 
 </div>
 
+@if(session('success'))
+
+    <div class="alert-success">
+        {{ session('success') }}
+    </div>
+
+@endif
+
 <div class="content-card qr-page">
 
     <div class="qr-room-info">
@@ -62,6 +70,47 @@
         </a>
 
     </div>
+
+</div>
+
+<div class="content-card">
+
+    <h2>Replace QR Code</h2>
+
+    <p>
+        If the posted QR code is damaged, unreadable, or was copied, generate a new one.
+        The current code stops working immediately, so print the new code and post it in the room.
+    </p>
+
+    <form
+        method="POST"
+        action="{{ route('rooms.qr.regenerate', $room) }}"
+        onsubmit="return confirm('Generate a new QR code? The current QR code will stop working right away.');"
+    >
+
+        @csrf
+
+        <button
+            type="submit"
+            class="btn-secondary"
+        >
+            Regenerate QR Code
+        </button>
+
+    </form>
+
+    @if($room->retiredQrCodes->isNotEmpty())
+
+        <p class="form-help">
+            Replaced codes:
+
+            @foreach($room->retiredQrCodes as $retiredQrCode)
+                <span class="code-badge">{{ $retiredQrCode->qr_code }}</span>
+                ({{ $retiredQrCode->retired_at->format('M j, Y g:i A') }}){{ $loop->last ? '' : ',' }}
+            @endforeach
+        </p>
+
+    @endif
 
 </div>
 

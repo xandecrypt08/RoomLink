@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Room extends Model
@@ -26,13 +27,47 @@ class Room extends Model
     {
         static::creating(function (Room $room) {
             if (empty($room->qr_code)) {
-                do {
-                    $code = 'ROOM-'.strtoupper(Str::random(10));
-                } while (self::where('qr_code', $code)->exists());
-
-                $room->qr_code = $code;
+                $room->qr_code = self::newQrCode();
             }
         });
+    }
+
+    /**
+     * A QR code that no room uses now or has used before.
+     */
+    public static function newQrCode(): string
+    {
+        do {
+            $code = 'ROOM-'.strtoupper(Str::random(10));
+        } while (
+            self::where('qr_code', $code)->exists()
+            || RetiredQrCode::where('qr_code', $code)->exists()
+        );
+
+        return $code;
+    }
+
+    /**
+     * Give the room a new QR code and retire the old one so it can no longer be used.
+     */
+    public function regenerateQrCode(): string
+    {
+        $newCode = DB::transaction(function (): string {
+            $room = self::query()->lockForUpdate()->findOrFail($this->id);
+
+            $room->retiredQrCodes()->create([
+                'qr_code' => $room->qr_code,
+                'retired_at' => now(),
+            ]);
+
+            $room->update(['qr_code' => self::newQrCode()]);
+
+            return $room->qr_code;
+        });
+
+        $this->refresh();
+
+        return $newCode;
     }
 
     public function floor()
@@ -64,6 +99,14 @@ class Room extends Model
     public function activeSession(): HasOne
     {
         return $this->hasOne(RoomSession::class)->active();
+    }
+
+    /**
+     * QR codes this room used before they were regenerated.
+     */
+    public function retiredQrCodes(): HasMany
+    {
+        return $this->hasMany(RetiredQrCode::class);
     }
 
     public function temporaryClassroomRequests(): HasMany

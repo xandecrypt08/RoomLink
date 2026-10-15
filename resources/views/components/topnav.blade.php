@@ -44,12 +44,12 @@
 
         @if($user?->role === 'faculty')
             <a
-                href="{{ route('faculty.temporary-requests.index') }}"
+                href="{{ route('faculty.notifications.index') }}"
                 class="notification-btn"
-                title="Room requests"
-                aria-label="Room requests{{ $unreadCount ? " ({$unreadCount} new)" : '' }}"
+                title="Notifications"
+                aria-label="Notifications{{ $unreadCount ? " ({$unreadCount} unread)" : '' }}"
             >
-                <span aria-hidden="true">✉</span>
+                <span aria-hidden="true">🔔︎</span>
 
                 @if($unreadCount > 0)
                     <span class="notification-count">{{ $unreadCount }}</span>

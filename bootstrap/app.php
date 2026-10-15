@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureAccountIsActive;
 use App\Http\Middleware\FacultyMiddleware;
 use App\Http\Middleware\StudentMiddleware;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'faculty' => FacultyMiddleware::class,
             'student' => StudentMiddleware::class,
+        ]);
+
+        $middleware->web(append: [
+            EnsureAccountIsActive::class,
         ]);
 
         $middleware->redirectGuestsTo(fn () => route('login'));

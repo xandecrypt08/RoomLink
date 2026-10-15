@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\TemporaryClassroomRequestReviewed;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,6 +23,23 @@ class TemporaryClassroomRequest extends Model
     protected $attributes = [
         'status' => 'pending',
     ];
+
+    /**
+     * Notify the requester when a pending request is approved or rejected,
+     * however the decision is made.
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (TemporaryClassroomRequest $request): void {
+            $wasDecided = $request->wasChanged('status')
+                && $request->getOriginal('status') === 'pending'
+                && in_array($request->status, ['approved', 'rejected'], true);
+
+            if ($wasDecided) {
+                $request->requester?->user?->notify(new TemporaryClassroomRequestReviewed($request));
+            }
+        });
+    }
 
     public function requester()
     {
