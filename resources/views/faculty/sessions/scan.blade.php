@@ -104,6 +104,18 @@
             {{ $blocker }}
         </div>
 
+        <div class="form-actions">
+            @if($room === null)
+                <a href="{{ route('faculty.rooms.index') }}" class="btn btn-primary">
+                    Find the Room Manually
+                </a>
+            @elseif(! $room->isUnderMaintenance())
+                <a href="{{ route('faculty.temporary-requests.create', ['code' => $room->qr_code]) }}" class="btn btn-secondary">
+                    Request This Room Temporarily
+                </a>
+            @endif
+        </div>
+
     @else
 
         <form
