@@ -59,9 +59,9 @@
 
         <a
             href="{{ route('faculty-locator.index') }}"
-            class="sidebar-link {{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
+            class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
+            <span class="menu-icon">⌖</span>
             <span>Faculty Locator</span>
         </a>
 
