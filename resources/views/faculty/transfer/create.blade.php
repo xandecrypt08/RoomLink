@@ -56,7 +56,13 @@
 
     <div class="content-card">
         <div class="empty-state">
-            You have no active session. Start your class in its room before transferring it.
+            <div class="empty-state-icon">⇄</div>
+            <h3>No class to transfer</h3>
+            <p>You have no active session. Start your class in its room before transferring it.</p>
+
+            <a href="{{ route('faculty.dashboard') }}" class="btn btn-primary">
+                Go to Dashboard
+            </a>
         </div>
     </div>
 
@@ -131,7 +137,9 @@
         @if ($rooms->isEmpty())
 
             <div class="empty-state">
-                No classrooms are available for a transfer right now.
+                <div class="empty-state-icon">▣</div>
+                <h3>No rooms available</h3>
+                <p>No classrooms are available for a transfer right now.</p>
             </div>
 
         @else

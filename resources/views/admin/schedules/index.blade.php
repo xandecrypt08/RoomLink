@@ -168,20 +168,15 @@
 
                         <tr>
 
-                            <td>
+                            <td class="nowrap">
 
                                 <div class="table-primary">
-
                                     {{ $schedule->day_name }}
+                                </div>
 
-                                    ·
-
+                                <div class="table-secondary">
                                     {{ $schedule->start_time?->format('g:i A') }}
-
-                                    –
-
-                                    {{ $schedule->end_time?->format('g:i A') }}
-
+                                    – {{ $schedule->end_time?->format('g:i A') }}
                                 </div>
 
                             </td>

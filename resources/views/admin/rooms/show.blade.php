@@ -243,13 +243,15 @@
                     CLASS SCHEDULE
                 </span>
 
-                <h2>Sessions</h2>
+                <h2 class="title-with-badge">
+                    Sessions
+
+                    <span class="count-badge">
+                        {{ $room->classSessions->count() }}
+                    </span>
+                </h2>
 
             </div>
-
-            <span class="count-badge">
-                {{ $room->classSessions->count() }}
-            </span>
 
             <a
                 href="{{ route('schedules.create', ['room_id' => $room->id]) }}"

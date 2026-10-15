@@ -38,7 +38,7 @@ class DashboardController extends Controller
             'subject',
             'section',
         ])
-            ->orderBy('start_time')
+            ->orderedByWeek()
             ->take(5)
             ->get();
 

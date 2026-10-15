@@ -65,20 +65,7 @@ class ClassSessionController extends Controller
                 $query->where('status', $status);
             })
 
-            ->orderByRaw("
-                FIELD(
-                    day,
-                    'M',
-                    'T',
-                    'W',
-                    'Th',
-                    'F',
-                    'S',
-                    'Su'
-                )
-            ")
-
-            ->orderBy('start_time')
+            ->orderedByWeek()
 
             ->paginate(10)
 

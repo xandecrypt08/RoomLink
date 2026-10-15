@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,21 @@ class ClassSession extends Model
     public function getDayNameAttribute(): string
     {
         return self::DAY_NAMES[$this->day] ?? (string) $this->day;
+    }
+
+    /**
+     * Order sessions Monday through Sunday, then by start time.
+     *
+     * Uses a CASE expression so it works on both MySQL and SQLite.
+     */
+    public function scopeOrderedByWeek(Builder $query): void
+    {
+        $cases = collect(array_keys(self::DAY_NAMES))
+            ->map(fn (string $code, int $position): string => "WHEN '{$code}' THEN {$position}")
+            ->implode(' ');
+
+        $query->orderByRaw("CASE day {$cases} ELSE 99 END")
+            ->orderBy('start_time');
     }
 
     /**

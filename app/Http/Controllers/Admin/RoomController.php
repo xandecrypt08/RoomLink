@@ -93,6 +93,7 @@ class RoomController extends Controller
         $room->load([
             'floor.building.campus',
             'facilities',
+            'classSessions' => fn ($query) => $query->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.subject',
             'classSessions.section',

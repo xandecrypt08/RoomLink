@@ -206,7 +206,7 @@ textarea {
 .page-header {
     gap: 16px;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: center;
     margin-bottom: 24px;
 }
 
@@ -220,6 +220,12 @@ textarea {
 
 .page-header-actions {
     flex-wrap: wrap;
+}
+
+.title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 
@@ -374,6 +380,32 @@ textarea {
 
 .form-group {
     margin-bottom: 0;
+}
+
+/* Stacked fields outside a grid still need breathing room. */
+:is(.form-group, .form-row) + :is(.form-group, .form-row) {
+    margin-top: 18px;
+}
+
+:is(.form-grid, .form-row) > .form-group {
+    margin-top: 0;
+}
+
+/* Checkbox tiles: undo the full-width text-input sizing. */
+.form-group .facility-option {
+    display: flex;
+    margin: 0;
+    font-weight: 500;
+}
+
+.form-group input[type="checkbox"],
+.form-group input[type="radio"] {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+    accent-color: var(--brand);
 }
 
 .form-grid {
@@ -548,6 +580,10 @@ textarea {
 
 .table-actions-cell {
     text-align: right;
+    white-space: nowrap;
+}
+
+.code-badge {
     white-space: nowrap;
 }
 
@@ -806,6 +842,11 @@ textarea {
     .roomlink-table th,
     .roomlink-table td {
         padding: 12px 14px;
+    }
+
+    /* Wide tables keep a readable width and scroll inside their card. */
+    .roomlink-table:has(th:nth-child(5)) {
+        min-width: 680px;
     }
 
     .detail-item {

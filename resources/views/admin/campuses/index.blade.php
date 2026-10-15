@@ -4,6 +4,7 @@
 
 <div class="page-header">
     <div>
+        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
         <h1>Campus Management</h1>
         <p>Manage the campuses registered in RoomLink.</p>
     </div>
