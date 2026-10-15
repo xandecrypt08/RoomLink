@@ -50,6 +50,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         [RoomController::class, 'qr']
     )->name('rooms.qr');
 
+    Route::post(
+        '/rooms/{room}/qr/regenerate',
+        [RoomController::class, 'regenerateQr']
+    )->name('rooms.qr.regenerate');
+
     Route::resource('rooms', RoomController::class);
 
     Route::resource('facilities', FacilityController::class);

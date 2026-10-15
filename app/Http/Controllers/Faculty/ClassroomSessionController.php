@@ -8,6 +8,7 @@ use App\Exceptions\RoomUnavailableException;
 use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
 use App\Models\Faculty;
+use App\Models\RetiredQrCode;
 use App\Models\Room;
 use App\Models\RoomSession;
 use Illuminate\Http\RedirectResponse;
@@ -41,7 +42,10 @@ class ClassroomSessionController extends Controller
         $blocker = null;
 
         if ($room === null) {
-            $blocker = 'This QR code does not belong to any RoomLink classroom. Report the damaged QR code to the administrator.';
+            $retiredQrCode = RetiredQrCode::with('room')->where('qr_code', $code)->first();
+
+            $blocker = $retiredQrCode?->replacedMessage()
+                ?? 'This QR code does not belong to any RoomLink classroom. Report the damaged QR code to the administrator.';
         } else {
             [$schedule, $blocker] = $this->verify($room, $faculty);
         }
@@ -63,7 +67,13 @@ class ClassroomSessionController extends Controller
             'code' => ['required', 'string', 'max:100'],
         ]);
 
-        $room = Room::query()->where('qr_code', $validated['code'])->firstOrFail();
+        $room = Room::query()->where('qr_code', $validated['code'])->first();
+
+        // The code was replaced or never existed; the scan page explains which.
+        if ($room === null) {
+            return redirect()->route('faculty.sessions.scan', $validated['code']);
+        }
+
         $faculty = $request->user()->faculty;
 
         // Check again: the room or the time may have changed since the scan.

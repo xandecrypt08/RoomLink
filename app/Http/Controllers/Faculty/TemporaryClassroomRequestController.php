@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Faculty;
 use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
 use App\Models\Faculty;
+use App\Models\RetiredQrCode;
 use App\Models\Room;
 use App\Models\TemporaryClassroomRequest;
 use App\Notifications\TemporaryClassroomRequested;
@@ -69,6 +70,7 @@ class TemporaryClassroomRequestController extends Controller
 
         $room = null;
         $scheduledSession = null;
+        $retiredQrCode = null;
 
         if ($code !== '') {
             $room = Room::with('floor.building.campus')
@@ -76,6 +78,10 @@ class TemporaryClassroomRequestController extends Controller
                 ->first();
 
             $scheduledSession = $room?->scheduledClassSessionAt(now());
+
+            if ($room === null) {
+                $retiredQrCode = RetiredQrCode::with('room')->where('qr_code', $code)->first();
+            }
         }
 
         $mySessionsToday = $faculty->classSessions()
@@ -90,7 +96,8 @@ class TemporaryClassroomRequestController extends Controller
             'code',
             'room',
             'scheduledSession',
-            'mySessionsToday'
+            'mySessionsToday',
+            'retiredQrCode'
         ));
     }
 

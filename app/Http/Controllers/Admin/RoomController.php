@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Facility;
 use App\Models\Floor;
 use App\Models\Room;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -168,7 +169,10 @@ class RoomController extends Controller
 
     public function qr(Room $room)
     {
-        $room->load('floor.building.campus');
+        $room->load([
+            'floor.building.campus',
+            'retiredQrCodes' => fn ($query) => $query->latest('retired_at'),
+        ]);
 
         $qrData = route('faculty.sessions.scan', $room->qr_code);
 
@@ -190,6 +194,19 @@ class RoomController extends Controller
             'room',
             'qrData'
         ));
+    }
+
+    /**
+     * Replace a damaged or compromised QR code. The old code stops working
+     * immediately, so the new one must be printed and posted in the room.
+     */
+    public function regenerateQr(Room $room): RedirectResponse
+    {
+        $room->regenerateQrCode();
+
+        return redirect()
+            ->route('rooms.qr', $room)
+            ->with('success', 'A new QR code was generated. Print it and replace the one posted in the room; the old QR code no longer works.');
     }
 
     /**
