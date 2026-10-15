@@ -54,7 +54,7 @@ class ClassroomTransferTest extends TestCase
             ->get(route('faculty.transfer.create'))
             ->assertOk()
             ->assertSee('You have no active session.')
-            ->assertDontSee('Transfer Class');
+            ->assertDontSee('name="room_id"', false);
     }
 
     public function test_page_lists_only_rooms_free_until_the_class_ends(): void

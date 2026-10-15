@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Actions\EndRoomSession;
+use App\Actions\MarkClassNotHeld;
 use App\Actions\StartRoomSession;
 use App\Exceptions\RoomUnavailableException;
 use App\Http\Controllers\Controller;
@@ -154,6 +155,10 @@ class ClassroomSessionController extends Controller
 
         if ($schedule->faculty_id !== $faculty->id) {
             return [null, "{$room->room_name} is scheduled for {$schedule->faculty->full_name} ({$schedule->subject->subject_code}) right now. Submit a temporary classroom request to use this room."];
+        }
+
+        if (MarkClassNotHeld::isMarkedToday($schedule)) {
+            return [null, "You marked {$schedule->subject->subject_code} as not held today, so it can't be started."];
         }
 
         return [$schedule, null];

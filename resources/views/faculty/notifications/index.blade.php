@@ -8,7 +8,7 @@
 
     <div>
 
-        <span class="page-eyebrow">NOTIFICATIONS</span>
+        <span class="page-eyebrow">FACULTY PORTAL</span>
 
         <h1>Notifications</h1>
 
@@ -21,7 +21,7 @@
     <div class="page-header-actions">
 
         <a href="{{ route('faculty.dashboard') }}" class="btn btn-secondary">
-            Back to Dashboard
+            ← Back to Dashboard
         </a>
 
     </div>
@@ -40,60 +40,84 @@
 
 <div class="content-card">
 
-    <div class="table-container">
+    <div class="table-toolbar">
 
-        <table class="data-table">
+        <div>
+            <h2>All Notifications</h2>
+            <span class="table-count">
+                {{ $notifications->total() }} notification{{ $notifications->total() != 1 ? 's' : '' }}
+            </span>
+        </div>
 
-            <thead>
+        @if(auth()->user()->unreadNotifications()->exists())
+            <form method="POST" action="{{ route('faculty.notifications.read') }}">
+                @csrf
 
-                <tr>
-                    <th>Notification</th>
-                    <th>Received</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                @forelse($notifications as $notification)
-
-                    <tr>
-
-                        <td>
-
-                            @if(in_array($notification->id, $unreadIds, true))
-                                <span class="status-badge status-active">New</span>
-                            @endif
-
-                            {{ $notification->data['message'] ?? 'Notification' }}
-
-                        </td>
-
-                        <td>
-                            {{ $notification->created_at->diffForHumans() }}
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="2" class="empty-state">
-                            You have no notifications.
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-            </tbody>
-
-        </table>
+                <button type="submit" class="btn btn-secondary">
+                    Mark All as Read
+                </button>
+            </form>
+        @endif
 
     </div>
 
-    {{ $notifications->links() }}
+    @if($notifications->isEmpty())
+
+        <div class="empty-state">
+            <div class="empty-state-icon">🔔︎</div>
+            <h3>All caught up</h3>
+            <p>You have no notifications.</p>
+        </div>
+
+    @else
+
+        <div class="table-responsive">
+
+            <table class="roomlink-table">
+
+                <thead>
+                    <tr>
+                        <th>Notification</th>
+                        <th>Received</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach($notifications as $notification)
+
+                        <tr>
+
+                            <td>
+                                @if(in_array($notification->id, $unreadIds, true))
+                                    <span class="room-status status-occupied">New</span>
+                                @endif
+
+                                {{ $notification->data['message'] ?? 'Notification' }}
+                            </td>
+
+                            <td class="nowrap">
+                                <div class="table-primary">{{ $notification->created_at->diffForHumans() }}</div>
+                                <div class="table-secondary">{{ $notification->created_at->format('M j, g:i A') }}</div>
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        @if($notifications->hasPages())
+            <div class="table-pagination">
+                {{ $notifications->links() }}
+            </div>
+        @endif
+
+    @endif
 
 </div>
 

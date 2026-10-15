@@ -124,7 +124,29 @@ class FacultyNotificationTest extends TestCase
             ->get(route('faculty.dashboard'))
             ->assertOk()
             ->assertSee(route('faculty.notifications.index'))
-            ->assertSee('<span class="status-badge status-active">1</span>', false);
+            ->assertSee('<span class="notification-count">1</span>', false);
+    }
+
+    public function test_room_requests_badge_counts_only_room_request_notifications(): void
+    {
+        [$user, $requester] = $this->createFacultyMember();
+
+        TemporaryClassroomRequest::factory()->create(['requester_id' => $requester->id])
+            ->update(['status' => 'approved']);
+
+        $response = $this->actingAs($user)
+            ->get(route('faculty.dashboard'))
+            ->assertOk();
+
+        $this->assertStringNotContainsString(
+            '<span class="menu-badge">1</span>',
+            $this->sidebarLink($response->getContent(), 'Room Requests')
+        );
+
+        $this->assertStringContainsString(
+            '<span class="menu-badge">1</span>',
+            $this->sidebarLink($response->getContent(), 'Notifications')
+        );
     }
 
     public function test_mark_all_read(): void
@@ -146,6 +168,18 @@ class FacultyNotificationTest extends TestCase
      *
      * @return array{0: User, 1: Faculty}
      */
+    /**
+     * The HTML of the sidebar link whose label is $label.
+     */
+    private function sidebarLink(string $html, string $label): string
+    {
+        preg_match('#<a\s[^>]*>\s*<span class="menu-icon">[^<]*</span>\s*<span>'.preg_quote($label, '#').'</span>.*?</a>#s', $html, $matches);
+
+        $this->assertNotEmpty($matches, "Sidebar link [{$label}] not found.");
+
+        return $matches[0];
+    }
+
     private function createFacultyMember(): array
     {
         $user = User::factory()->faculty()->create();

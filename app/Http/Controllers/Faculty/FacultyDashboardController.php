@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
+use App\Models\RoomSession;
 use Illuminate\Support\Facades\Auth;
 
 class FacultyDashboardController extends Controller
@@ -12,19 +13,7 @@ class FacultyDashboardController extends Controller
     {
         $faculty = Auth::user();
 
-        $today = now()->format('D');
-
-        $dayMap = [
-            'Mon' => 'M',
-            'Tue' => 'T',
-            'Wed' => 'W',
-            'Thu' => 'Th',
-            'Fri' => 'F',
-            'Sat' => 'S',
-            'Sun' => 'Su',
-        ];
-
-        $currentDay = $dayMap[$today];
+        $currentDay = ClassSession::dayCodeFor(now());
 
         $facultyRecord = $faculty->faculty;
 
@@ -48,6 +37,18 @@ class FacultyDashboardController extends Controller
                 ->get();
         }
 
+        /*
+         * Today's session log for each scheduled class, so the schedule
+         * table can show Not Held / Held and offer "Mark Not Held".
+         */
+        $todaysSessionStatuses = $facultyRecord === null ? collect() : RoomSession::query()
+            ->where('faculty_id', $facultyRecord->id)
+            ->whereNotNull('class_session_id')
+            ->whereDate('started_at', now()->toDateString())
+            ->get(['class_session_id', 'status'])
+            ->groupBy('class_session_id')
+            ->map(fn ($sessions) => $sessions->pluck('status'));
+
         $currentTime = now()->format('H:i:s');
 
         $currentClass = $todaySchedules->first(function (ClassSession $schedule) use ($currentTime) {
@@ -65,7 +66,8 @@ class FacultyDashboardController extends Controller
             'todaySchedules',
             'currentClass',
             'nextClass',
-            'activeSession'
+            'activeSession',
+            'todaysSessionStatuses'
         ));
     }
 }

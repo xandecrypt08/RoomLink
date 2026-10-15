@@ -1,14 +1,40 @@
+@php
+    $user = auth()->user();
+
+    $roleLabel = match ($user?->role) {
+        'admin' => 'System Administrator',
+        'faculty' => 'Faculty',
+        'student' => 'Student',
+        default => '',
+    };
+
+    $initials = strtoupper(
+        mb_substr($user?->first_name ?? '', 0, 1).mb_substr($user?->last_name ?? '', 0, 1)
+    );
+
+    $unreadCount = $user?->role === 'faculty' ? $user->unreadNotifications()->count() : 0;
+@endphp
+
 <header class="topbar">
 
     <div class="topbar-left">
 
-        <div class="search-box">
-            <span class="search-icon">⌕</span>
+        <button
+            type="button"
+            class="menu-toggle"
+            data-sidebar-toggle
+            aria-controls="sidebar"
+            aria-expanded="false"
+            aria-label="Open menu"
+        >
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-            <input
-                type="text"
-                placeholder="Search rooms, faculty, schedules..."
-            >
+        <div class="topbar-date">
+            <strong>{{ now()->format('l') }}</strong>
+            <span>{{ now()->format('F j, Y') }}</span>
         </div>
 
     </div>
@@ -16,52 +42,39 @@
 
     <div class="topbar-right">
 
-        @if(auth()->user()?->isFaculty())
-
-            @php($unreadNotificationCount = auth()->user()->unreadNotifications()->count())
-
+        @if($user?->role === 'faculty')
             <a
                 href="{{ route('faculty.notifications.index') }}"
                 class="notification-btn"
                 title="Notifications"
+                aria-label="Notifications{{ $unreadCount ? " ({$unreadCount} unread)" : '' }}"
             >
-                <span>♢</span>
-                @if($unreadNotificationCount > 0)
-                    <span class="status-badge status-active">{{ $unreadNotificationCount }}</span>
+                <span aria-hidden="true">🔔︎</span>
+
+                @if($unreadCount > 0)
+                    <span class="notification-count">{{ $unreadCount }}</span>
                 @endif
             </a>
-
-        @else
-
-            <button
-                type="button"
-                class="notification-btn"
-                title="Notifications"
-            >
-                <span>♢</span>
-            </button>
-
         @endif
 
 
         <div class="profile-box">
 
-            <img
-                src="{{ asset('images/avatar.png') }}"
-                alt="Administrator"
-                class="profile-avatar"
-            >
+            @if($user?->profile_photo)
+                <img
+                    src="{{ asset('storage/'.$user->profile_photo) }}"
+                    alt=""
+                    class="profile-avatar"
+                >
+            @else
+                <span class="profile-avatar profile-initials" aria-hidden="true">
+                    {{ $initials ?: '?' }}
+                </span>
+            @endif
 
             <div class="profile-info">
-
-                <strong>
-                    {{ auth()->user()->first_name ?? 'Administrator' }}
-                </strong>
-
-                <span>
-                    System Administrator
-                </span>
-
+                <strong>{{ $user?->full_name }}</strong>
+                <span>{{ $roleLabel }}</span>
             </div>
 
         </div>

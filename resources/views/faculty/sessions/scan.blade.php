@@ -15,9 +15,9 @@
         <p>
             @if($room)
                 {{ $room->floor?->building?->campus?->campus_name }}
-                &middot;
+                ·
                 {{ $room->floor?->building?->building_name }}
-                &middot;
+                ·
                 Floor {{ $room->floor?->floor_number }}
             @else
                 The scanned QR code was not recognized.
@@ -27,81 +27,87 @@
     </div>
 
     <div class="page-header-actions">
-        <a href="{{ route('faculty.dashboard') }}" class="btn-secondary">
-            Back to Dashboard
+        <a href="{{ route('faculty.dashboard') }}" class="btn btn-secondary">
+            ← Dashboard
         </a>
     </div>
 
 </div>
 
 @if(session('error'))
-    <div class="alert-error">
+    <div class="alert alert-error">
         {{ session('error') }}
     </div>
 @endif
 
-<div class="content-card">
 
-    @if($room)
+<div class="content-card detail-card verify-card">
 
-        <div class="section-header">
+    <div class="detail-card-header">
 
-            <div>
-                <h2>Room Verification</h2>
-
-                <p>
-                    Confirm the details below before starting your class.
-                </p>
-            </div>
-
-            <span class="status-badge status-{{ $room->status }}">
-                {{ strtoupper($room->status) }}
-            </span>
-
+        <div>
+            <span class="page-eyebrow">ROOM VERIFICATION</span>
+            <h2>{{ $blocker ? 'This class can’t be started' : 'Ready to start your class' }}</h2>
         </div>
 
-        @if($schedule)
+        @if($room)
+            <span class="room-status status-{{ $room->status }}">
+                {{ ucfirst($room->status) }}
+            </span>
+        @endif
 
-            <div class="card-detail">
-                Subject:
+    </div>
+
+    @if($schedule)
+
+        <div class="detail-list">
+
+            <div class="detail-item">
+                <span>Subject</span>
                 <strong>
                     {{ $schedule->subject->subject_code }}
-                    -
-                    {{ $schedule->subject->subject_name }}
+                    · {{ $schedule->subject->subject_name }}
                 </strong>
             </div>
 
-            <div class="card-detail">
-                Section:
-                <strong>
-                    {{ $schedule->section->section_name }}
-                </strong>
+            <div class="detail-item">
+                <span>Section</span>
+                <strong>{{ $schedule->section->section_name }}</strong>
             </div>
 
-            <div class="card-detail">
-                Schedule:
+            <div class="detail-item">
+                <span>Schedule</span>
                 <strong>
                     {{ $schedule->start_time->format('g:i A') }}
-                    -
-                    {{ $schedule->end_time->format('g:i A') }}
+                    – {{ $schedule->end_time->format('g:i A') }}
                 </strong>
             </div>
 
-            <div class="card-detail">
-                Faculty:
-                <strong>
-                    {{ $schedule->faculty->full_name }}
-                </strong>
+            <div class="detail-item">
+                <span>Faculty</span>
+                <strong>{{ $schedule->faculty->full_name }}</strong>
             </div>
 
-        @endif
+        </div>
 
     @endif
 
     @if($blocker)
 
-        <div class="alert-error">
+        <div class="alert alert-error verify-message">
             {{ $blocker }}
+        </div>
+
+        <div class="form-actions">
+            @if($room === null)
+                <a href="{{ route('faculty.rooms.index') }}" class="btn btn-primary">
+                    Find the Room Manually
+                </a>
+            @elseif(! $room->isUnderMaintenance())
+                <a href="{{ route('faculty.temporary-requests.create', ['code' => $room->qr_code]) }}" class="btn btn-secondary">
+                    Request This Room Temporarily
+                </a>
+            @endif
         </div>
 
     @else
@@ -115,7 +121,7 @@
 
             <input type="hidden" name="code" value="{{ $code }}">
 
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary btn-large">
                 Start Session
             </button>
         </form>

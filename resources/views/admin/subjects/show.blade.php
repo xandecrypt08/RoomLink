@@ -150,7 +150,7 @@
 
                             <strong>
 
-                                {{ $session->day }}
+                                {{ $session->day_name }}
 
                                 ·
 
