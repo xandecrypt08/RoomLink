@@ -1,54 +1,72 @@
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
-    <div class="sidebar-logo">
-        <strong>RoomLink</strong>
+    <div class="brand">
+        <h2>RoomLink</h2>
         <span>Faculty Portal</span>
     </div>
 
-    <nav class="sidebar-nav">
+
+    <nav class="sidebar-menu">
+
+        <div class="sidebar-section-label">
+            OVERVIEW
+        </div>
 
         <a
             href="{{ route('faculty.dashboard') }}"
-            class="sidebar-link {{ request()->routeIs('faculty.dashboard') ? 'active' : '' }}"
+            class="{{ request()->routeIs('faculty.dashboard') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
+            <span class="menu-icon">⌂</span>
             <span>Dashboard</span>
         </a>
 
+
+        <div class="sidebar-section-label">
+            CLASSROOM SESSIONS
+        </div>
+
         <a
             href="{{ route('faculty.rooms.index') }}"
-            class="sidebar-link {{ request()->routeIs('faculty.rooms.*', 'faculty.sessions.*') ? 'active' : '' }}"
+            class="{{ request()->routeIs('faculty.rooms.*', 'faculty.sessions.*') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
+            <span class="menu-icon">⌕</span>
             <span>Find a Room</span>
         </a>
 
         <a
             href="{{ route('faculty.transfer.create') }}"
-            class="sidebar-link {{ request()->routeIs('faculty.transfer.*') ? 'active' : '' }}"
+            class="{{ request()->routeIs('faculty.transfer.*') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
+            <span class="menu-icon">⇄</span>
             <span>Transfer Class</span>
         </a>
 
         <a
             href="{{ route('faculty.temporary-requests.index') }}"
-            class="sidebar-link {{ request()->routeIs('faculty.temporary-requests.*') ? 'active' : '' }}"
+            class="{{ request()->routeIs('faculty.temporary-requests.*') ? 'active' : '' }}"
         >
-            <span class="sidebar-icon">●</span>
+            <span class="menu-icon">✉</span>
             <span>Room Requests</span>
+
+            @php
+                $unreadRequests = auth()->user()->unreadNotifications()->count();
+            @endphp
+
+            @if($unreadRequests > 0)
+                <span class="menu-badge">{{ $unreadRequests }}</span>
+            @endif
         </a>
 
     </nav>
 
-    <div class="sidebar-footer">
 
-        <form action="{{ route('logout') }}" method="POST">
+    <div class="sidebar-bottom">
 
+        <form method="POST" action="{{ route('logout') }}">
             @csrf
 
-            <button type="submit" class="sidebar-link logout-link">
-                <span class="sidebar-icon">●</span>
+            <button type="submit" class="sidebar-logout">
+                <span class="menu-icon">↪</span>
                 <span>Logout</span>
             </button>
 

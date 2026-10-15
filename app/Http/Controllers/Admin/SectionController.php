@@ -51,6 +51,7 @@ class SectionController extends Controller
     public function show(Section $section)
     {
         $section->load([
+            'classSessions' => fn ($query) => $query->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.subject',
             'classSessions.room.floor.building.campus',
@@ -71,7 +72,7 @@ class SectionController extends Controller
                 'required',
                 'string',
                 'max:100',
-                'unique:sections,section_name,' . $section->id,
+                'unique:sections,section_name,'.$section->id,
             ],
             'description' => 'nullable|string|max:500',
         ]);

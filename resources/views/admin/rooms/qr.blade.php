@@ -7,16 +7,19 @@
 <div class="page-header">
 
     <div>
+        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
         <h1>Room QR Code</h1>
         <p>QR identification code for this classroom.</p>
     </div>
 
-    <a
-        href="{{ route('rooms.show', $room) }}"
-        class="btn btn-light"
-    >
-        Back to Room
-    </a>
+    <div class="page-header-actions">
+        <a
+            href="{{ route('rooms.show', $room) }}"
+            class="btn btn-secondary"
+        >
+            ← Back to Room
+        </a>
+    </div>
 
 </div>
 

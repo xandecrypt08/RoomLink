@@ -169,7 +169,7 @@
 
                             <span>
 
-                                {{ $session->day }}
+                                {{ $session->day_name }}
 
                                 ·
 

@@ -60,6 +60,7 @@ class FacultyController extends Controller
     public function show(Faculty $faculty)
     {
         $faculty->load([
+            'classSessions' => fn ($query) => $query->orderedByWeek(),
             'classSessions.room.floor.building.campus',
             'classSessions.subject',
             'classSessions.section',

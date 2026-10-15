@@ -25,6 +25,20 @@ class RoomScheduleSlotTest extends TestCase
             ->assertSee(route('schedules.edit', $slot));
     }
 
+    public function test_room_page_lists_schedule_slots_from_monday_by_start_time(): void
+    {
+        $this->withoutVite();
+        $room = Room::factory()->create();
+        ClassSession::factory()->create(['room_id' => $room->id, 'day' => 'T', 'start_time' => '07:00:00', 'end_time' => '08:00:00']);
+        ClassSession::factory()->create(['room_id' => $room->id, 'day' => 'M', 'start_time' => '13:00:00', 'end_time' => '14:00:00']);
+        ClassSession::factory()->create(['room_id' => $room->id, 'day' => 'M', 'start_time' => '09:00:00', 'end_time' => '10:00:00']);
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('rooms.show', $room))
+            ->assertOk()
+            ->assertSeeInOrder(['9:00 AM', '1:00 PM', 'Tuesday', '7:00 AM']);
+    }
+
     public function test_schedule_form_preselects_the_room_from_the_link(): void
     {
         $this->withoutVite();

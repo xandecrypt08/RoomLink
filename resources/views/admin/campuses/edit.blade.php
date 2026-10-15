@@ -4,8 +4,15 @@
 
 <div class="page-header">
     <div>
+        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
         <h1>Edit Campus</h1>
         <p>Update campus information.</p>
+    </div>
+
+    <div class="page-header-actions">
+        <a href="{{ route('campuses.show', $campus) }}" class="btn btn-secondary">
+            ← Back to Campus
+        </a>
     </div>
 </div>
 

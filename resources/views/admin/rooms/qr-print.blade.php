@@ -39,6 +39,7 @@
 
         .qr-card {
             width: 7.5in;
+            max-width: 100%;
             min-height: 9.5in;
 
             display: flex;
@@ -86,7 +87,8 @@
 
         .qr-wrapper svg {
             width: 420px;
-            height: 420px;
+            max-width: 100%;
+            height: auto;
         }
 
         .location {

@@ -53,6 +53,7 @@ class SubjectController extends Controller
     public function show(Subject $subject)
     {
         $subject->load([
+            'classSessions' => fn ($query) => $query->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.section',
             'classSessions.room.floor.building.campus',
@@ -73,7 +74,7 @@ class SubjectController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'unique:subjects,subject_code,' . $subject->id,
+                'unique:subjects,subject_code,'.$subject->id,
             ],
             'subject_name' => 'required|string|max:150',
             'description' => 'nullable|string|max:500',
