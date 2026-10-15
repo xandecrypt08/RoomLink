@@ -13,7 +13,7 @@
         <h1>Find a Room</h1>
 
         <p>
-            Can't scan the room's QR code? Find the room here. You'll get the same check and Start Session button as scanning.
+            Only use this if the room's QR code can't be scanned. You'll be asked why, and the session is marked as a manual start for the administrator.
         </p>
 
     </div>
@@ -103,7 +103,7 @@
 
                             <td>
                                 <a
-                                    href="{{ route('faculty.sessions.scan', $room->qr_code) }}"
+                                    href="{{ route('faculty.rooms.start', $room) }}"
                                     class="btn btn-primary"
                                 >
                                     Select

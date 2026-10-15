@@ -44,6 +44,7 @@ class TransferRoomSession
                 $newRoom,
                 $closedSession->faculty,
                 $closedSession->classSession,
+                RoomSession::STARTED_VIA_TRANSFER,
             );
 
             $newSession->update(['transferred_from_id' => $closedSession->id]);

@@ -103,6 +103,66 @@ class ClassroomSessionController extends Controller
     }
 
     /**
+     * Manual start from Find a Room (RLNK-18), for when the room's QR code
+     * cannot be scanned. Same checks as scanning, but the faculty member must
+     * give a reason and the session is flagged for the administrator.
+     * The room is addressed by ID so its QR code is never revealed.
+     */
+    public function manual(Request $request, Room $room): View
+    {
+        $room->load('floor.building.campus');
+
+        [$schedule, $blocker, $approvedRequest] = $this->verify($room, $request->user()->faculty);
+
+        return view('faculty.sessions.scan', [
+            'room' => $room,
+            'code' => null,
+            'schedule' => $schedule,
+            'blocker' => $blocker,
+            'approvedRequest' => $approvedRequest,
+            'manual' => true,
+        ]);
+    }
+
+    /**
+     * Start a manual session after the faculty member gives their reason.
+     */
+    public function storeManual(Request $request, Room $room, StartRoomSession $startRoomSession): RedirectResponse
+    {
+        $validated = $request->validate([
+            'manual_start_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $faculty = $request->user()->faculty;
+
+        [$schedule, $blocker] = $this->verify($room, $faculty);
+
+        if ($blocker !== null) {
+            return redirect()
+                ->route('faculty.rooms.start', $room)
+                ->with('error', $blocker);
+        }
+
+        try {
+            $startRoomSession->handle(
+                $room,
+                $faculty,
+                $schedule,
+                RoomSession::STARTED_VIA_MANUAL,
+                $validated['manual_start_reason'],
+            );
+        } catch (RoomUnavailableException $exception) {
+            return redirect()
+                ->route('faculty.rooms.start', $room)
+                ->with('error', $exception->getMessage());
+        }
+
+        return redirect()
+            ->route('faculty.dashboard')
+            ->with('success', "Session started in {$room->room_name} at ".now()->format('g:i A').'. It was started without scanning, so the administrator can see your reason.');
+    }
+
+    /**
      * End the faculty member's active session and release the room.
      */
     public function end(Request $request, RoomSession $roomSession, EndRoomSession $endRoomSession): RedirectResponse

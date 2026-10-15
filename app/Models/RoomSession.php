@@ -20,12 +20,23 @@ class RoomSession extends Model
 
     public const STATUS_NOT_HELD = 'not_held';
 
+    /** Started by scanning the room's QR code. */
+    public const STARTED_VIA_QR = 'qr';
+
+    /** Started from Find a Room without scanning; the faculty member gives a reason. */
+    public const STARTED_VIA_MANUAL = 'manual';
+
+    /** Continued in a new room by a classroom transfer. */
+    public const STARTED_VIA_TRANSFER = 'transfer';
+
     protected $fillable = [
         'room_id',
         'faculty_id',
         'class_session_id',
         'transferred_from_id',
         'status',
+        'started_via',
+        'manual_start_reason',
         'started_at',
         'ended_at',
         'reason',
@@ -84,6 +95,11 @@ class RoomSession extends Model
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function wasStartedManually(): bool
+    {
+        return $this->started_via === self::STARTED_VIA_MANUAL;
     }
 
     /**

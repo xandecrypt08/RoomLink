@@ -7,6 +7,7 @@ use App\Models\ClassSession;
 use App\Models\Faculty;
 use App\Models\Floor;
 use App\Models\Room;
+use App\Models\RoomSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -28,7 +29,7 @@ class RoomSelectionTest extends TestCase
         Faculty::factory()->for($this->user)->create();
     }
 
-    public function test_room_list_links_each_room_to_its_verification_page(): void
+    public function test_room_list_links_to_manual_start_without_revealing_the_qr_code(): void
     {
         $room = Room::factory()->create(['room_name' => 'ACAD 101']);
 
@@ -36,7 +37,84 @@ class RoomSelectionTest extends TestCase
             ->get(route('faculty.rooms.index'))
             ->assertOk()
             ->assertSee('ACAD 101')
-            ->assertSee(route('faculty.sessions.scan', $room->qr_code));
+            ->assertSee(route('faculty.rooms.start', $room))
+            ->assertDontSee($room->qr_code);
+    }
+
+    public function test_manual_start_asks_for_a_reason(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-12 08:05:00'));
+        $room = Room::factory()->create();
+        ClassSession::factory()->for($this->user->faculty)->create(['room_id' => $room->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('faculty.rooms.start', $room))
+            ->assertOk()
+            ->assertSee('Start Without Scanning')
+            ->assertSee('name="manual_start_reason"', false)
+            ->assertDontSee($room->qr_code);
+
+        $this->actingAs($this->user)
+            ->post(route('faculty.rooms.start.store', $room), ['manual_start_reason' => ''])
+            ->assertSessionHasErrors('manual_start_reason');
+
+        $this->assertDatabaseCount('room_sessions', 0);
+    }
+
+    public function test_manual_start_records_the_reason_and_is_flagged(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-12 08:05:00'));
+        $room = Room::factory()->create();
+        $schedule = ClassSession::factory()->for($this->user->faculty)->create(['room_id' => $room->id]);
+
+        $this->actingAs($this->user)
+            ->post(route('faculty.rooms.start.store', $room), ['manual_start_reason' => 'The QR code is torn.'])
+            ->assertRedirect(route('faculty.dashboard'));
+
+        $this->assertDatabaseHas('room_sessions', [
+            'room_id' => $room->id,
+            'class_session_id' => $schedule->id,
+            'started_via' => RoomSession::STARTED_VIA_MANUAL,
+            'manual_start_reason' => 'The QR code is torn.',
+        ]);
+
+        $this->actingAs(User::factory()->admin()->create())
+            ->get(route('admin.dashboard'))
+            ->assertSee('Manual')
+            ->assertSee('Not scanned: The QR code is torn.');
+    }
+
+    public function test_manual_start_runs_the_same_checks_as_scanning(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-12 08:05:00'));
+        $room = Room::factory()->create();
+        ClassSession::factory()->create(['room_id' => $room->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('faculty.rooms.start', $room))
+            ->assertSee('Submit a temporary classroom request')
+            ->assertSee('To request this room, scan the QR code posted in it.')
+            ->assertDontSee($room->qr_code);
+
+        $this->actingAs($this->user)
+            ->post(route('faculty.rooms.start.store', $room), ['manual_start_reason' => 'Trying anyway.'])
+            ->assertRedirect(route('faculty.rooms.start', $room))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseCount('room_sessions', 0);
+    }
+
+    public function test_faculty_dashboard_asks_to_scan_instead_of_linking_to_the_room(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-12 08:05:00'));
+        $room = Room::factory()->create(['room_name' => 'ACAD 101']);
+        ClassSession::factory()->for($this->user->faculty)->create(['room_id' => $room->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('faculty.dashboard'))
+            ->assertOk()
+            ->assertSee('scan the QR code posted in', false)
+            ->assertDontSee($room->qr_code);
     }
 
     public function test_search_matches_room_name_and_building(): void
@@ -69,6 +147,7 @@ class RoomSelectionTest extends TestCase
             ->assertRedirect(route('faculty.dashboard'));
 
         $this->assertSame('occupied', $room->fresh()->status);
+        $this->assertSame(RoomSession::STARTED_VIA_QR, $room->roomSessions()->first()->started_via);
     }
 
     public function test_unknown_qr_code_offers_manual_selection(): void

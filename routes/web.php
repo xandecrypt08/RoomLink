@@ -138,6 +138,13 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
     Route::get('/rooms', [RoomSelectionController::class, 'index'])
         ->name('faculty.rooms.index');
 
+    /* Starting without the QR code needs a reason and is flagged for the admin */
+    Route::get('/rooms/{room}/start', [ClassroomSessionController::class, 'manual'])
+        ->name('faculty.rooms.start');
+
+    Route::post('/rooms/{room}/start', [ClassroomSessionController::class, 'storeManual'])
+        ->name('faculty.rooms.start.store');
+
     /* Class not held (RLNK-25) */
     Route::get('/schedules/{classSession}/not-held', [ClassNotHeldController::class, 'create'])
         ->name('faculty.not-held.create');

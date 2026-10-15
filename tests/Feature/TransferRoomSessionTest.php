@@ -48,6 +48,7 @@ class TransferRoomSessionTest extends TestCase
             'class_session_id' => $schedule->id,
             'transferred_from_id' => $session->id,
             'status' => 'active',
+            'started_via' => 'transfer',
             'started_at' => '2026-10-12 09:00:00',
         ]);
         $this->assertSame('available', $oldRoom->fresh()->status);
