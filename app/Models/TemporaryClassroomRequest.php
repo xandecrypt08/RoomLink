@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\TemporaryClassroomRequestReviewed;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,11 +19,25 @@ class TemporaryClassroomRequest extends Model
         'scheduled_faculty_id',
         'reason',
         'status',
+        'decision_note',
+        'decided_at',
     ];
 
     protected $attributes = [
         'status' => 'pending',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'decided_at' => 'datetime',
+        ];
+    }
 
     /**
      * Notify the requester when a pending request is approved or rejected,
@@ -69,5 +84,48 @@ class TemporaryClassroomRequest extends Model
     public function isPending(): bool
     {
         return $this->status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
+    }
+
+    /**
+     * A request only covers the day it was made and, when a class was
+     * scheduled in the room, that class's time slot. After that it can no
+     * longer be decided on or used to start a session.
+     */
+    public function isExpiredAt(CarbonInterface $moment): bool
+    {
+        if (! $this->created_at->isSameDay($moment)) {
+            return true;
+        }
+
+        $scheduledClass = $this->scheduledClassSession;
+
+        return $scheduledClass !== null
+            && $scheduledClass->end_time->format('H:i:s') <= $moment->format('H:i:s');
+    }
+
+    /**
+     * Only the faculty scheduled in the room decides, and only while the
+     * request is still pending and has not expired.
+     */
+    public function canBeDecidedBy(Faculty $faculty, CarbonInterface $moment): bool
+    {
+        return $this->isPending()
+            && $this->scheduled_faculty_id === $faculty->id
+            && ! $this->isExpiredAt($moment);
+    }
+
+    /**
+     * The status to show: a pending request whose time has passed is shown as expired.
+     */
+    public function displayStatusAt(CarbonInterface $moment): string
+    {
+        return $this->isPending() && $this->isExpiredAt($moment)
+            ? 'expired'
+            : $this->status;
     }
 }

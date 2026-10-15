@@ -58,6 +58,22 @@
 
     </div>
 
+    @if($approvedRequest)
+
+        <div class="alert alert-success verify-message">
+            Your temporary classroom request for this room was approved
+            @if($approvedRequest->scheduledFaculty)
+                by {{ $approvedRequest->scheduledFaculty->full_name }}.
+            @else
+                (no class was scheduled here).
+            @endif
+            @if(! $schedule)
+                This will be recorded as a temporary session.
+            @endif
+        </div>
+
+    @endif
+
     @if($schedule)
 
         <div class="detail-list">

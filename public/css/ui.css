@@ -610,6 +610,35 @@ textarea {
     white-space: nowrap;
 }
 
+/* Approve / reject controls on incoming temporary classroom requests */
+.request-decision-cell {
+    min-width: 240px;
+}
+
+.request-decision-cell form + form {
+    margin-top: 8px;
+}
+
+.request-reject-form {
+    display: flex;
+    gap: 6px;
+}
+
+.request-reject-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+}
+
+.request-reject-form input:focus {
+    border-color: #789DB7;
+}
+
 .location-text {
     color: var(--muted);
     font-size: 11px;
@@ -921,4 +950,56 @@ textarea {
         flex-wrap: wrap;
     }
 
+}
+
+
+/* ---------------------------------------------------------
+   INCOMING REQUESTS AS CARDS ON PHONES
+   Keeps Approve / Reject on screen instead of in a column
+   that needs sideways scrolling.
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    table.roomlink-table.request-cards {
+        min-width: 0;
+    }
+
+    .request-cards thead {
+        display: none;
+    }
+
+    .request-cards,
+    .request-cards tbody,
+    .request-cards tr,
+    .request-cards td {
+        display: block;
+        width: 100%;
+    }
+
+    .request-cards tr {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .roomlink-table.request-cards td {
+        padding: 5px 0;
+        border: 0;
+    }
+
+    .request-cards td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        margin-bottom: 2px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .6px;
+        text-transform: uppercase;
+    }
+
+    .request-cards .request-decision-cell {
+        min-width: 0;
+        padding-top: 10px;
+    }
 }

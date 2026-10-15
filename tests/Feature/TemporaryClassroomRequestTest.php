@@ -132,7 +132,7 @@ class TemporaryClassroomRequestTest extends TestCase
         );
     }
 
-    public function test_submitting_for_a_room_with_no_class_now_does_not_notify_anyone(): void
+    public function test_submitting_for_a_room_with_no_class_now_is_approved_without_notifying_anyone(): void
     {
         Notification::fake();
 
@@ -156,14 +156,14 @@ class TemporaryClassroomRequestTest extends TestCase
                 'reason' => 'Aircon is not working.',
             ])
             ->assertRedirect(route('faculty.temporary-requests.index'))
-            ->assertSessionHas('success', 'Request submitted. No class is scheduled in this room right now.');
+            ->assertSessionHas('success', 'No class is scheduled in this room right now, so your request was approved. You can start your session.');
 
         $this->assertDatabaseHas('temporary_classroom_requests', [
             'requester_id' => $requester->id,
             'room_id' => $room->id,
             'scheduled_class_session_id' => null,
             'scheduled_faculty_id' => null,
-            'status' => 'pending',
+            'status' => 'approved',
         ]);
 
         Notification::assertNothingSent();

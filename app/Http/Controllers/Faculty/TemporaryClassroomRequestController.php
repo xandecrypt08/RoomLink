@@ -24,6 +24,7 @@ class TemporaryClassroomRequestController extends Controller
             ->with([
                 'room.floor.building.campus',
                 'scheduledFaculty',
+                'scheduledClassSession',
                 'requesterClassSession.subject',
             ])
             ->latest()
@@ -33,6 +34,7 @@ class TemporaryClassroomRequestController extends Controller
             ->with([
                 'room.floor.building.campus',
                 'requester',
+                'scheduledClassSession',
                 'requesterClassSession.subject',
                 'requesterClassSession.section',
             ])
@@ -148,6 +150,26 @@ class TemporaryClassroomRequestController extends Controller
                 ]);
         }
 
+        $hasApprovedRequest = $faculty->temporaryClassroomRequests()
+            ->with('scheduledClassSession')
+            ->where('room_id', $room->id)
+            ->where('status', 'approved')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->get()
+            ->contains(fn (TemporaryClassroomRequest $approvedRequest) => ! $approvedRequest->isExpiredAt(now()));
+
+        if ($hasApprovedRequest) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'room_id' => 'Your request for this room is already approved. Scan the room to start your session.',
+                ]);
+        }
+
+        /*
+         * With no class in the room there is nobody to ask, so the request
+         * is approved at once. The approval only holds while the room stays free.
+         */
         $temporaryRequest = TemporaryClassroomRequest::create([
             'requester_id' => $faculty->id,
             'requester_class_session_id' => $validated['requester_class_session_id'] ?? null,
@@ -155,6 +177,8 @@ class TemporaryClassroomRequestController extends Controller
             'scheduled_class_session_id' => $scheduledSession?->id,
             'scheduled_faculty_id' => $scheduledSession?->faculty_id,
             'reason' => $validated['reason'],
+            'status' => $scheduledSession ? 'pending' : 'approved',
+            'decided_at' => $scheduledSession ? null : now(),
         ]);
 
         $scheduledSession?->faculty?->user?->notify(
@@ -165,7 +189,7 @@ class TemporaryClassroomRequestController extends Controller
             ->route('faculty.temporary-requests.index')
             ->with('success', $scheduledSession
                 ? 'Request submitted. The scheduled faculty has been notified.'
-                : 'Request submitted. No class is scheduled in this room right now.');
+                : 'No class is scheduled in this room right now, so your request was approved. You can start your session.');
     }
 
     /**
