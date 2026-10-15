@@ -86,7 +86,11 @@
 @if ($code !== '' && ! $room)
 
     <div class="alert alert-error">
-        No classroom matches the code "{{ $code }}". Check the code and try again.
+        @if ($retiredQrCode)
+            {{ $retiredQrCode->replacedMessage() }}
+        @else
+            No classroom matches the code "{{ $code }}". Check the code and try again.
+        @endif
     </div>
 
 @endif
