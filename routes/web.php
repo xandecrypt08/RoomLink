@@ -16,6 +16,7 @@ use App\Http\Controllers\Faculty\ClassNotHeldController;
 use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Student\StudentDashboardController;
@@ -111,6 +112,13 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
         ->name('faculty.temporary-requests.store');
+
+    /* Notifications (RLNK-30) */
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('faculty.notifications.index');
+
+    Route::post('/notifications/read', [NotificationController::class, 'markAllRead'])
+        ->name('faculty.notifications.read');
 
     /* Manual room selection when a QR code can't be scanned (RLNK-18) */
     Route::get('/rooms', [RoomSelectionController::class, 'index'])

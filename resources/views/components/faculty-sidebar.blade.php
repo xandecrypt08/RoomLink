@@ -49,11 +49,30 @@
             <span>Room Requests</span>
 
             @php
-                $unreadRequests = auth()->user()->unreadNotifications()->count();
+                $unreadRequests = auth()->user()
+                    ->unreadNotifications()
+                    ->where('type', \App\Notifications\TemporaryClassroomRequested::class)
+                    ->count();
             @endphp
 
             @if($unreadRequests > 0)
                 <span class="menu-badge">{{ $unreadRequests }}</span>
+            @endif
+        </a>
+
+        <a
+            href="{{ route('faculty.notifications.index') }}"
+            class="{{ request()->routeIs('faculty.notifications.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon">🔔︎</span>
+            <span>Notifications</span>
+
+            @php
+                $unreadNotifications = auth()->user()->unreadNotifications()->count();
+            @endphp
+
+            @if($unreadNotifications > 0)
+                <span class="menu-badge">{{ $unreadNotifications }}</span>
             @endif
         </a>
 
