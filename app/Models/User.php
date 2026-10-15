@@ -19,8 +19,29 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_active',
         'department',
         'profile_photo',
+    ];
+
+    /**
+     * Roles an account can have, keyed by the stored value.
+     *
+     * @var array<string, string>
+     */
+    public const ROLES = [
+        'admin' => 'Administrator',
+        'faculty' => 'Faculty',
+        'student' => 'Student',
+    ];
+
+    /**
+     * Match the column default so new, unsaved users are active.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'is_active' => true,
     ];
 
     protected $hidden = [
@@ -33,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 

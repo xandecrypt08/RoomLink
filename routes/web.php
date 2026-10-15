@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\FloorController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\ClassNotHeldController;
 use App\Http\Controllers\Faculty\ClassroomSessionController;
@@ -63,6 +64,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('sections', SectionController::class);
 
     Route::resource('schedules', ClassSessionController::class);
+
+    /* User accounts (RLNK-208). Accounts are deactivated, never deleted. */
+    Route::patch('/users/{user}/password', [UserController::class, 'resetPassword'])
+        ->name('users.password');
+
+    Route::patch('/users/{user}/active', [UserController::class, 'toggleActive'])
+        ->name('users.active');
+
+    Route::resource('users', UserController::class)->except(['show', 'destroy']);
 
 });
 
