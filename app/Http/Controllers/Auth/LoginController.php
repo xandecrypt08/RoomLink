@@ -28,6 +28,16 @@ class LoginController extends Controller
                 ]);
         }
 
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors([
+                    'email' => 'Your account has been deactivated. Please contact the administrator.',
+                ]);
+        }
+
         $dashboardRoute = Auth::user()->dashboardRoute();
 
         if ($dashboardRoute === null) {

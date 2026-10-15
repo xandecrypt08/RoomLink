@@ -102,6 +102,19 @@
             <span>Class Sessions</span>
         </a>
 
+
+        <div class="sidebar-section-label">
+            SYSTEM
+        </div>
+
+        <a
+            href="{{ route('users.index') }}"
+            class="{{ request()->routeIs('users.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon">⚇</span>
+            <span>User Accounts</span>
+        </a>
+
     </nav>
 
 
