@@ -41,6 +41,26 @@
 
 @endif
 
+@if(session('error'))
+
+    <div class="alert alert-error">
+        {{ session('error') }}
+    </div>
+
+@endif
+
+@error('decision_note')
+
+    <div class="alert alert-error">
+        {{ $message }}
+    </div>
+
+@enderror
+
+@php
+    $now = now();
+@endphp
+
 
 {{-- Incoming Requests --}}
 
@@ -64,7 +84,7 @@
 
         <div class="table-responsive">
 
-            <table class="roomlink-table">
+            <table class="roomlink-table request-cards">
 
                 <thead>
 
@@ -74,6 +94,7 @@
                         <th>Room</th>
                         <th>Reason</th>
                         <th>Status</th>
+                        <th>Decision</th>
                     </tr>
 
                 </thead>
@@ -84,7 +105,7 @@
 
                         <tr>
 
-                            <td>
+                            <td data-label="Requested">
 
                                 <div class="table-primary">
                                     {{ $temporaryRequest->created_at->format('M d, Y') }}
@@ -96,7 +117,7 @@
 
                             </td>
 
-                            <td>
+                            <td data-label="Requester">
 
                                 <div class="table-primary">
                                     {{ $temporaryRequest->requester->full_name }}
@@ -116,7 +137,7 @@
 
                             </td>
 
-                            <td>
+                            <td data-label="Room">
 
                                 <div class="table-primary">
                                     {{ $temporaryRequest->room->room_name }}
@@ -128,14 +149,68 @@
 
                             </td>
 
-                            <td>
+                            <td data-label="Reason">
                                 {{ $temporaryRequest->reason }}
                             </td>
 
-                            <td>
+                            <td data-label="Status">
                                 @include('faculty.temporary-requests.partials.status-badge', [
-                                    'status' => $temporaryRequest->status,
+                                    'status' => $temporaryRequest->displayStatusAt($now),
                                 ])
+
+                                @if($temporaryRequest->decision_note)
+                                    <div class="table-secondary">{{ $temporaryRequest->decision_note }}</div>
+                                @endif
+                            </td>
+
+                            <td class="request-decision-cell">
+
+                                @if($temporaryRequest->canBeDecidedBy($faculty, $now))
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('faculty.temporary-requests.approve', $temporaryRequest) }}"
+                                        onsubmit="return confirm('Approve this request? {{ addslashes($temporaryRequest->requester->full_name) }} will be able to start a session in {{ addslashes($temporaryRequest->room->room_name) }}.');"
+                                    >
+                                        @csrf
+
+                                        <button type="submit" class="btn btn-primary btn-small">
+                                            Approve
+                                        </button>
+                                    </form>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ route('faculty.temporary-requests.reject', $temporaryRequest) }}"
+                                        class="request-reject-form"
+                                    >
+                                        @csrf
+
+                                        <input
+                                            type="text"
+                                            name="decision_note"
+                                            maxlength="255"
+                                            placeholder="Reason (optional)"
+                                            aria-label="Reason for rejecting"
+                                        >
+
+                                        <button type="submit" class="btn btn-delete btn-small">
+                                            Reject
+                                        </button>
+                                    </form>
+
+                                @elseif($temporaryRequest->decided_at)
+
+                                    <span class="table-secondary">
+                                        {{ $temporaryRequest->decided_at->format('M d, g:i A') }}
+                                    </span>
+
+                                @else
+
+                                    <span class="table-secondary">—</span>
+
+                                @endif
+
                             </td>
 
                         </tr>
@@ -243,8 +318,23 @@
 
                             <td>
                                 @include('faculty.temporary-requests.partials.status-badge', [
-                                    'status' => $temporaryRequest->status,
+                                    'status' => $temporaryRequest->displayStatusAt($now),
                                 ])
+
+                                @if($temporaryRequest->decision_note)
+                                    <div class="table-secondary">{{ $temporaryRequest->decision_note }}</div>
+                                @endif
+
+                                @if($temporaryRequest->isApproved() && ! $temporaryRequest->isExpiredAt($now))
+                                    <div>
+                                        <a
+                                            href="{{ route('faculty.sessions.scan', $temporaryRequest->room->qr_code) }}"
+                                            class="table-action action-view"
+                                        >
+                                            Start Session
+                                        </a>
+                                    </div>
+                                @endif
                             </td>
 
                         </tr>

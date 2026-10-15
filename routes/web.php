@@ -19,6 +19,7 @@ use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
+use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -118,6 +119,13 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/temporary-requests', [TemporaryClassroomRequestController::class, 'store'])
         ->name('faculty.temporary-requests.store');
+
+    /* Approve or reject a temporary classroom request (RLNK-27/28) */
+    Route::post('/temporary-requests/{temporaryClassroomRequest}/approve', [TemporaryClassroomRequestDecisionController::class, 'approve'])
+        ->name('faculty.temporary-requests.approve');
+
+    Route::post('/temporary-requests/{temporaryClassroomRequest}/reject', [TemporaryClassroomRequestDecisionController::class, 'reject'])
+        ->name('faculty.temporary-requests.reject');
 
     /* Notifications (RLNK-30) */
     Route::get('/notifications', [NotificationController::class, 'index'])

@@ -12,6 +12,7 @@ use App\Models\Faculty;
 use App\Models\RetiredQrCode;
 use App\Models\Room;
 use App\Models\RoomSession;
+use App\Models\TemporaryClassroomRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,6 +42,7 @@ class ClassroomSessionController extends Controller
 
         $schedule = null;
         $blocker = null;
+        $approvedRequest = null;
 
         if ($room === null) {
             $retiredQrCode = RetiredQrCode::with('room')->where('qr_code', $code)->first();
@@ -48,14 +50,15 @@ class ClassroomSessionController extends Controller
             $blocker = $retiredQrCode?->replacedMessage()
                 ?? 'This QR code does not belong to any RoomLink classroom. Report the damaged QR code to the administrator.';
         } else {
-            [$schedule, $blocker] = $this->verify($room, $faculty);
+            [$schedule, $blocker, $approvedRequest] = $this->verify($room, $faculty);
         }
 
         return view('faculty.sessions.scan', compact(
             'room',
             'code',
             'schedule',
-            'blocker'
+            'blocker',
+            'approvedRequest'
         ));
     }
 
@@ -128,50 +131,94 @@ class ClassroomSessionController extends Controller
     /**
      * Check that the faculty member may start a session in the room right now.
      *
-     * @return array{0: ?ClassSession, 1: ?string} The matching schedule, and the
-     *                                             reason the session cannot start (null if it can).
+     * A faculty member with an approved temporary classroom request (RLNK-27)
+     * may start a session in the requested room while the request is valid.
+     * The session is linked to the class they named in the request, if any.
+     *
+     * Returns the class to link, the reason the session cannot start (null if
+     * it can), and the approved request being used (if any).
+     *
+     * @return array{0: ?ClassSession, 1: ?string, 2: ?TemporaryClassroomRequest}
      */
     private function verify(Room $room, ?Faculty $faculty): array
     {
         if ($faculty === null) {
-            return [null, 'Your account is not linked to a faculty record yet. Please contact the administrator.'];
+            return [null, 'Your account is not linked to a faculty record yet. Please contact the administrator.', null];
         }
 
         if ($room->isUnderMaintenance()) {
-            return [null, "{$room->room_name} is under maintenance and cannot be used right now."];
+            return [null, "{$room->room_name} is under maintenance and cannot be used right now.", null];
         }
 
         $roomSession = $room->activeSession()->with('faculty')->first();
 
         if ($roomSession !== null) {
             if ($roomSession->faculty_id === $faculty->id) {
-                return [null, "You already have an active session in {$room->room_name}."];
+                return [null, "You already have an active session in {$room->room_name}.", null];
             }
 
-            return [null, "{$room->room_name} is currently occupied by {$roomSession->faculty->full_name}."];
+            return [null, "{$room->room_name} is currently occupied by {$roomSession->faculty->full_name}.", null];
         }
 
         $ownActiveSession = $faculty->roomSessions()->active()->with('room')->first();
 
         if ($ownActiveSession !== null) {
-            return [null, "You still have an active session in {$ownActiveSession->room->room_name}. End it before starting a new one."];
+            return [null, "You still have an active session in {$ownActiveSession->room->room_name}. End it before starting a new one.", null];
         }
 
         $schedule = $this->scheduledClassFor($room);
 
+        if ($schedule === null || $schedule->faculty_id !== $faculty->id) {
+            $approvedRequest = $this->approvedRequestFor($room, $faculty, $schedule);
+
+            if ($approvedRequest !== null) {
+                $requesterClass = $approvedRequest->requesterClassSession;
+
+                if ($requesterClass !== null && MarkClassNotHeld::isMarkedToday($requesterClass)) {
+                    $requesterClass = null;
+                }
+
+                return [$requesterClass, null, $approvedRequest];
+            }
+        }
+
         if ($schedule === null) {
-            return [null, "There is no class scheduled in {$room->room_name} right now. Classes can be started up to ".self::EARLY_START_MINUTES.' minutes before their scheduled time.'];
+            return [null, "There is no class scheduled in {$room->room_name} right now. Classes can be started up to ".self::EARLY_START_MINUTES.' minutes before their scheduled time. To use it anyway, submit a temporary classroom request.', null];
         }
 
         if ($schedule->faculty_id !== $faculty->id) {
-            return [null, "{$room->room_name} is scheduled for {$schedule->faculty->full_name} ({$schedule->subject->subject_code}) right now. Submit a temporary classroom request to use this room."];
+            return [null, "{$room->room_name} is scheduled for {$schedule->faculty->full_name} ({$schedule->subject->subject_code}) right now. Submit a temporary classroom request to use this room.", null];
         }
 
         if (MarkClassNotHeld::isMarkedToday($schedule)) {
-            return [null, "You marked {$schedule->subject->subject_code} as not held today, so it can't be started."];
+            return [null, "You marked {$schedule->subject->subject_code} as not held today, so it can't be started.", null];
         }
 
-        return [$schedule, null];
+        return [$schedule, null, null];
+    }
+
+    /**
+     * The faculty member's approved request for this room that covers the
+     * current time slot: made today, against the class now in the room (or
+     * against no class when the room is free), and not yet expired.
+     */
+    private function approvedRequestFor(Room $room, Faculty $faculty, ?ClassSession $schedule): ?TemporaryClassroomRequest
+    {
+        return $faculty->temporaryClassroomRequests()
+            ->with([
+                'scheduledClassSession',
+                'scheduledFaculty',
+                'requesterClassSession.subject',
+                'requesterClassSession.section',
+                'requesterClassSession.faculty',
+            ])
+            ->where('room_id', $room->id)
+            ->where('status', 'approved')
+            ->where('scheduled_class_session_id', $schedule?->id)
+            ->where('created_at', '>=', now()->startOfDay())
+            ->latest()
+            ->get()
+            ->first(fn (TemporaryClassroomRequest $approvedRequest) => ! $approvedRequest->isExpiredAt(now()));
     }
 
     /**
