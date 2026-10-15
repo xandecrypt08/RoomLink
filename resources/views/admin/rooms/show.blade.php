@@ -251,6 +251,13 @@
                 {{ $room->classSessions->count() }}
             </span>
 
+            <a
+                href="{{ route('schedules.create', ['room_id' => $room->id]) }}"
+                class="btn-primary"
+            >
+                + Add Schedule Slot
+            </a>
+
         </div>
 
 
@@ -289,6 +296,13 @@
                             </span>
 
                         </div>
+
+                        <a
+                            href="{{ route('schedules.edit', $session) }}"
+                            class="btn-secondary"
+                        >
+                            Edit
+                        </a>
 
                     </div>
 

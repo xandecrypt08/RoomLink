@@ -16,6 +16,10 @@
     </div>
 
     <div class="page-header-actions">
+        <a href="{{ route('faculty.rooms.index') }}" class="btn btn-secondary">
+            Find a Room
+        </a>
+
         <a href="{{ route('faculty.temporary-requests.index') }}" class="btn btn-primary">
             Temporary Classroom Requests
         </a>
@@ -98,6 +102,10 @@
         onsubmit="return confirm('End your session in {{ addslashes($activeSession->room->room_name) }}? The room will be released for other classes.');"
     >
         @csrf
+
+        <a href="{{ route('faculty.transfer.create') }}" class="btn btn-secondary">
+            Transfer Class
+        </a>
 
         <button type="submit" class="btn btn-delete">
             End Session
@@ -256,6 +264,7 @@
                     <th>Section</th>
                     <th>Room</th>
                     <th>Status</th>
+                    <th></th>
                 </tr>
 
             </thead>
@@ -294,12 +303,37 @@
                             {{ $schedule->room->room_name }}
                         </td>
 
+                        @php
+                            $sessionStatuses = $todaysSessionStatuses->get($schedule->id, collect());
+                            $isRunning = $activeSession && (int) $activeSession->class_session_id === (int) $schedule->id;
+                            $canMarkNotHeld = ! $sessionStatuses->contains('not_held')
+                                && $sessionStatuses->every(fn ($status) => $status === 'active');
+                        @endphp
+
                         <td>
 
-                            @if($currentClass && $currentClass->id === $schedule->id)
+                            @if($sessionStatuses->contains('not_held'))
+
+                                <span class="status-badge status-maintenance">
+                                    Not Held
+                                </span>
+
+                            @elseif($isRunning)
 
                                 <span class="status-badge status-active">
                                     In Session
+                                </span>
+
+                            @elseif($sessionStatuses->isNotEmpty())
+
+                                <span class="status-badge">
+                                    Held
+                                </span>
+
+                            @elseif($currentClass && $currentClass->id === $schedule->id)
+
+                                <span class="status-badge status-active">
+                                    Now
                                 </span>
 
                             @elseif($schedule->start_time->format('H:i:s') > now()->format('H:i:s'))
@@ -318,13 +352,21 @@
 
                         </td>
 
+                        <td>
+                            @if($canMarkNotHeld)
+                                <a href="{{ route('faculty.not-held.create', $schedule) }}" class="btn btn-secondary">
+                                    Mark Not Held
+                                </a>
+                            @endif
+                        </td>
+
                     </tr>
 
                 @empty
 
                     <tr>
 
-                        <td colspan="5" class="empty-state">
+                        <td colspan="6" class="empty-state">
                             No classes scheduled for today.
                         </td>
 

@@ -16,6 +16,22 @@
         </a>
 
         <a
+            href="{{ route('faculty.rooms.index') }}"
+            class="sidebar-link {{ request()->routeIs('faculty.rooms.*', 'faculty.sessions.*') ? 'active' : '' }}"
+        >
+            <span class="sidebar-icon">●</span>
+            <span>Find a Room</span>
+        </a>
+
+        <a
+            href="{{ route('faculty.transfer.create') }}"
+            class="sidebar-link {{ request()->routeIs('faculty.transfer.*') ? 'active' : '' }}"
+        >
+            <span class="sidebar-icon">●</span>
+            <span>Transfer Class</span>
+        </a>
+
+        <a
             href="{{ route('faculty.temporary-requests.index') }}"
             class="sidebar-link {{ request()->routeIs('faculty.temporary-requests.*') ? 'active' : '' }}"
         >
