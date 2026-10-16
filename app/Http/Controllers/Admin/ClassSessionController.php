@@ -207,6 +207,13 @@ class ClassSessionController extends Controller
 
     public function destroy(ClassSession $schedule)
     {
+        // Keep held classes linked to their schedule in the session log.
+        if ($schedule->roomSessions()->exists()) {
+            return redirect()
+                ->route('schedules.index')
+                ->with('error', 'This class session cannot be deleted because it has session history. Set its status to Inactive instead.');
+        }
+
         $schedule->delete();
 
         return redirect()
