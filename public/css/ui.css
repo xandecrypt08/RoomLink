@@ -1173,3 +1173,77 @@ textarea {
         padding-bottom: 14px;
     }
 }
+
+/* Buttons set their own display, so make [hidden] win inside the scanner. */
+.qr-scanner [hidden] {
+    display: none !important;
+}
+
+/* Live camera view */
+.qr-live {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: #000;
+}
+
+.qr-live-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Viewfinder: a clear square in the middle, the rest dimmed. */
+.qr-live-frame {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    width: min(72vw, 52vh, 420px);
+    aspect-ratio: 1;
+    border: 3px solid #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.qr-live-panel {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, rgba(0, 0, 0, .75) 30%);
+    text-align: center;
+}
+
+.qr-live-status {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.qr-live-status.is-error {
+    color: #ffd2d2;
+}
+
+.qr-live-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.qr-live-actions .btn {
+    position: relative;
+    cursor: pointer;
+}
+
+body.qr-live-open {
+    overflow: hidden;
+}

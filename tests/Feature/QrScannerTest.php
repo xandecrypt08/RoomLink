@@ -26,6 +26,23 @@ class QrScannerTest extends TestCase
             ->assertSee('js/qr-scanner.js');
     }
 
+    public function test_scanner_offers_live_camera_with_photo_as_fallback(): void
+    {
+        $user = User::factory()->faculty()->create();
+        Faculty::factory()->for($user)->create();
+
+        // The live button starts hidden: the script only reveals it where the
+        // browser allows camera access (HTTPS or localhost). The photo button
+        // works everywhere else.
+        $this->actingAs($user)
+            ->get(route('faculty.scanner'))
+            ->assertOk()
+            ->assertSee('data-qr-live-button hidden', false)
+            ->assertSee('<video class="qr-live-video" data-qr-video playsinline muted></video>', false)
+            ->assertSee('data-qr-photo-button', false)
+            ->assertSee('Take a photo instead');
+    }
+
     public function test_scanner_opens_rooms_on_the_address_in_use_not_the_one_in_the_qr(): void
     {
         config(['app.url' => 'http://10.10.223.23:8000']);
