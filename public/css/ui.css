@@ -1074,3 +1074,102 @@ textarea {
         padding-top: 10px;
     }
 }
+
+
+/* ---------------------------------------------------------
+   IN-APP QR SCANNER (resources/views/faculty/partials/qr-scanner.blade.php)
+   --------------------------------------------------------- */
+
+.qr-scanner {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+}
+
+.qr-scanner-button {
+    position: relative;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* The file input stays focusable for keyboards but is visually hidden. */
+.qr-scanner-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.qr-scanner-button:focus-within {
+    outline: 3px solid rgba(72, 109, 135, .35);
+    outline-offset: 2px;
+}
+
+.qr-scanner-status {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.qr-scanner-status.is-error {
+    color: var(--danger);
+}
+
+.scanner-card {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    text-align: center;
+}
+
+.scanner-card h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.scanner-card p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.scanner-card .qr-scanner {
+    justify-items: center;
+    margin-top: 8px;
+}
+
+.scanner-card-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 28px;
+}
+
+.scanner-card-help a {
+    color: var(--brand);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+    .qr-scanner,
+    .qr-scanner-button {
+        width: 100%;
+    }
+
+    .qr-scanner-button {
+        justify-content: center;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+}

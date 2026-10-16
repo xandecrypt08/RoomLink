@@ -90,6 +90,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
+    /* In-app QR scanner: reads the room code from a photo (public/js/qr-scanner.js) */
+    Route::view('/scanner', 'faculty.scanner')
+        ->name('faculty.scanner');
+
     /* Classroom sessions (RLNK-21, RLNK-22). Room QR codes open the scan page. */
     Route::get('/scan/{code}', [ClassroomSessionController::class, 'scan'])
         ->name('faculty.sessions.scan');

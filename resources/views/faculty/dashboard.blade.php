@@ -160,9 +160,13 @@
                     <span class="scan-hint-icon" aria-hidden="true">▣</span>
                     <span>
                         To start this class, scan the QR code posted in
-                        <strong>{{ $currentClass->room->room_name }}</strong> with your phone's camera.
+                        <strong>{{ $currentClass->room->room_name }}</strong>.
                         <a href="{{ route('faculty.rooms.index') }}">Can't scan it?</a>
                     </span>
+                </div>
+
+                <div class="panel-actions">
+                    @include('faculty.partials.qr-scanner')
                 </div>
             @endif
 
