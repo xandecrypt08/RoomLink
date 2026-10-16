@@ -242,8 +242,9 @@ class ClassroomSessionTest extends TestCase
         $this->actingAs($admin)
             ->get('http://roomlink.test/admin/rooms/'.$this->room->id.'/qr')
             ->assertViewHas('qrData', 'http://192.168.1.50:8000/faculty/scan/'.$this->room->qr_code)
-            ->assertSee('http://192.168.1.50:8000/faculty/scan/'.$this->room->qr_code)
-            ->assertDontSee("Phones can't open this address.", false);
+            // The address is encoded in the QR image only, not printed on the page.
+            ->assertDontSee('http://192.168.1.50:8000/faculty/scan/', false)
+            ->assertDontSee("Phones can't open this QR code yet", false);
 
         $this->actingAs($admin)
             ->get(route('rooms.qr.print', $this->room))
@@ -259,7 +260,7 @@ class ClassroomSessionTest extends TestCase
 
             $this->actingAs($admin)
                 ->get(route('rooms.qr', $this->room))
-                ->assertSee("Phones can't open this address.", false);
+                ->assertSee("Phones can't open this QR code yet", false);
         }
     }
 

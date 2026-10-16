@@ -26,7 +26,7 @@
 <div class="dashboard-stats">
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon campus-icon">▣</div>
+        <div class="stat-icon room-icon">🚪</div>
         <div class="stat-content">
             <span>Total Rooms</span>
             <strong>{{ $totalRooms }}</strong>
@@ -35,7 +35,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-available">●</div>
+        <div class="stat-icon stat-icon-available">✅</div>
         <div class="stat-content">
             <span>Available</span>
             <strong>{{ $availableRooms }}</strong>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-occupied">●</div>
+        <div class="stat-icon stat-icon-occupied">👥</div>
         <div class="stat-content">
             <span>Occupied</span>
             <strong>{{ $occupiedRooms }}</strong>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-maintenance">●</div>
+        <div class="stat-icon stat-icon-maintenance">🛠️</div>
         <div class="stat-content">
             <span>Maintenance</span>
             <strong>{{ $maintenanceRooms }}</strong>

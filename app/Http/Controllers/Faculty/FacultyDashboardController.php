@@ -60,6 +60,15 @@ class FacultyDashboardController extends Controller
             return $schedule->start_time->format('H:i:s') > $currentTime;
         });
 
+        // Today's classes that were started (not counting ones marked not held).
+        $heldTodayCount = $todaysSessionStatuses
+            ->filter(fn ($statuses) => $statuses->contains(fn ($status) => $status !== RoomSession::STATUS_NOT_HELD))
+            ->count();
+
+        $pendingRequestCount = $facultyRecord?->incomingTemporaryClassroomRequests()
+            ->where('status', 'pending')
+            ->count() ?? 0;
+
         return view('faculty.dashboard', compact(
             'faculty',
             'facultyRecord',
@@ -67,7 +76,9 @@ class FacultyDashboardController extends Controller
             'currentClass',
             'nextClass',
             'activeSession',
-            'todaysSessionStatuses'
+            'todaysSessionStatuses',
+            'heldTodayCount',
+            'pendingRequestCount'
         ));
     }
 }
