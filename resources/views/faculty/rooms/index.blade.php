@@ -120,7 +120,9 @@
 
         </div>
 
-        {{ $rooms->links() }}
+        <div class="table-pagination">
+            {{ $rooms->links() }}
+        </div>
 
     @else
 
