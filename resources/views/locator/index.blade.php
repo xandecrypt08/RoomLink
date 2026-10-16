@@ -25,7 +25,7 @@
 <div class="dashboard-stats">
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-occupied">●</div>
+        <div class="stat-icon stat-icon-occupied"><x-icon name="radio" /></div>
         <div class="stat-content">
             <span>In Class Now</span>
             <strong>{{ $locatedSessions->count() }}</strong>
@@ -50,7 +50,7 @@
     @if($locatedSessions->isEmpty())
 
         <div class="empty-state">
-            <div class="empty-state-icon">⌖</div>
+            <div class="empty-state-icon"><x-icon name="map-pin" /></div>
             <h3>Nobody in class</h3>
             <p>No faculty members are holding a class right now.</p>
         </div>

@@ -64,7 +64,7 @@
     @if($notifications->isEmpty())
 
         <div class="empty-state">
-            <div class="empty-state-icon">🔔︎</div>
+            <div class="empty-state-icon"><x-icon name="bell" /></div>
             <h3>All caught up</h3>
             <p>You have no notifications.</p>
         </div>

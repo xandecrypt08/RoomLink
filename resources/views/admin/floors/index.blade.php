@@ -212,7 +212,7 @@
 
         <div class="empty-state">
 
-            <div class="empty-state-icon">▥</div>
+            <div class="empty-state-icon"><x-icon name="layers" /></div>
 
             <h3>No floors found</h3>
 

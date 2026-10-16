@@ -52,7 +52,7 @@
 <div class="dashboard-stats">
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon campus-icon">📅</div>
+        <div class="stat-icon campus-icon"><x-icon name="calendar" /></div>
         <div class="stat-content">
             <span>Classes Today</span>
             <strong>{{ $todaySchedules->count() }}</strong>
@@ -61,7 +61,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-available">✅</div>
+        <div class="stat-icon stat-icon-available"><x-icon name="check-circle" /></div>
         <div class="stat-content">
             <span>Held Today</span>
             <strong>{{ $heldTodayCount }}</strong>
@@ -70,7 +70,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon room-icon">🚪</div>
+        <div class="stat-icon room-icon"><x-icon name="door" /></div>
         <div class="stat-content">
             <span>Current Room</span>
             <strong>{{ $activeSession?->room->room_name ?? '—' }}</strong>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon building-icon">📨</div>
+        <div class="stat-icon building-icon"><x-icon name="inbox" /></div>
         <div class="stat-content">
             <span>Room Requests</span>
             <strong>{{ $pendingRequestCount }}</strong>
@@ -200,7 +200,7 @@
 
             @if(! $activeSession)
                 <div class="scan-hint">
-                    <span class="scan-hint-icon" aria-hidden="true">▣</span>
+                    <span class="scan-hint-icon" aria-hidden="true"><x-icon name="scan" /></span>
                     <span>
                         To start this class, scan the QR code posted in
                         <strong>{{ $currentClass->room->room_name }}</strong>.
@@ -283,7 +283,7 @@
     @if($todaySchedules->isEmpty())
 
         <div class="empty-state">
-            <div class="empty-state-icon">◷</div>
+            <div class="empty-state-icon"><x-icon name="calendar" /></div>
             <h3>No classes today</h3>
             <p>Enjoy the free day. Classes scheduled for today will appear here.</p>
         </div>

@@ -226,7 +226,7 @@
     @else
 
         <div class="empty-state">
-            <div class="empty-state-icon">✉</div>
+            <div class="empty-state-icon"><x-icon name="inbox" /></div>
             <h3>No incoming requests</h3>
             <p>No one has requested your classrooms.</p>
         </div>
@@ -345,7 +345,7 @@
     @else
 
         <div class="empty-state">
-            <div class="empty-state-icon">▣</div>
+            <div class="empty-state-icon"><x-icon name="inbox" /></div>
             <h3>No requests yet</h3>
             <p>You have not requested any temporary classrooms yet.</p>
         </div>

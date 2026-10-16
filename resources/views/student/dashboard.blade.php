@@ -26,7 +26,7 @@
 <div class="dashboard-stats">
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon room-icon">🚪</div>
+        <div class="stat-icon room-icon"><x-icon name="door" /></div>
         <div class="stat-content">
             <span>Total Rooms</span>
             <strong>{{ $totalRooms }}</strong>
@@ -35,7 +35,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-available">✅</div>
+        <div class="stat-icon stat-icon-available"><x-icon name="check-circle" /></div>
         <div class="stat-content">
             <span>Available</span>
             <strong>{{ $availableRooms }}</strong>
@@ -44,7 +44,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-occupied">👥</div>
+        <div class="stat-icon stat-icon-occupied"><x-icon name="users" /></div>
         <div class="stat-content">
             <span>Occupied</span>
             <strong>{{ $occupiedRooms }}</strong>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="dashboard-stat-card">
-        <div class="stat-icon stat-icon-maintenance">🛠️</div>
+        <div class="stat-icon stat-icon-maintenance"><x-icon name="wrench" /></div>
         <div class="stat-content">
             <span>Maintenance</span>
             <strong>{{ $maintenanceRooms }}</strong>
@@ -80,7 +80,7 @@
     @if($rooms->isEmpty())
 
         <div class="empty-state">
-            <div class="empty-state-icon">▣</div>
+            <div class="empty-state-icon"><x-icon name="door" /></div>
             <h3>No classrooms yet</h3>
             <p>Classrooms appear here once the administrator adds them.</p>
         </div>

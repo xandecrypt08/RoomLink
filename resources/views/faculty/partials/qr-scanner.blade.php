@@ -12,12 +12,12 @@
     data-scan-url="{{ route('faculty.sessions.scan', ['code' => '__CODE__'], false) }}"
 >
     <button type="button" class="btn btn-primary qr-scanner-button" data-qr-live-button hidden>
-        <span aria-hidden="true">▣</span>
+        <span aria-hidden="true"><x-icon name="scan" /></span>
         {{ $label ?? 'Scan Room QR' }}
     </button>
 
     <label class="btn btn-primary qr-scanner-button" data-qr-photo-button>
-        <span aria-hidden="true">▣</span>
+        <span aria-hidden="true"><x-icon name="scan" /></span>
         {{ $label ?? 'Scan Room QR' }}
 
         <input

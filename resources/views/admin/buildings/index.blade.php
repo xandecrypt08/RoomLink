@@ -191,7 +191,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ▤
+                <x-icon name="building" />
             </div>
 
             <h3>

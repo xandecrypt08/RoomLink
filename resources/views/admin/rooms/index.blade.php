@@ -236,7 +236,7 @@
 
         <div class="empty-state">
 
-            <div class="empty-state-icon">□</div>
+            <div class="empty-state-icon"><x-icon name="door" /></div>
 
             <h3>No rooms found</h3>
 

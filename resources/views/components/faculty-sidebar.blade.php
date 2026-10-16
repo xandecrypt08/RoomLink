@@ -16,7 +16,7 @@
             href="{{ route('faculty.dashboard') }}"
             class="{{ request()->routeIs('faculty.dashboard') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌂</span>
+            <span class="menu-icon"><x-icon name="home" /></span>
             <span>Dashboard</span>
         </a>
 
@@ -29,7 +29,7 @@
             href="{{ route('faculty.scanner') }}"
             class="{{ request()->routeIs('faculty.scanner') ? 'active' : '' }}"
         >
-            <span class="menu-icon">▣</span>
+            <span class="menu-icon"><x-icon name="scan" /></span>
             <span>Scan Room QR</span>
         </a>
 
@@ -37,7 +37,7 @@
             href="{{ route('faculty.rooms.index') }}"
             class="{{ request()->routeIs('faculty.rooms.*', 'faculty.sessions.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌕</span>
+            <span class="menu-icon"><x-icon name="search" /></span>
             <span>Find a Room</span>
         </a>
 
@@ -45,7 +45,7 @@
             href="{{ route('faculty.transfer.create') }}"
             class="{{ request()->routeIs('faculty.transfer.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⇄</span>
+            <span class="menu-icon"><x-icon name="transfer" /></span>
             <span>Transfer Class</span>
         </a>
 
@@ -53,7 +53,7 @@
             href="{{ route('faculty.temporary-requests.index') }}"
             class="{{ request()->routeIs('faculty.temporary-requests.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">✉</span>
+            <span class="menu-icon"><x-icon name="inbox" /></span>
             <span>Room Requests</span>
 
             @php
@@ -72,7 +72,7 @@
             href="{{ route('faculty-locator.index') }}"
             class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌖</span>
+            <span class="menu-icon"><x-icon name="map-pin" /></span>
             <span>Faculty Locator</span>
         </a>
 
@@ -80,7 +80,7 @@
             href="{{ route('faculty.notifications.index') }}"
             class="{{ request()->routeIs('faculty.notifications.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">🔔︎</span>
+            <span class="menu-icon"><x-icon name="bell" /></span>
             <span>Notifications</span>
 
             @php
@@ -101,7 +101,7 @@
             @csrf
 
             <button type="submit" class="sidebar-logout">
-                <span class="menu-icon">↪</span>
+                <span class="menu-icon"><x-icon name="log-out" /></span>
                 <span>Logout</span>
             </button>
 

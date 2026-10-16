@@ -177,7 +177,7 @@
 
         <div class="empty-state">
 
-            <div class="empty-state-icon">◇</div>
+            <div class="empty-state-icon"><x-icon name="plug" /></div>
 
             <h3>No facilities found</h3>
 

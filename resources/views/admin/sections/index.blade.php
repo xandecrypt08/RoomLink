@@ -207,7 +207,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ☷
+                <x-icon name="users" />
             </div>
 
             <h3>No sections found</h3>

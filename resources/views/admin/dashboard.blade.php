@@ -26,7 +26,7 @@
     <div class="dashboard-stat-card">
 
         <div class="stat-icon campus-icon">
-            🏫
+            <x-icon name="landmark" />
         </div>
 
         <div class="stat-content">
@@ -41,7 +41,7 @@
     <div class="dashboard-stat-card">
 
         <div class="stat-icon building-icon">
-            🏢
+            <x-icon name="building" />
         </div>
 
         <div class="stat-content">
@@ -56,7 +56,7 @@
     <div class="dashboard-stat-card">
 
         <div class="stat-icon floor-icon">
-            🧱
+            <x-icon name="layers" />
         </div>
 
         <div class="stat-content">
@@ -71,7 +71,7 @@
     <div class="dashboard-stat-card">
 
         <div class="stat-icon room-icon">
-            🚪
+            <x-icon name="door" />
         </div>
 
         <div class="stat-content">
@@ -354,7 +354,7 @@
 
         <div class="dashboard-empty">
 
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon"><x-icon name="calendar" /></div>
 
             <strong>No class sessions yet</strong>
 

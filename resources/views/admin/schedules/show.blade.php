@@ -206,7 +206,7 @@
                 @foreach ($schedule->room->facilities as $facility)
 
                     <div class="facility-option">
-                        <span class="facility-check">✓</span>
+                        <span class="facility-check"><x-icon name="check" /></span>
                         <span>{{ $facility->facility_name }}</span>
                     </div>
 

@@ -56,7 +56,7 @@
 
     <div class="content-card">
         <div class="empty-state">
-            <div class="empty-state-icon">⇄</div>
+            <div class="empty-state-icon"><x-icon name="transfer" /></div>
             <h3>No class to transfer</h3>
             <p>You have no active session. Start your class in its room before transferring it.</p>
 
@@ -137,7 +137,7 @@
         @if ($rooms->isEmpty())
 
             <div class="empty-state">
-                <div class="empty-state-icon">▣</div>
+                <div class="empty-state-icon"><x-icon name="door" /></div>
                 <h3>No rooms available</h3>
                 <p>No classrooms are available for a transfer right now.</p>
             </div>

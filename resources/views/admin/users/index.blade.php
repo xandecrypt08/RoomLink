@@ -240,7 +240,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ⚇
+                <x-icon name="shield" />
             </div>
 
             <h3>No accounts found</h3>

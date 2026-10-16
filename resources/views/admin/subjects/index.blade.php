@@ -204,7 +204,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ▤
+                <x-icon name="book" />
             </div>
 
             <h3>No subjects found</h3>

@@ -154,7 +154,7 @@
                     <div class="floor-item">
 
                         <div class="floor-icon">
-                            ◷
+                            <x-icon name="clock" />
                         </div>
 
                         <div class="floor-info">
