@@ -47,6 +47,49 @@
 @endif
 
 
+{{-- Today at a glance (same stat cards as the admin dashboard) --}}
+
+<div class="dashboard-stats">
+
+    <div class="dashboard-stat-card">
+        <div class="stat-icon campus-icon">📅</div>
+        <div class="stat-content">
+            <span>Classes Today</span>
+            <strong>{{ $todaySchedules->count() }}</strong>
+            <small>Scheduled for {{ now()->format('l') }}</small>
+        </div>
+    </div>
+
+    <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-available">✅</div>
+        <div class="stat-content">
+            <span>Held Today</span>
+            <strong>{{ $heldTodayCount }}</strong>
+            <small>Classes started today</small>
+        </div>
+    </div>
+
+    <div class="dashboard-stat-card">
+        <div class="stat-icon room-icon">🚪</div>
+        <div class="stat-content">
+            <span>Current Room</span>
+            <strong>{{ $activeSession?->room->room_name ?? '—' }}</strong>
+            <small>{{ $activeSession ? 'Session in progress' : 'No active session' }}</small>
+        </div>
+    </div>
+
+    <div class="dashboard-stat-card">
+        <div class="stat-icon building-icon">📨</div>
+        <div class="stat-content">
+            <span>Room Requests</span>
+            <strong>{{ $pendingRequestCount }}</strong>
+            <small>Waiting for your decision</small>
+        </div>
+    </div>
+
+</div>
+
+
 {{-- Active Session (RLNK-21/22) --}}
 
 @if($activeSession)

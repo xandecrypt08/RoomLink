@@ -2,7 +2,7 @@
 
     <div class="brand">
         <h2>RoomLink</h2>
-        <span>Student Portal</span>
+        <span>Smart Spaces. Seamless Classes.</span>
     </div>
 
 

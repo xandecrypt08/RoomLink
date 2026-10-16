@@ -608,7 +608,7 @@ textarea {
 .stat-icon-available,
 .stat-icon-occupied,
 .stat-icon-maintenance {
-    font-size: 16px;
+    font-size: 21px;
 }
 
 .stat-icon-available {
@@ -773,18 +773,6 @@ textarea {
     margin: 0 auto;
     padding: 32px 24px;
     text-align: center;
-}
-
-.qr-scan-url {
-    margin: 6px 0 0;
-    color: var(--muted);
-    font-size: 12px;
-    overflow-wrap: anywhere;
-}
-
-.qr-scan-url span {
-    font-family: ui-monospace, Consolas, monospace;
-    color: var(--ink-soft);
 }
 
 .qr-replace-card {
