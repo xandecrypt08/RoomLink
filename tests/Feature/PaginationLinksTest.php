@@ -22,7 +22,8 @@ class PaginationLinksTest extends TestCase
             ->assertSeeInOrder(['Showing', '11', '20', 'of', '25'])
             ->assertSee(route('rooms.index', ['page' => 1]), false)
             ->assertSee(route('rooms.index', ['page' => 3]), false)
-            ->assertDontSee('<svg', false);
+            // Laravel's Tailwind page links draw their arrows on a 20x20 viewBox.
+            ->assertDontSee('viewBox="0 0 20 20"', false);
     }
 
     public function test_no_page_links_when_everything_fits_on_one_page(): void

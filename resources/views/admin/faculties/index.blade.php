@@ -214,7 +214,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ♙
+                <x-icon name="user" />
             </div>
 
             <h3>No faculty members found</h3>

@@ -127,7 +127,7 @@
     @else
 
         <div class="empty-state">
-            <div class="empty-state-icon">⌕</div>
+            <div class="empty-state-icon"><x-icon name="search" /></div>
             <h3>No rooms found</h3>
             <p>No rooms match "{{ $search }}". Try a room name or building.</p>
         </div>

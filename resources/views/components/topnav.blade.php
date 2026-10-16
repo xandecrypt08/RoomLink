@@ -49,7 +49,7 @@
                 title="Notifications"
                 aria-label="Notifications{{ $unreadCount ? " ({$unreadCount} unread)" : '' }}"
             >
-                <span aria-hidden="true">🔔︎</span>
+                <span aria-hidden="true"><x-icon name="bell" /></span>
 
                 @if($unreadCount > 0)
                     <span class="notification-count">{{ $unreadCount }}</span>

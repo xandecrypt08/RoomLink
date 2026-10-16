@@ -26,7 +26,7 @@
 
 <div class="content-card scanner-card">
 
-    <div class="scanner-card-icon" aria-hidden="true">▣</div>
+    <div class="scanner-card-icon" aria-hidden="true"><x-icon name="scan" /></div>
 
     <h2>Point your camera at the room's QR code</h2>
 

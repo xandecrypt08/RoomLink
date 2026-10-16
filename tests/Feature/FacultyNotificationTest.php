@@ -173,7 +173,7 @@ class FacultyNotificationTest extends TestCase
      */
     private function sidebarLink(string $html, string $label): string
     {
-        preg_match('#<a\s[^>]*>\s*<span class="menu-icon">[^<]*</span>\s*<span>'.preg_quote($label, '#').'</span>.*?</a>#s', $html, $matches);
+        preg_match('#<a\s[^>]*>\s*<span class="menu-icon">(?:(?!</a>).)*?</span>\s*<span>'.preg_quote($label, '#').'</span>.*?</a>#s', $html, $matches);
 
         $this->assertNotEmpty($matches, "Sidebar link [{$label}] not found.");
 

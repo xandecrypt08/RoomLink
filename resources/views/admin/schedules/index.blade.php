@@ -303,7 +303,7 @@
         <div class="empty-state">
 
             <div class="empty-state-icon">
-                ◷
+                <x-icon name="clock" />
             </div>
 
             <h3>No class sessions found</h3>

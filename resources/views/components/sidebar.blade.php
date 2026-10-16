@@ -16,7 +16,7 @@
             href="{{ route('admin.dashboard') }}"
             class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌂</span>
+            <span class="menu-icon"><x-icon name="home" /></span>
             <span>Dashboard</span>
         </a>
 
@@ -24,7 +24,7 @@
             href="{{ route('faculty-locator.index') }}"
             class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌖</span>
+            <span class="menu-icon"><x-icon name="map-pin" /></span>
             <span>Faculty Locator</span>
         </a>
 
@@ -37,7 +37,7 @@
             href="{{ route('campuses.index') }}"
             class="{{ request()->routeIs('campuses.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">▣</span>
+            <span class="menu-icon"><x-icon name="landmark" /></span>
             <span>Campus</span>
         </a>
 
@@ -45,7 +45,7 @@
             href="{{ route('buildings.index') }}"
             class="{{ request()->routeIs('buildings.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">▤</span>
+            <span class="menu-icon"><x-icon name="building" /></span>
             <span>Buildings</span>
         </a>
 
@@ -53,7 +53,7 @@
             href="{{ route('floors.index') }}"
             class="{{ request()->routeIs('floors.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">▥</span>
+            <span class="menu-icon"><x-icon name="layers" /></span>
             <span>Floors</span>
         </a>
 
@@ -61,7 +61,7 @@
             href="{{ route('rooms.index') }}"
             class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">□</span>
+            <span class="menu-icon"><x-icon name="door" /></span>
             <span>Rooms</span>
         </a>
 
@@ -69,7 +69,7 @@
             href="{{ route('facilities.index') }}"
             class="{{ request()->routeIs('facilities.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">◇</span>
+            <span class="menu-icon"><x-icon name="plug" /></span>
             <span>Facilities</span>
         </a>
 
@@ -82,7 +82,7 @@
             href="{{ route('faculties.index') }}"
             class="{{ request()->routeIs('faculties.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">♙</span>
+            <span class="menu-icon"><x-icon name="user" /></span>
             <span>Faculty</span>
         </a>
 
@@ -90,7 +90,7 @@
             href="{{ route('subjects.index') }}"
             class="{{ request()->routeIs('subjects.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">▤</span>
+            <span class="menu-icon"><x-icon name="book" /></span>
             <span>Subjects</span>
         </a>
 
@@ -98,7 +98,7 @@
             href="{{ route('sections.index') }}"
             class="{{ request()->routeIs('sections.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">☷</span>
+            <span class="menu-icon"><x-icon name="users" /></span>
             <span>Sections</span>
         </a>
 
@@ -106,7 +106,7 @@
             href="{{ route('schedules.index') }}"
             class="{{ request()->routeIs('schedules.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">◷</span>
+            <span class="menu-icon"><x-icon name="clock" /></span>
             <span>Class Sessions</span>
         </a>
 
@@ -119,7 +119,7 @@
             href="{{ route('users.index') }}"
             class="{{ request()->routeIs('users.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⚇</span>
+            <span class="menu-icon"><x-icon name="shield" /></span>
             <span>User Accounts</span>
         </a>
 
@@ -132,7 +132,7 @@
             @csrf
 
             <button type="submit" class="sidebar-logout">
-                <span class="menu-icon">↪</span>
+                <span class="menu-icon"><x-icon name="log-out" /></span>
                 <span>Logout</span>
             </button>
 

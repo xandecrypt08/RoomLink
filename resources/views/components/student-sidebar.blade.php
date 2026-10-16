@@ -16,7 +16,7 @@
             href="{{ route('student.dashboard') }}"
             class="{{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌂</span>
+            <span class="menu-icon"><x-icon name="door" /></span>
             <span>Classrooms</span>
         </a>
 
@@ -24,7 +24,7 @@
             href="{{ route('faculty-locator.index') }}"
             class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon">⌖</span>
+            <span class="menu-icon"><x-icon name="map-pin" /></span>
             <span>Faculty Locator</span>
         </a>
 
@@ -37,7 +37,7 @@
             @csrf
 
             <button type="submit" class="sidebar-logout">
-                <span class="menu-icon">↪</span>
+                <span class="menu-icon"><x-icon name="log-out" /></span>
                 <span>Logout</span>
             </button>
 

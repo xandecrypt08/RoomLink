@@ -111,7 +111,7 @@
                     <div class="floor-item">
 
                         <div class="floor-icon">
-                            ▤
+                            <x-icon name="building" />
                         </div>
 
                         <div class="floor-info">
