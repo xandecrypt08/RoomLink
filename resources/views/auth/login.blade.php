@@ -29,16 +29,27 @@
 
         </div>
 
-        {{-- Heading --}}
+        {{-- Heading: phones are for faculty and students, computers for administrators and faculty --}}
         <div class="login-heading">
-            <span class="login-eyebrow">ROOMLINK PORTAL</span>
+            @if($isPhone)
+                <span class="login-eyebrow">FACULTY &amp; STUDENTS</span>
 
-            <h2>Welcome back.</h2>
+                <h2>Welcome back.</h2>
 
-            <p>
-                Sign in to access your classroom management and
-                faculty locator tools.
-            </p>
+                <p>
+                    Sign in to scan room QR codes, start your classes,
+                    and find free classrooms and faculty.
+                </p>
+            @else
+                <span class="login-eyebrow">ADMINISTRATORS &amp; FACULTY</span>
+
+                <h2>Welcome back.</h2>
+
+                <p>
+                    Sign in to manage campuses, rooms, schedules,
+                    and classroom sessions.
+                </p>
+            @endif
         </div>
 
         {{-- Error Message --}}
@@ -172,6 +183,14 @@
 
         </form>
 
+
+        <p class="login-device-note">
+            @if($isPhone)
+                Administrators: please sign in from a computer.
+            @else
+                Faculty and students can also sign in on their phones.
+            @endif
+        </p>
 
         {{-- Footer --}}
         <div class="login-footer">
