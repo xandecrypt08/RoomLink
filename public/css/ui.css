@@ -1180,3 +1180,176 @@ a.pager-link:hover {
         display: none;
     }
 }
+
+
+/* ---------------------------------------------------------
+   IN-APP QR SCANNER (resources/views/faculty/partials/qr-scanner.blade.php)
+   --------------------------------------------------------- */
+
+.qr-scanner {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+}
+
+.qr-scanner-button {
+    position: relative;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* The file input stays focusable for keyboards but is visually hidden. */
+.qr-scanner-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.qr-scanner-button:focus-within {
+    outline: 3px solid rgba(72, 109, 135, .35);
+    outline-offset: 2px;
+}
+
+.qr-scanner-status {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.qr-scanner-status.is-error {
+    color: var(--danger);
+}
+
+.scanner-card {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    text-align: center;
+}
+
+.scanner-card h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.scanner-card p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.scanner-card .qr-scanner {
+    justify-items: center;
+    margin-top: 8px;
+}
+
+.scanner-card-icon {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 28px;
+}
+
+.scanner-card-help a {
+    color: var(--brand);
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+    .qr-scanner,
+    .qr-scanner-button {
+        width: 100%;
+    }
+
+    .qr-scanner-button {
+        justify-content: center;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+}
+
+/* Buttons set their own display, so make [hidden] win inside the scanner. */
+.qr-scanner [hidden] {
+    display: none !important;
+}
+
+/* Live camera view */
+.qr-live {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: #000;
+}
+
+.qr-live-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Viewfinder: a clear square in the middle, the rest dimmed. */
+.qr-live-frame {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    width: min(72vw, 52vh, 420px);
+    aspect-ratio: 1;
+    border: 3px solid #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .45);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.qr-live-panel {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, rgba(0, 0, 0, .75) 30%);
+    text-align: center;
+}
+
+.qr-live-status {
+    margin: 0;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.qr-live-status.is-error {
+    color: #ffd2d2;
+}
+
+.qr-live-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.qr-live-actions .btn {
+    position: relative;
+    cursor: pointer;
+}
+
+body.qr-live-open {
+    overflow: hidden;
+}

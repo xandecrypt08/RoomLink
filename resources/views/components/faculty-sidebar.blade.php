@@ -26,6 +26,14 @@
         </div>
 
         <a
+            href="{{ route('faculty.scanner') }}"
+            class="{{ request()->routeIs('faculty.scanner') ? 'active' : '' }}"
+        >
+            <span class="menu-icon">▣</span>
+            <span>Scan Room QR</span>
+        </a>
+
+        <a
             href="{{ route('faculty.rooms.index') }}"
             class="{{ request()->routeIs('faculty.rooms.*', 'faculty.sessions.*') ? 'active' : '' }}"
         >
