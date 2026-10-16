@@ -1077,6 +1077,112 @@ textarea {
 
 
 /* ---------------------------------------------------------
+   PAGE LINKS (resources/views/pagination/roomlink.blade.php)
+   --------------------------------------------------------- */
+
+.table-pagination,
+.pagination-wrapper {
+    padding: 14px 20px;
+    border-top: 1px solid var(--line);
+}
+
+.table-pagination:not(:has(.pager)),
+.pagination-wrapper:not(:has(.pager)) {
+    display: none;
+}
+
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pager-summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.pager-summary strong {
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.pager-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.pager-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+a.pager-link:hover {
+    border-color: #789DB7;
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.pager-link.is-current {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #ffffff;
+}
+
+.pager-link.is-disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.pager-gap {
+    min-width: 0;
+    padding: 0 4px;
+    border-color: transparent;
+    background: none;
+}
+
+@media (max-width: 600px) {
+
+    .table-pagination,
+    .pagination-wrapper {
+        padding: 12px 16px;
+    }
+
+    .pager {
+        justify-content: center;
+    }
+
+    .pager-summary {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Page numbers take too much room on a phone; keep Previous / current / Next. */
+    .pager-page:not(.is-current),
+    .pager-gap {
+        display: none;
+    }
+}
+
+
+/* ---------------------------------------------------------
    IN-APP QR SCANNER (resources/views/faculty/partials/qr-scanner.blade.php)
    --------------------------------------------------------- */
 
