@@ -1571,3 +1571,45 @@ table.roomlink-table.import-table {
 .import-table td {
     vertical-align: middle;
 }
+
+
+/* ---------------------------------------------------------
+   COLLEGES (programs grouped by college)
+   --------------------------------------------------------- */
+
+.college-card {
+    margin-bottom: 20px;
+}
+
+.college-card h2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Group heading inside a college, e.g. Elementary Education Programs. */
+.program-group-row td {
+    padding-top: 14px;
+    padding-bottom: 8px;
+    background: var(--surface-soft);
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
+
+.program-options-college + .program-options-college {
+    margin-top: 16px;
+}
+
+.program-options-heading {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
