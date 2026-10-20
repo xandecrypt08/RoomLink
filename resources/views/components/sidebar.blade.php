@@ -87,6 +87,14 @@
         </a>
 
         <a
+            href="{{ route('programs.index') }}"
+            class="{{ request()->routeIs('programs.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="graduation-cap" /></span>
+            <span>Programs</span>
+        </a>
+
+        <a
             href="{{ route('subjects.index') }}"
             class="{{ request()->routeIs('subjects.*') ? 'active' : '' }}"
         >

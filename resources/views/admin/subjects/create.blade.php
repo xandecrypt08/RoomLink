@@ -94,6 +94,9 @@
         </div>
 
 
+        @include('admin.subjects.partials.program-options', ['selected' => []])
+
+
         <div class="form-group">
 
             <label for="description">

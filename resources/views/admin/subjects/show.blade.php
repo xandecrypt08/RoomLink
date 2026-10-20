@@ -87,6 +87,17 @@
 
             <div class="detail-item">
 
+                <span>Programs</span>
+
+                <strong>
+                    {{ $subject->programs->pluck('program_code')->implode(', ') ?: 'None' }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
                 <span>Class Sessions</span>
 
                 <strong>

@@ -114,6 +114,9 @@
         </div>
 
 
+        @include('admin.subjects.partials.program-options', ['selected' => $subject->programs->pluck('id')->all()])
+
+
         <div class="form-group">
 
             <label for="description">

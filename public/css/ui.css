@@ -1407,3 +1407,167 @@ body.qr-live-open {
     width: 20px;
     height: 20px;
 }
+
+
+/* ---------------------------------------------------------
+   PROGRAMS & SUBJECT IMPORT
+   --------------------------------------------------------- */
+
+.program-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.program-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.import-tips {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.import-tips ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+
+.import-tips code {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
+}
+
+.import-select-all {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.import-check-cell {
+    width: 64px;
+    text-align: center;
+}
+
+.import-check-cell input,
+.import-select-all input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--brand);
+}
+
+.import-input {
+    width: 100%;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.import-input:focus {
+    border-color: #789DB7;
+}
+
+.import-input[readonly] {
+    border-color: transparent;
+    background: transparent;
+    color: var(--ink-soft);
+}
+
+.import-code {
+    width: 120px;
+    font-family: ui-monospace, Consolas, monospace;
+    font-weight: 600;
+}
+
+.import-footer {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--line);
+}
+
+.import-raw-text {
+    margin-bottom: 16px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.import-raw-text summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.import-raw-text pre {
+    max-height: 320px;
+    margin: 10px 0 0;
+    padding: 12px;
+    overflow: auto;
+    border-radius: 8px;
+    background: var(--surface-soft);
+    color: var(--ink-soft);
+    font-size: 11px;
+    white-space: pre-wrap;
+}
+
+.table-search select {
+    max-width: 160px;
+}
+
+@media (max-width: 760px) {
+
+    /* Keep titles readable; the review table scrolls sideways instead. */
+    table.roomlink-table.import-table {
+        min-width: 860px;
+    }
+}
+
+.import-wait {
+    margin-top: 12px;
+    text-align: right;
+}
+
+/* Review table: short columns fixed, Descriptive Title gets the rest. */
+table.roomlink-table.import-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.import-col-check {
+    width: 76px;
+}
+
+.import-col-code {
+    width: 170px;
+}
+
+.import-col-status {
+    width: 190px;
+}
+
+.import-table .import-code {
+    width: 100%;
+}
+
+.import-table td {
+    vertical-align: middle;
+}

@@ -66,7 +66,7 @@
 
 @once
     @push('scripts')
-        <script src="{{ asset('js/vendor/jsQR-1.4.0.js') }}"></script>
-        <script src="{{ asset('js/qr-scanner.js') }}"></script>
+        <script src="{{ \App\Support\Asset::url('js/vendor/jsQR-1.4.0.js') }}"></script>
+        <script src="{{ \App\Support\Asset::url('js/qr-scanner.js') }}"></script>
     @endpush
 @endonce
