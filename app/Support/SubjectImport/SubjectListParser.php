@@ -8,25 +8,39 @@ use App\Models\Subject;
  * Finds subjects (Course No. and Descriptive Title) in text extracted from a
  * curriculum or prospectus.
  *
- * A subject row starts with a course code such as "IT-110", "IT 110" or
- * "GE109", followed by the title and usually the units and prerequisite
- * columns, which are dropped. Every result should still be reviewed before
- * importing, because document layouts vary.
+ * A subject row starts with a course code such as "IT-110", "IT 110",
+ * "GE109", "PATHFIT 1", "NSTP-CWTS 1", "Fil 101" or "IT Elec 1", followed by
+ * the title and usually the units and prerequisite columns, which are
+ * dropped. Every result should still be reviewed before importing, because
+ * document layouts vary.
  */
 class SubjectListParser
 {
     /**
-     * A course code: 2-6 capital letters, an optional space or dash, then a
-     * number of up to 4 digits with an optional letter (IT-110, GE 109, PE1).
+     * One word of a code's prefix: capitals (IT, NSTP, PATHFIT), a short
+     * capitalised word (Fil, Math, Lit, Elec) or camel case (PathFit).
      */
-    private const CODE = '(?<letters>[A-Z]{2,6})\s*[-–—.]?\s*(?<number>\d{1,4}[A-Z]?)(?=[\s|:\-–—]|$)';
+    private const WORD = '(?:[A-Z]{2,8}|[A-Z][a-z]{1,4}|[A-Z][a-z]{1,5}[A-Z][a-z]{1,5})';
 
     /**
-     * Words that look like a code when followed by a number but start other rows.
+     * A course number: up to 4 digits with an optional letter (110, 1, 101A),
+     * or a Roman numeral (PE II).
+     */
+    private const NUMBER = '(?:\d{1,4}[A-Z]?|IV|V?I{1,3})';
+
+    /**
+     * A course code: a prefix of one or two words (PATHFIT, IT Elec,
+     * NSTP-CWTS), an optional space or dash, then the course number.
+     */
+    private const CODE = '(?<letters>'.self::WORD.'(?:[ -]'.self::WORD.')?)\s*[-–—.]?\s*(?<number>'.self::NUMBER.')(?=[\s|:\-–—]|$)';
+
+    /**
+     * Words that look like a code when followed by a number but start other
+     * rows (compared in capitals).
      *
      * @var list<string>
      */
-    private const NOT_CODES = ['YEAR', 'SEM', 'SEMESTER', 'UNIT', 'UNITS', 'TOTAL', 'PAGE', 'GRADE', 'ROOM', 'LEC', 'LAB', 'HRS', 'HOURS', 'SECTION', 'SUMMER', 'NO', 'NOS', 'CHAPTER', 'PART', 'TERM'];
+    private const NOT_CODES = ['YEAR', 'SEM', 'SEMESTER', 'UNIT', 'UNITS', 'TOTAL', 'GRAND', 'PAGE', 'GRADE', 'ROOM', 'LEC', 'LAB', 'HRS', 'HOURS', 'SECTION', 'SUMMER', 'NO', 'NOS', 'CHAPTER', 'PART', 'TERM', 'WEEK', 'DAY', 'LEVEL', 'FIRST', 'SECOND', 'THIRD', 'FOURTH', 'FIFTH', 'TABLE', 'FIGURE', 'STEP', 'ITEM', 'BLOCK'];
 
     /**
      * Small words kept lower case when a title written in capitals is converted.
@@ -80,8 +94,14 @@ class SubjectListParser
         // Row numbers and bullets in front of the code: "1.", "12)", "•", "-".
         $line = preg_replace('/^(?:\d{1,3}[.)]\s+|[•\-–*]\s+)/u', '', $line);
 
-        if (! preg_match('/^'.self::CODE.'(?<rest>.*)$/u', $line, $match) || in_array($match['letters'], self::NOT_CODES, true)) {
+        if (! preg_match('/^'.self::CODE.'(?<rest>.*)$/u', $line, $match)) {
             return null;
+        }
+
+        foreach (preg_split('/[ -]/', strtoupper($match['letters'])) as $word) {
+            if (in_array($word, self::NOT_CODES, true)) {
+                return null;
+            }
         }
 
         $title = $this->titleFrom($match['rest']);
@@ -99,7 +119,7 @@ class SubjectListParser
     /**
      * Repair the letters of a course code at the start of an OCR line, such as
      * "(7-111" or "1T-110" for "IT-111" / "IT-110". The code must have a dash
-     * and become 2-6 capitals, and either keep a real capital or match a prefix
+     * and become 2-8 capitals, and either keep a real capital or match a prefix
      * read correctly elsewhere in the document, so a line like "15-2 ..." is
      * not turned into a made-up "IS-2".
      *
@@ -108,13 +128,13 @@ class SubjectListParser
     private function withOcrLettersFixed(string $line, array $knownPrefixes): string
     {
         return preg_replace_callback(
-            '/^(\s*(?:\d{1,3}[.)]\s+)?)([A-Za-z0-9|!(\[]{2,6})(\s*[-–—]\s*\d{1,4}[A-Z]?\s)/u',
+            '/^(\s*(?:\d{1,3}[.)]\s+)?)([A-Za-z0-9|!(\[]{2,8})(\s*[-–—]\s*\d{1,4}[A-Z]?\s)/u',
             function (array $match) use ($knownPrefixes): string {
                 $letters = strtr($match[2], self::OCR_LETTER_FIXES);
 
                 $trusted = preg_match('/[A-Z]/', $match[2]) || in_array($letters, $knownPrefixes, true);
 
-                if ($letters === $match[2] || ! preg_match('/^[A-Z]{2,6}$/', $letters) || ! $trusted) {
+                if ($letters === $match[2] || ! preg_match('/^[A-Z]{2,8}$/', $letters) || ! $trusted) {
                     return $match[0];
                 }
 
@@ -152,16 +172,24 @@ class SubjectListParser
     }
 
     /**
-     * Drop prerequisites ("None", "IT-101, IT-102") and units from the end of a
-     * title cell. Three or more trailing numbers are units (lecture, laboratory,
-     * credit); a single trailing number is kept, since titles like "Computer
-     * Programming 1" end in one.
+     * Drop prerequisites ("None", "IT-101, PATHFIT 1") and units from the end
+     * of a title cell. Three or more trailing numbers are units (lecture,
+     * laboratory, credit); a single trailing number is kept, since titles like
+     * "Computer Programming 1" end in one.
+     *
+     * A prerequisite code is only dropped right after a number (the units
+     * column), so a title in capitals such as "CIVIC WELFARE TRAINING SERVICE 1"
+     * keeps its last words.
      */
     private function withoutTrailingColumns(string $title): string
     {
-        $code = '[A-Z]{2,6}\s*-?\s*\d{1,4}[A-Z]?';
+        $prerequisite = '(?:[A-Z]{2,8}(?:[ -]'.self::WORD.')?|[A-Z][a-z]{1,4}(?=\s*-?\s*\d{3}))\s*-?\s*'.self::NUMBER;
 
-        $title = preg_replace('/(?:\s+(?:none|n\/?a|-+|—|'.$code.')(?:\s*,\s*'.$code.')*)+\s*$/iu', '', $title);
+        do {
+            $before = $title;
+            $title = preg_replace('/\s+(?i:none|n\/?a|-+|—)\s*$/u', '', $title);
+            $title = preg_replace('/(?<=\d)\s+'.$prerequisite.'(?:\s*,\s*'.$prerequisite.')*\s*$/u', '', $title);
+        } while ($title !== $before);
 
         if (preg_match('/^(?<words>.*?\pL.*?)(?<numbers>(?:\s+\d+(?:\.\d+)?)+)\s*$/u', $title, $match)) {
             $numbers = preg_split('/\s+/', trim($match['numbers']));

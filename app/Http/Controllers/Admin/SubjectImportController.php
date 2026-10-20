@@ -36,22 +36,26 @@ class SubjectImportController extends Controller
     public function preview(Request $request, DocumentText $documentText, SubjectListParser $parser): View|RedirectResponse
     {
         $validated = $request->validate([
-            'document' => ['required', 'file', 'max:10240', 'mimes:'.implode(',', DocumentText::EXTENSIONS)],
+            'document' => ['required', 'file', 'max:'.DocumentText::MAX_KILOBYTES, 'mimes:'.implode(',', DocumentText::EXTENSIONS)],
             'programs' => ['required', 'array', 'min:1'],
             'programs.*' => ['integer', 'exists:programs,id'],
         ], [
             'document.mimes' => 'Upload a PDF, Word (.docx), text file, or a photo (JPG, PNG, WEBP).',
-            'document.max' => 'The file must be 10 MB or smaller.',
+            'document.max' => 'The file must be '.intdiv(DocumentText::MAX_KILOBYTES, 1024).' MB or smaller.',
             'programs.required' => 'Choose at least one program for these subjects.',
         ]);
 
+        // Scanned PDFs are read page by page with OCR, several seconds a page.
+        set_time_limit(60 + 30 * DocumentText::MAX_PAGES);
+
         try {
-            $text = $documentText->extract($request->file('document'));
+            $extracted = $documentText->extract($request->file('document'));
         } catch (RuntimeException $exception) {
             return back()->withInput()->withErrors(['document' => $exception->getMessage()]);
         }
 
-        $found = $parser->parse($text, DocumentText::isImage($request->file('document')));
+        $text = $extracted->text;
+        $found = $parser->parse($text, $extracted->usedOcr);
 
         if ($found === []) {
             return back()->withInput()->withErrors([
@@ -72,6 +76,8 @@ class SubjectImportController extends Controller
             'rows' => $rows,
             'programs' => $programs,
             'fileName' => $request->file('document')->getClientOriginalName(),
+            'pages' => $extracted->pages,
+            'usedOcr' => $extracted->usedOcr,
             'text' => $text,
         ]);
     }
@@ -166,6 +172,8 @@ class SubjectImportController extends Controller
             'rows' => $rows,
             'programs' => Program::whereKey($request->input('programs'))->orderBy('program_code')->get(),
             'fileName' => 'your document',
+            'pages' => 1,
+            'usedOcr' => false,
             'text' => '',
         ]);
     }

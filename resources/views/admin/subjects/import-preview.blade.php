@@ -15,7 +15,7 @@
         <span class="page-eyebrow">ACADEMIC DATA</span>
         <h1>Review Subjects</h1>
         <p>
-            Found {{ $rows->count() }} subject{{ $rows->count() !== 1 ? 's' : '' }} in {{ $fileName }}.
+            Found {{ $rows->count() }} subject{{ $rows->count() !== 1 ? 's' : '' }} in {{ $fileName }}{{ $pages > 1 ? " ({$pages} pages)" : '' }}.
             Check the codes and titles, untick anything that isn't a subject, then import.
         </p>
     </div>
@@ -32,6 +32,13 @@
 @if($errors->any())
     <div class="alert alert-error">
         {{ $errors->first() }}
+    </div>
+@endif
+
+@if($usedOcr)
+    <div class="alert alert-warning">
+        Some of this document was read from pictures, so a letter or digit may be misread.
+        Compare the codes and titles with the document before importing.
     </div>
 @endif
 

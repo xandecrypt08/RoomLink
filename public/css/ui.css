@@ -1540,3 +1540,8 @@ body.qr-live-open {
         min-width: 680px;
     }
 }
+
+.import-wait {
+    margin-top: 12px;
+    text-align: right;
+}

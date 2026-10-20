@@ -22,6 +22,16 @@ class SubjectListParserTest extends TestCase
             'row number in front' => ['12. NSTP 2   National Service Training Program 2   3   0   3', 'NSTP-2', 'National Service Training Program 2'],
             'title in capitals' => ['PE 1   PHYSICAL ACTIVITIES TOWARDS HEALTH AND FITNESS I   2   0   2', 'PE-1', 'Physical Activities Towards Health and Fitness I'],
             'number in title kept, units dropped' => ['IT112 Computer Programming 2 2 3 3 IT 111', 'IT-112', 'Computer Programming 2'],
+            'PATHFIT (7 letters)' => ["PATHFIT 1\tMovement Competency Training\t2\t0\t2\tNone", 'PATHFIT-1', 'Movement Competency Training'],
+            'PathFit in camel case' => ['PathFit 2   Exercise-based Fitness Activities   2   0   2   PATHFIT 1', 'PATHFIT-2', 'Exercise-based Fitness Activities'],
+            'NSTP with a component' => ['NSTP-CWTS 1   Civic Welfare Training Service 1   3   0   3', 'NSTP-CWTS-1', 'Civic Welfare Training Service 1'],
+            'NSTP with a space before the component' => ['NSTP ROTC 2 Reserve Officers Training Corps 2 3 0 3 NSTP ROTC 1', 'NSTP-ROTC-2', 'Reserve Officers Training Corps 2'],
+            'plain NSTP' => ['NSTP 1 National Service Training Program 1 3 0 3', 'NSTP-1', 'National Service Training Program 1'],
+            'capitalised prefix' => ["Fil 101\tKontekstwalisadong Komunikasyon sa Filipino\t3\t0\t3", 'FIL-101', 'Kontekstwalisadong Komunikasyon sa Filipino'],
+            'Math prefix with a mixed-case prerequisite' => ['Math 102 Calculus 3 0 3 Math 101', 'MATH-102', 'Calculus'],
+            'two-word elective prefix' => ['IT Elec 1   Object-Oriented Programming   2   3   3   IT 112', 'IT-ELEC-1', 'Object-Oriented Programming'],
+            'Roman numeral number' => ['PE II   Rhythmic Activities   2   0   2', 'PE-II', 'Rhythmic Activities'],
+            'title in capitals ending in a word and number' => ['NSTP 1 CIVIC WELFARE TRAINING SERVICE 1 3 0 3', 'NSTP-1', 'Civic Welfare Training Service 1'],
         ];
     }
 
@@ -44,6 +54,10 @@ class SubjectListParserTest extends TestCase
             'section name' => ['BSIT 1-A'],
             'school name' => ['LEYTE NORMAL UNIVERSITY'],
             'sentence' => ['Students must complete all subjects.'],
+            'grand total' => ['Grand Total 77'],
+            'week number' => ['Week 2   Orientation and course overview'],
+            'year heading in words' => ['First Year 1'],
+            'semester heading' => ['Second Semester 2'],
         ];
     }
 

@@ -30,15 +30,16 @@ class Subject extends Model
     }
 
     /**
-     * A course code in one standard form, so "it 110", "IT110" and "IT-110"
-     * are recognised as the same subject.
+     * A course code in one standard form, with its parts joined by dashes, so
+     * "it 110", "IT110" and "IT-110" are the same subject, as are "PathFit 1"
+     * and "PATHFIT-1", or "NSTP CWTS 1" and "NSTP-CWTS-1".
      */
     public static function normalizeCode(string $code): string
     {
         $code = strtoupper(trim($code));
 
-        if (preg_match('/^([A-Z]{2,6})\s*[-–—]?\s*(\d{1,4}[A-Z]?)$/u', $code, $match)) {
-            return $match[1].'-'.$match[2];
+        if (preg_match('/^([A-Z]{2,8}(?:[\s\-–—]+[A-Z]{2,8})?)\s*[-–—.]?\s*(\d{1,4}[A-Z]?|IV|V?I{1,3})$/u', $code, $match)) {
+            return preg_replace('/[\s\-–—]+/u', '-', $match[1]).'-'.$match[2];
         }
 
         return preg_replace('/\s+/', ' ', $code);

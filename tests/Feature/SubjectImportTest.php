@@ -165,11 +165,101 @@ class SubjectImportTest extends TestCase
             ->assertSessionHasErrors(['document' => DocumentText::tesseractMissingMessage()]);
     }
 
+    public function test_every_page_of_a_scanned_pdf_is_read_with_ocr(): void
+    {
+        config(['services.tesseract.path' => $this->fakeTesseract("PATHFIT 1    Movement Competency Training    2    0    2\nNSTP-CWTS 1    Civic Welfare Training Service 1    3    0    3")]);
+
+        $extracted = app(DocumentText::class)->extract($this->scannedPdf(pages: 2));
+
+        $this->assertSame(2, $extracted->pages);
+        $this->assertTrue($extracted->usedOcr);
+        $this->assertSame(2, substr_count($extracted->text, 'PATHFIT 1'));
+    }
+
+    public function test_review_of_a_scanned_pdf_warns_that_it_was_read_from_pictures(): void
+    {
+        config(['services.tesseract.path' => $this->fakeTesseract("PATHFIT 1    Movement Competency Training    2    0    2\nNSTP-CWTS 1    Civic Welfare Training Service 1    3    0    3")]);
+
+        $this->actingAs($this->admin)
+            ->post(route('subjects.import.preview'), [
+                'document' => $this->scannedPdf(pages: 2),
+                'programs' => [$this->bsit->id],
+            ])
+            ->assertOk()
+            ->assertSee('Found 2 subjects in scanned.pdf (2 pages)')
+            ->assertSee('value="PATHFIT-1"', false)
+            ->assertSee('value="NSTP-CWTS-1"', false)
+            ->assertSee('read from pictures');
+    }
+
     public function test_only_administrators_can_import(): void
     {
         $this->actingAs(User::factory()->faculty()->create())
             ->get(route('subjects.import.create'))
             ->assertForbidden();
+    }
+
+    /**
+     * A PDF whose pages are only pictures (one small JPEG each), like a scan.
+     * Built by hand with a correct cross-reference table.
+     */
+    private function scannedPdf(int $pages): UploadedFile
+    {
+        $image = imagecreatetruecolor(40, 20);
+        imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+        ob_start();
+        imagejpeg($image);
+        $jpeg = ob_get_clean();
+
+        $kids = implode(' ', array_map(fn ($page) => (3 + $page * 3).' 0 R', range(0, $pages - 1)));
+        $objects = [1 => '<< /Type /Catalog /Pages 2 0 R >>', 2 => "<< /Type /Pages /Kids [{$kids}] /Count {$pages} >>"];
+
+        foreach (range(0, $pages - 1) as $page) {
+            $pageId = 3 + $page * 3;
+            $drawing = 'q 200 0 0 100 0 0 cm /Im1 Do Q';
+            $objects[$pageId] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Resources << /XObject << /Im1 '.($pageId + 1).' 0 R >> >> /Contents '.($pageId + 2).' 0 R >>';
+            $objects[$pageId + 1] = '<< /Type /XObject /Subtype /Image /Width 40 /Height 20 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '.strlen($jpeg)." >>\nstream\n{$jpeg}\nendstream";
+            $objects[$pageId + 2] = '<< /Length '.strlen($drawing)." >>\nstream\n{$drawing}\nendstream";
+        }
+
+        $pdf = "%PDF-1.4\n";
+        $offsets = [];
+
+        foreach ($objects as $id => $body) {
+            $offsets[$id] = strlen($pdf);
+            $pdf .= "{$id} 0 obj\n{$body}\nendobj\n";
+        }
+
+        $xref = strlen($pdf);
+        $pdf .= 'xref'."\n0 ".(max(array_keys($objects)) + 1)."\n0000000000 65535 f \n";
+
+        foreach (range(1, max(array_keys($objects))) as $id) {
+            $pdf .= sprintf("%010d 00000 n \n", $offsets[$id] ?? 0);
+        }
+
+        $pdf .= 'trailer << /Size '.(max(array_keys($objects)) + 1)." /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
+
+        return UploadedFile::fake()->createWithContent('scanned.pdf', $pdf);
+    }
+
+    /**
+     * A stand-in for Tesseract that prints the given text for any image.
+     */
+    private function fakeTesseract(string $output): string
+    {
+        $directory = sys_get_temp_dir().DIRECTORY_SEPARATOR.'fake-tesseract-'.uniqid();
+        mkdir($directory);
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            $path = $directory.DIRECTORY_SEPARATOR.'tesseract.bat';
+            file_put_contents($path, "@echo off\r\n".implode("\r\n", array_map(fn ($line) => 'echo '.$line, explode("\n", $output)))."\r\n");
+        } else {
+            $path = $directory.'/tesseract';
+            file_put_contents($path, "#!/bin/sh\ncat <<'EOF'\n{$output}\nEOF\n");
+            chmod($path, 0755);
+        }
+
+        return $path;
     }
 
     /**

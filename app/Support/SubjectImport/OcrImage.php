@@ -22,7 +22,7 @@ use RuntimeException;
 class OcrImage
 {
     /** Width the image is scaled to before cleaning (pixels). */
-    private const TARGET_WIDTH = 2000;
+    private const TARGET_WIDTH = 2400;
 
     /** Largest enlargement for small images. */
     private const MAX_UPSCALE = 2.5;

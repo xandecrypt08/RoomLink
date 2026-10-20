@@ -41,6 +41,7 @@
         method="POST"
         action="{{ route('subjects.import.preview') }}"
         enctype="multipart/form-data"
+        data-import-form
     >
 
         @csrf
@@ -60,7 +61,7 @@
             >
 
             <span class="form-help">
-                PDF, Word (.docx), text file, or a photo or scan of the page (JPG, PNG, WEBP). Up to 10 MB.
+                PDF (including scanned PDFs), Word (.docx), text file, or a photo of the page (JPG, PNG, WEBP). Up to 25 MB.
             </span>
 
             @error('document')
@@ -78,18 +79,45 @@
             <strong>For the best results</strong>
             <ul>
                 <li>Each subject should be on its own row, starting with the Course No. (for example <code>IT-110</code> or <code>GE 109</code>), followed by the Descriptive Title.</li>
-                <li>A PDF exported from Word or Excel works best. Scanned PDFs have no text to read; upload photos of the pages instead.</li>
-                <li>For photos, shoot the page straight on, in good light, with the table filling the frame.</li>
+                <li>A PDF exported from Word or Excel works best and is read instantly.</li>
+                <li>Scanned PDFs and photos are read with OCR, about 20 to 25 seconds a page, so please wait after clicking Find Subjects. Up to 30 pages at a time.</li>
+                <li>For photos and scans, keep the page straight, in good light, with the table filling the frame.</li>
             </ul>
         </div>
 
         <div class="form-actions">
             <a href="{{ route('subjects.index') }}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Find Subjects</button>
+            <button type="submit" class="btn btn-primary" data-import-submit>Find Subjects</button>
         </div>
+
+        <p class="form-help import-wait" data-import-wait hidden>
+            Reading the document. Scanned pages and photos take about 20 to 25 seconds each, so keep this page open.
+        </p>
 
     </form>
 
 </div>
 
 @endsection
+
+
+@push('scripts')
+<script>
+    (function () {
+        var form = document.querySelector('[data-import-form]');
+
+        if (!form) {
+            return;
+        }
+
+        // OCR can take a minute; show it is working and prevent a second upload.
+        form.addEventListener('submit', function () {
+            var button = form.querySelector('[data-import-submit]');
+
+            button.disabled = true;
+            button.textContent = 'Reading the document…';
+            form.querySelector('[data-import-wait]').hidden = false;
+        });
+    })();
+</script>
+@endpush
