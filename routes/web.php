@@ -7,9 +7,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\FloorController;
+use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\SubjectImportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Faculty\ClassNotHeldController;
@@ -72,7 +74,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('faculties', FacultyController::class);
 
+    /* Import subjects from a curriculum document. Declared before the resource so "import" isn't read as a subject. */
+    Route::get('/subjects/import', [SubjectImportController::class, 'create'])
+        ->name('subjects.import.create');
+
+    Route::post('/subjects/import/preview', [SubjectImportController::class, 'preview'])
+        ->name('subjects.import.preview');
+
+    Route::post('/subjects/import', [SubjectImportController::class, 'store'])
+        ->name('subjects.import.store');
+
     Route::resource('subjects', SubjectController::class);
+
+    Route::resource('programs', ProgramController::class)->except('show');
 
     Route::resource('sections', SectionController::class);
 

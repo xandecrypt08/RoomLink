@@ -18,12 +18,23 @@
 
     </div>
 
-    <a
-        href="{{ route('subjects.create') }}"
-        class="btn-primary"
-    >
-        + Add Subject
-    </a>
+    <div class="page-header-actions">
+
+        <a
+            href="{{ route('subjects.import.create') }}"
+            class="btn btn-secondary"
+        >
+            Import from Document
+        </a>
+
+        <a
+            href="{{ route('subjects.create') }}"
+            class="btn btn-primary"
+        >
+            + Add Subject
+        </a>
+
+    </div>
 
 </div>
 
@@ -68,6 +79,16 @@
             class="table-search"
         >
 
+            <select name="program" aria-label="Filter by program">
+                <option value="">All programs</option>
+
+                @foreach($programs as $program)
+                    <option value="{{ $program->id }}" {{ $programId === $program->id ? 'selected' : '' }}>
+                        {{ $program->program_code }}
+                    </option>
+                @endforeach
+            </select>
+
             <input
                 type="text"
                 name="search"
@@ -99,6 +120,7 @@
 
                         <th>Subject</th>
                         <th>Code</th>
+                        <th>Programs</th>
                         <th>Class Sessions</th>
                         <th>Actions</th>
 
@@ -131,6 +153,19 @@
                                 <span class="code-badge">
                                     {{ $subject->subject_code }}
                                 </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="program-tags">
+                                    @forelse($subject->programs as $program)
+                                        <span class="program-tag">{{ $program->program_code }}</span>
+                                    @empty
+                                        <span class="table-secondary">—</span>
+                                    @endforelse
+                                </div>
 
                             </td>
 

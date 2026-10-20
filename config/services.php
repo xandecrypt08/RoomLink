@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    /*
+     * Tesseract OCR reads subjects from photos of a curriculum (Subjects → Import).
+     * Leave as "tesseract" if it is on the PATH, or give the full path to tesseract.exe.
+     */
+    'tesseract' => [
+        'path' => env('TESSERACT_PATH', 'tesseract'),
+    ],
+
 ];
