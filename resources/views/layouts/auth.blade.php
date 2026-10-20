@@ -16,12 +16,12 @@
 
     <link
         rel="stylesheet"
-        href="{{ asset('css/app.css') }}"
+        href="{{ \App\Support\Asset::url('css/app.css') }}"
     >
 
     <link
         rel="stylesheet"
-        href="{{ asset('css/auth.css') }}"
+        href="{{ \App\Support\Asset::url('css/auth.css') }}"
     >
 
 </head>
