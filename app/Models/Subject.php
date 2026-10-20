@@ -38,8 +38,15 @@ class Subject extends Model
     {
         $code = strtoupper(trim($code));
 
-        if (preg_match('/^([A-Z]{2,8}(?:[\s\-–—]+[A-Z]{2,8})?)\s*[-–—.]?\s*(\d{1,4}[A-Z]?|IV|V?I{1,3})$/u', $code, $match)) {
-            return preg_replace('/[\s\-–—]+/u', '-', $match[1]).'-'.$match[2];
+        if (preg_match('/^([A-Z]{2,10}(?:[\s\-–—]+[A-Z]{2,8})?)\s*[-–—.]?\s*(\d{1,4}[A-Z]?|IV|V?I{1,3})$/u', $code, $match)) {
+            $prefix = preg_replace('/[\s\-–—]+/u', '-', $match[1]);
+
+            // PATHFIT is sometimes written as two words ("PATH Fit 1").
+            if ($prefix === 'PATH-FIT') {
+                $prefix = 'PATHFIT';
+            }
+
+            return $prefix.'-'.$match[2];
         }
 
         return preg_replace('/\s+/', ' ', $code);

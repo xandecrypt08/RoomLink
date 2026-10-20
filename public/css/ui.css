@@ -1537,11 +1537,37 @@ body.qr-live-open {
 
     /* Keep titles readable; the review table scrolls sideways instead. */
     table.roomlink-table.import-table {
-        min-width: 680px;
+        min-width: 860px;
     }
 }
 
 .import-wait {
     margin-top: 12px;
     text-align: right;
+}
+
+/* Review table: short columns fixed, Descriptive Title gets the rest. */
+table.roomlink-table.import-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.import-col-check {
+    width: 76px;
+}
+
+.import-col-code {
+    width: 170px;
+}
+
+.import-col-status {
+    width: 190px;
+}
+
+.import-table .import-code {
+    width: 100%;
+}
+
+.import-table td {
+    vertical-align: middle;
 }

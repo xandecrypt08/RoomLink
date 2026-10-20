@@ -77,6 +77,14 @@
 
             <table class="roomlink-table import-table">
 
+                {{-- Fixed widths for the short columns; the title takes the rest. --}}
+                <colgroup>
+                    <col class="import-col-check">
+                    <col class="import-col-code">
+                    <col>
+                    <col class="import-col-status">
+                </colgroup>
+
                 <thead>
                     <tr>
                         <th class="import-check-cell">Import</th>

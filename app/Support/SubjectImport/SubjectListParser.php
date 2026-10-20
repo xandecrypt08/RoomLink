@@ -18,9 +18,10 @@ class SubjectListParser
 {
     /**
      * One word of a code's prefix: capitals (IT, NSTP, PATHFIT), a short
-     * capitalised word (Fil, Math, Lit, Elec) or camel case (PathFit).
+     * capitalised word (Fil, Math, Lit, Elec), camel case (PathFit), or
+     * capitals and small letters mixed either way (PATHFit, PathFIT).
      */
-    private const WORD = '(?:[A-Z]{2,8}|[A-Z][a-z]{1,4}|[A-Z][a-z]{1,5}[A-Z][a-z]{1,5})';
+    private const WORD = '(?:[A-Z]{2,8}|[A-Z][a-z]{1,4}|[A-Z][a-z]{1,5}[A-Z][a-z]{1,5}|[A-Z]{2,6}[a-z]{1,4}|[A-Z][a-z]{1,5}[A-Z]{2,6})';
 
     /**
      * A course number: up to 4 digits with an optional letter (110, 1, 101A),
@@ -183,7 +184,11 @@ class SubjectListParser
      */
     private function withoutTrailingColumns(string $title): string
     {
-        $prerequisite = '(?:[A-Z]{2,8}(?:[ -]'.self::WORD.')?|[A-Z][a-z]{1,4}(?=\s*-?\s*\d{3}))\s*-?\s*'.self::NUMBER;
+        // Capitals or mixed case (IT, PATHFIT, PATHFit, PathFit), optionally
+        // two words (NSTP-CWTS); a short capitalised word (Fil, Math) only with
+        // a 3-digit number, so a title ending "Logic 2" isn't cut.
+        $codeWord = '(?:[A-Z]{2,8}|[A-Z][a-z]{1,5}[A-Z][a-z]{1,5}|[A-Z]{2,6}[a-z]{1,4}|[A-Z][a-z]{1,5}[A-Z]{2,6})';
+        $prerequisite = '(?:'.$codeWord.'(?:[ -]'.self::WORD.')?|[A-Z][a-z]{1,4}(?=\s*-?\s*\d{3}))\s*-?\s*'.self::NUMBER;
 
         do {
             $before = $title;
