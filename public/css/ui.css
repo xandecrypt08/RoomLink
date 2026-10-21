@@ -458,6 +458,58 @@ textarea {
     line-height: 1.5;
 }
 
+/*
+ * File pickers (upload boxes): a dashed drop area with a branded button.
+ * Files can also be dragged onto it. The QR scanner's inputs are hidden
+ * behind their own buttons, so they are left alone.
+ */
+input[type="file"]:not(.qr-scanner-input) {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 14px;
+    border: 1.5px dashed #c5d3dc;
+    border-radius: 10px;
+    background: var(--brand-soft);
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+input[type="file"]:not(.qr-scanner-input):hover {
+    border-color: var(--brand);
+    background: #e6eef3;
+}
+
+input[type="file"]:not(.qr-scanner-input):focus,
+input[type="file"]:not(.qr-scanner-input):focus-visible {
+    border-color: var(--brand);
+    outline: 3px solid rgba(72, 109, 135, .2);
+    outline-offset: 2px;
+}
+
+input[type="file"]:not(.qr-scanner-input)::file-selector-button {
+    margin-right: 14px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--brand);
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
+    background: var(--brand-hover);
+}
+
 .table-search select {
     padding: 9px 13px;
     border: 1px solid #dce4e8;
