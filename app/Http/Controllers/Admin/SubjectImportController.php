@@ -25,7 +25,7 @@ class SubjectImportController extends Controller
 {
     public function create(): View
     {
-        $programs = Program::orderBy('program_code')->get();
+        $programs = Program::with('college')->inListOrder()->get();
 
         return view('admin.subjects.import', compact('programs'));
     }

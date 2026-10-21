@@ -28,7 +28,7 @@ class SubjectController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $programs = Program::orderBy('program_code')->get();
+        $programs = Program::with('college')->inListOrder()->get();
 
         return view('admin.subjects.index', compact(
             'subjects',
@@ -40,7 +40,7 @@ class SubjectController extends Controller
 
     public function create()
     {
-        $programs = Program::orderBy('program_code')->get();
+        $programs = Program::with('college')->inListOrder()->get();
 
         return view('admin.subjects.create', compact('programs'));
     }
@@ -79,7 +79,7 @@ class SubjectController extends Controller
     public function edit(Subject $subject)
     {
         $subject->load('programs');
-        $programs = Program::orderBy('program_code')->get();
+        $programs = Program::with('college')->inListOrder()->get();
 
         return view('admin.subjects.edit', compact('subject', 'programs'));
     }

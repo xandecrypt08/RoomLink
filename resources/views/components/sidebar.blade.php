@@ -87,6 +87,14 @@
         </a>
 
         <a
+            href="{{ route('colleges.index') }}"
+            class="{{ request()->routeIs('colleges.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="library" /></span>
+            <span>Colleges</span>
+        </a>
+
+        <a
             href="{{ route('programs.index') }}"
             class="{{ request()->routeIs('programs.*') ? 'active' : '' }}"
         >

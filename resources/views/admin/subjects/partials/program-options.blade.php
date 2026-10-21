@@ -1,6 +1,7 @@
 {{--
-    Program checkboxes for a subject (or for subjects being imported).
-    Expects $programs and $selected (list of program IDs).
+    Program checkboxes for a subject (or for subjects being imported),
+    grouped by college. Expects $programs (with their college loaded) and
+    $selected (list of program IDs).
 --}}
 <div class="form-group">
 
@@ -10,29 +11,39 @@
 
     @if($programs->count())
 
-        <div class="facility-options">
+        @foreach($programs->groupBy(fn ($program) => $program->college ? $program->college->college_name.' ('.$program->college->college_code.')' : 'Other programs') as $collegeLabel => $collegePrograms)
 
-            @foreach($programs as $program)
+            <div class="program-options-college">
 
-                <label class="facility-option">
+                <span class="program-options-heading">{{ $collegeLabel }}</span>
 
-                    <input
-                        type="checkbox"
-                        name="programs[]"
-                        value="{{ $program->id }}"
-                        {{ in_array($program->id, old('programs', $selected)) ? 'checked' : '' }}
-                    >
+                <div class="facility-options">
 
-                    <span>
-                        <strong>{{ $program->program_code }}</strong>
-                        · {{ $program->program_name }}
-                    </span>
+                    @foreach($collegePrograms as $program)
 
-                </label>
+                        <label class="facility-option">
 
-            @endforeach
+                            <input
+                                type="checkbox"
+                                name="programs[]"
+                                value="{{ $program->id }}"
+                                {{ in_array($program->id, old('programs', $selected)) ? 'checked' : '' }}
+                            >
 
-        </div>
+                            <span>
+                                <strong>{{ $program->program_code }}</strong>
+                                · {{ $program->program_name }}
+                            </span>
+
+                        </label>
+
+                    @endforeach
+
+                </div>
+
+            </div>
+
+        @endforeach
 
         <span class="form-help">
             {{ $help ?? 'Select every program that takes this subject. General Education subjects usually belong to all of them.' }}

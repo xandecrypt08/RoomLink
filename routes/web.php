@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BuildingController;
 use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\ClassSessionController;
+use App\Http\Controllers\Admin\CollegeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
@@ -87,6 +88,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('subjects', SubjectController::class);
 
     Route::resource('programs', ProgramController::class)->except('show');
+
+    Route::resource('colleges', CollegeController::class)->except('show');
 
     Route::resource('sections', SectionController::class);
 

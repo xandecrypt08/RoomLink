@@ -82,10 +82,14 @@
             <select name="program" aria-label="Filter by program">
                 <option value="">All programs</option>
 
-                @foreach($programs as $program)
-                    <option value="{{ $program->id }}" {{ $programId === $program->id ? 'selected' : '' }}>
-                        {{ $program->program_code }}
-                    </option>
+                @foreach($programs->groupBy(fn ($program) => $program->college?->college_code ?? 'Other') as $collegeCode => $collegePrograms)
+                    <optgroup label="{{ $collegeCode }}">
+                        @foreach($collegePrograms as $program)
+                            <option value="{{ $program->id }}" {{ $programId === $program->id ? 'selected' : '' }}>
+                                {{ $program->program_code }}
+                            </option>
+                        @endforeach
+                    </optgroup>
                 @endforeach
             </select>
 
