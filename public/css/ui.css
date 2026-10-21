@@ -1546,6 +1546,11 @@ body.qr-live-open {
     text-align: right;
 }
 
+/* .form-help sets display, which would otherwise override [hidden]. */
+.import-wait[hidden] {
+    display: none;
+}
+
 /* Review table: short columns fixed, Descriptive Title gets the rest. */
 table.roomlink-table.import-table {
     table-layout: fixed;
@@ -1570,6 +1575,57 @@ table.roomlink-table.import-table {
 
 .import-table td {
     vertical-align: middle;
+}
+
+/* Teaching load review: many short columns, so the table scrolls sideways on small screens. */
+table.roomlink-table.load-table {
+    min-width: 1120px;
+}
+
+.load-col-code {
+    width: 120px;
+}
+
+.load-col-section {
+    width: 100px;
+}
+
+.load-col-when {
+    width: 170px;
+}
+
+.load-col-room {
+    width: 200px;
+}
+
+.load-col-status {
+    width: 200px;
+}
+
+.load-table td {
+    vertical-align: top;
+}
+
+.load-when {
+    display: grid;
+    gap: 6px;
+}
+
+.load-table .table-secondary {
+    margin-top: 4px;
+}
+
+.load-row-problem td {
+    background: #fff8f7;
+}
+
+.load-problems {
+    margin: 6px 0 0;
+    padding-left: 16px;
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 

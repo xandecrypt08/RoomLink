@@ -56,12 +56,12 @@
                 type="file"
                 id="document"
                 name="document"
-                accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,application/pdf,image/*"
+                accept=".pdf,.docx,.xlsx,.csv,.txt,.jpg,.jpeg,.png,.webp,application/pdf,image/*"
                 required
             >
 
             <span class="form-help">
-                PDF (including scanned PDFs), Word (.docx), text file, or a photo of the page (JPG, PNG, WEBP). Up to 25 MB.
+                PDF (including scanned PDFs), Word (.docx), Excel (.xlsx or .csv), text file, or a photo of the page (JPG, PNG, WEBP). Up to 25 MB.
             </span>
 
             @error('document')

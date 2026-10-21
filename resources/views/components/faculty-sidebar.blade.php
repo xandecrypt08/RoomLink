@@ -20,6 +20,14 @@
             <span>Dashboard</span>
         </a>
 
+        <a
+            href="{{ route('faculty.schedule.index') }}"
+            class="{{ request()->routeIs('faculty.schedule.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="calendar" /></span>
+            <span>My Schedule</span>
+        </a>
+
 
         <div class="sidebar-section-label">
             CLASSROOM SESSIONS

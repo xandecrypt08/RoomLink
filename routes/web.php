@@ -19,12 +19,14 @@ use App\Http\Controllers\Faculty\ClassNotHeldController;
 use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
+use App\Http\Controllers\Faculty\MyScheduleController;
 use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
 use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\TeachingLoadController;
 use Illuminate\Support\Facades\Route;
 
 /* Authentication */
@@ -93,6 +95,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('sections', SectionController::class);
 
+    /* Import a faculty member's teaching load. Declared before the resource so "import" isn't read as a schedule. */
+    Route::get('/schedules/import', [TeachingLoadController::class, 'create'])
+        ->name('schedules.import.create');
+
+    Route::post('/schedules/import/preview', [TeachingLoadController::class, 'preview'])
+        ->name('schedules.import.preview');
+
+    Route::post('/schedules/import', [TeachingLoadController::class, 'store'])
+        ->name('schedules.import.store');
+
     Route::resource('schedules', ClassSessionController::class);
 
     /* User accounts (RLNK-208). Accounts are deactivated, never deleted. */
@@ -123,6 +135,19 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::get('/dashboard', [FacultyDashboardController::class, 'index'])
         ->name('faculty.dashboard');
+
+    /* My Schedule: faculty upload their own teaching load */
+    Route::get('/schedule', [MyScheduleController::class, 'index'])
+        ->name('faculty.schedule.index');
+
+    Route::get('/schedule/import', [TeachingLoadController::class, 'create'])
+        ->name('faculty.schedule.import.create');
+
+    Route::post('/schedule/import/preview', [TeachingLoadController::class, 'preview'])
+        ->name('faculty.schedule.import.preview');
+
+    Route::post('/schedule/import', [TeachingLoadController::class, 'store'])
+        ->name('faculty.schedule.import.store');
 
     /* Classroom transfer (RLNK-24) */
     Route::get('/transfer', [ClassroomTransferController::class, 'create'])

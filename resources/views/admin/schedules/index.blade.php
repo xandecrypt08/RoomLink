@@ -18,12 +18,23 @@
 
     </div>
 
-    <a
-        href="{{ route('schedules.create') }}"
-        class="btn-primary"
-    >
-        + Add Class Session
-    </a>
+    <div class="page-header-actions">
+
+        <a
+            href="{{ route('schedules.import.create') }}"
+            class="btn btn-secondary"
+        >
+            Import Teaching Load
+        </a>
+
+        <a
+            href="{{ route('schedules.create') }}"
+            class="btn-primary"
+        >
+            + Add Class Session
+        </a>
+
+    </div>
 
 </div>
 
