@@ -33,6 +33,14 @@
 
     <div class="sidebar-bottom">
 
+        <a
+            href="{{ route('profile.edit') }}"
+            class="sidebar-profile-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="user" /></span>
+            <span>My Profile</span>
+        </a>
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
 

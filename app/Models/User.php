@@ -17,6 +17,7 @@ class User extends Authenticatable
         'last_name',
         'employee_student_id',
         'email',
+        'contact_number',
         'password',
         'role',
         'is_active',
@@ -85,6 +86,34 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role === 'student';
+    }
+
+    /**
+     * Profile fields this user may change on their own profile page.
+     *
+     * A faculty member's name and employee number identify them in schedules
+     * and records, so only the administrator changes those; faculty keep their
+     * contact details up to date. Students and administrators can change all
+     * of their own details. The role and account status are never self-edited.
+     *
+     * @return list<string>
+     */
+    public function editableProfileFields(): array
+    {
+        if ($this->isFaculty()) {
+            return ['email', 'contact_number'];
+        }
+
+        return ['first_name', 'middle_name', 'last_name', 'employee_student_id', 'email', 'contact_number', 'department'];
+    }
+
+    /**
+     * Address of the profile photo, or null when there is none. The photo's
+     * file name changes with every upload, so browsers never show an old one.
+     */
+    public function profilePhotoUrl(): ?string
+    {
+        return $this->profile_photo ? route('profile.photo', ['user' => $this, 'v' => md5($this->profile_photo)]) : null;
     }
 
     /**

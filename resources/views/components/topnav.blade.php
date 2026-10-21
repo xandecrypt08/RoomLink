@@ -58,11 +58,11 @@
         @endif
 
 
-        <div class="profile-box">
+        <a href="{{ route('profile.edit') }}" class="profile-box" title="My Profile">
 
             @if($user?->profile_photo)
                 <img
-                    src="{{ asset('storage/'.$user->profile_photo) }}"
+                    src="{{ $user->profilePhotoUrl() }}"
                     alt=""
                     class="profile-avatar"
                 >
@@ -77,7 +77,7 @@
                 <span>{{ $roleLabel }}</span>
             </div>
 
-        </div>
+        </a>
 
     </div>
 

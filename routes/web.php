@@ -25,6 +25,7 @@ use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\TeachingLoadController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,15 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/faculty-locator', [FacultyLocatorController::class, 'index'])
     ->middleware('auth')
     ->name('faculty-locator.index');
+
+/* My Profile, for every role. What can be changed depends on the role (User::editableProfileFields). */
+Route::middleware('auth')->prefix('profile')->group(function () {
+    Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::delete('/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
+    Route::get('/photos/{user}', [ProfileController::class, 'photo'])->name('profile.photo');
+});
 
 /* Administrator */
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
