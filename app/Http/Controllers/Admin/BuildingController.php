@@ -124,6 +124,13 @@ class BuildingController extends Controller
      */
     public function destroy(Building $building)
     {
+        // Deleting would also remove every floor and room in it.
+        if ($building->floors()->exists()) {
+            return redirect()
+                ->route('buildings.index')
+                ->with('error', 'This building cannot be deleted because it still has floors. Delete its floors first.');
+        }
+
         $building->delete();
 
         return redirect()

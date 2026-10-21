@@ -102,6 +102,13 @@ class CampusController extends Controller
      */
     public function destroy(Campus $campus)
     {
+        // Deleting would also remove every building, floor and room under it.
+        if ($campus->buildings()->exists()) {
+            return redirect()
+                ->route('campuses.index')
+                ->with('error', 'This campus cannot be deleted because it still has buildings. Delete or move its buildings first.');
+        }
+
         $campus->delete();
 
         return redirect()
