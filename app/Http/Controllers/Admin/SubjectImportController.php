@@ -40,7 +40,7 @@ class SubjectImportController extends Controller
             'programs' => ['required', 'array', 'min:1'],
             'programs.*' => ['integer', 'exists:programs,id'],
         ], [
-            'document.mimes' => 'Upload a PDF, Word (.docx), text file, or a photo (JPG, PNG, WEBP).',
+            'document.mimes' => 'Upload a PDF, Word (.docx), Excel (.xlsx or .csv), text file, or a photo (JPG, PNG, WEBP).',
             'document.max' => 'The file must be '.intdiv(DocumentText::MAX_KILOBYTES, 1024).' MB or smaller.',
             'programs.required' => 'Choose at least one program for these subjects.',
         ]);

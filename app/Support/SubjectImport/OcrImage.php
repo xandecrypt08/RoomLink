@@ -210,8 +210,9 @@ class OcrImage
             }
         }
 
-        // Vertical borders.
-        $minRun = intdiv($height, 30);
+        // Vertical borders. A short screenshot of a few rows would otherwise
+        // count the strokes of tall letters as lines, so the width sets a floor.
+        $minRun = max(intdiv($height, 30), intdiv($width, 25));
 
         for ($x = 0; $x < $width; $x++) {
             $run = 0;

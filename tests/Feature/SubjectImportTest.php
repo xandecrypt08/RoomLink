@@ -135,7 +135,7 @@ class SubjectImportTest extends TestCase
     {
         $this->actingAs($this->admin)
             ->post(route('subjects.import.preview'), [
-                'document' => UploadedFile::fake()->create('prospectus.xlsx', 10),
+                'document' => UploadedFile::fake()->create('prospectus.pptx', 10),
                 'programs' => [$this->bsit->id],
             ])
             ->assertSessionHasErrors('document');
