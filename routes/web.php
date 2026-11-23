@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BuildingController;
 use App\Http\Controllers\Admin\CampusController;
+use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\ClassSessionController;
 use App\Http\Controllers\Admin\CollegeController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -60,11 +61,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
 
-    Route::resource('campuses', CampusController::class);
+    /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
+    Route::get('/classrooms', [ClassroomController::class, 'index'])
+        ->name('classrooms.index');
 
-    Route::resource('buildings', BuildingController::class);
+    // Addresses of the separate lists this page replaced.
+    foreach (['campuses', 'buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
+        Route::get("/{$oldList}", fn () => redirect()->route('classrooms.index'))
+            ->name("{$oldList}.index");
+    }
 
-    Route::resource('floors', FloorController::class);
+    Route::post('/buildings/{building}/floors', [BuildingController::class, 'createFloors'])
+        ->name('buildings.floors.store');
+
+    Route::resource('campuses', CampusController::class)->only(['store', 'update', 'destroy']);
+
+    Route::resource('buildings', BuildingController::class)->only(['store', 'update', 'destroy']);
+
+    Route::resource('floors', FloorController::class)->only(['store', 'update', 'destroy']);
 
     Route::get(
         '/rooms/{room}/qr/print',
@@ -81,9 +95,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         [RoomController::class, 'regenerateQr']
     )->name('rooms.qr.regenerate');
 
-    Route::resource('rooms', RoomController::class);
+    Route::resource('rooms', RoomController::class)->except(['index', 'create']);
 
-    Route::resource('facilities', FacilityController::class);
+    Route::resource('facilities', FacilityController::class)->only(['store', 'update', 'destroy']);
 
     Route::resource('faculties', FacultyController::class);
 

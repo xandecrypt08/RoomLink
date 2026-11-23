@@ -28,7 +28,7 @@ class LocationFormValidationTest extends TestCase
             'campus_name' => 'Main Campus',
         ]);
 
-        $response->assertRedirect(route('campuses.index'));
+        $response->assertRedirect(route('classrooms.index'));
         $this->assertDatabaseHas('campuses', [
             'campus_name' => 'Main Campus',
             'campus_code' => null,
@@ -110,7 +110,7 @@ class LocationFormValidationTest extends TestCase
             'floor_number' => '0',
         ]);
 
-        $response->assertRedirect(route('floors.index'));
+        $response->assertRedirect(route('classrooms.index').'#building-'.$building->id);
         $this->assertDatabaseHas('floors', ['building_id' => $building->id, 'floor_number' => 0]);
     }
 

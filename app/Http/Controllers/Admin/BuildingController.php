@@ -4,53 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Building;
-use App\Models\Campus;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BuildingController extends Controller
 {
-    /**
-     * Display a listing of buildings.
-     */
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        $buildings = Building::with('campus')
-            ->withCount('floors')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('building_name', 'like', "%{$search}%")
-                        ->orWhere('building_code', 'like', "%{$search}%")
-                        ->orWhereHas('campus', function ($campus) use ($search) {
-                            $campus->where(
-                                'campus_name',
-                                'like',
-                                "%{$search}%"
-                            );
-                        });
-                });
-            })
-            ->orderBy('building_name')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.buildings.index', compact(
-            'buildings',
-            'search'
-        ));
-    }
-
-    /**
-     * Show the form for creating a new building.
-     */
-    public function create()
-    {
-        $campuses = Campus::orderBy('campus_name')->get();
-
-        return view('admin.buildings.create', compact('campuses'));
-    }
-
     /**
      * Store a newly created building.
      */
@@ -60,41 +20,34 @@ class BuildingController extends Controller
             'campus_id' => 'required|exists:campuses,id',
             'building_name' => 'required|string|max:255',
             'building_code' => 'nullable|string|max:50',
-            'number_of_floors' => 'required|integer|min:1',
+            'number_of_floors' => 'required|integer|min:1|max:100',
             'description' => 'nullable|string',
         ]);
 
-        Building::create($validated);
+        $building = DB::transaction(function () use ($validated): Building {
+            $building = Building::create($validated);
+            $building->createMissingFloors();
+
+            return $building;
+        });
 
         return redirect()
-            ->route('buildings.index')
-            ->with('success', 'Building created successfully.');
+            ->route('classrooms.index')
+            ->withFragment("building-{$building->id}")
+            ->with('success', "{$building->building_name} created with {$building->number_of_floors} ".Str::plural('floor', (int) $building->number_of_floors).'.');
     }
 
     /**
-     * Display the specified building.
+     * Create the floors a building should have but doesn't yet.
      */
-    public function show(Building $building)
+    public function createFloors(Building $building): RedirectResponse
     {
-        $building->load([
-            'campus',
-            'floors',
-        ]);
+        $created = $building->createMissingFloors();
 
-        return view('admin.buildings.show', compact('building'));
-    }
-
-    /**
-     * Show the form for editing the specified building.
-     */
-    public function edit(Building $building)
-    {
-        $campuses = Campus::orderBy('campus_name')->get();
-
-        return view('admin.buildings.edit', compact(
-            'building',
-            'campuses'
-        ));
+        return redirect()
+            ->route('classrooms.index')
+            ->withFragment("building-{$building->id}")
+            ->with('success', "Added {$created} ".Str::plural('floor', $created)." to {$building->building_name}.");
     }
 
     /**
@@ -108,14 +61,14 @@ class BuildingController extends Controller
             'campus_id' => 'required|exists:campuses,id',
             'building_name' => 'required|string|max:255',
             'building_code' => 'nullable|string|max:50',
-            'number_of_floors' => 'required|integer|min:1',
+            'number_of_floors' => 'required|integer|min:1|max:100',
             'description' => 'nullable|string',
         ]);
 
         $building->update($validated);
 
         return redirect()
-            ->route('buildings.index')
+            ->route('classrooms.index')
             ->with('success', 'Building updated successfully.');
     }
 
@@ -127,14 +80,14 @@ class BuildingController extends Controller
         // Deleting would also remove every floor and room in it.
         if ($building->floors()->exists()) {
             return redirect()
-                ->route('buildings.index')
+                ->route('classrooms.index')
                 ->with('error', 'This building cannot be deleted because it still has floors. Delete its floors first.');
         }
 
         $building->delete();
 
         return redirect()
-            ->route('buildings.index')
+            ->route('classrooms.index')
             ->with('success', 'Building deleted successfully.');
     }
 }

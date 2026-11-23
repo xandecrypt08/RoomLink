@@ -34,43 +34,11 @@
         </div>
 
         <a
-            href="{{ route('campuses.index') }}"
-            class="{{ request()->routeIs('campuses.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="landmark" /></span>
-            <span>Campus</span>
-        </a>
-
-        <a
-            href="{{ route('buildings.index') }}"
-            class="{{ request()->routeIs('buildings.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="building" /></span>
-            <span>Buildings</span>
-        </a>
-
-        <a
-            href="{{ route('floors.index') }}"
-            class="{{ request()->routeIs('floors.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="layers" /></span>
-            <span>Floors</span>
-        </a>
-
-        <a
-            href="{{ route('rooms.index') }}"
-            class="{{ request()->routeIs('rooms.*') ? 'active' : '' }}"
+            href="{{ route('classrooms.index') }}"
+            class="{{ request()->routeIs('classrooms.*', 'rooms.*') ? 'active' : '' }}"
         >
             <span class="menu-icon"><x-icon name="door" /></span>
-            <span>Rooms</span>
-        </a>
-
-        <a
-            href="{{ route('facilities.index') }}"
-            class="{{ request()->routeIs('facilities.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="plug" /></span>
-            <span>Facilities</span>
+            <span>Classrooms</span>
         </a>
 
 

@@ -9,39 +9,6 @@ use Illuminate\Http\Request;
 class CampusController extends Controller
 {
     /**
-     * Display a listing of campuses.
-     */
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        $campuses = Campus::withCount('buildings')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('campus_name', 'like', "%{$search}%")
-                        ->orWhere('campus_code', 'like', "%{$search}%")
-                        ->orWhere('address', 'like', "%{$search}%");
-                });
-            })
-            ->orderBy('campus_name')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.campuses.index', compact(
-            'campuses',
-            'search'
-        ));
-    }
-
-    /**
-     * Show the form for creating a new campus.
-     */
-    public function create()
-    {
-        return view('admin.campuses.create');
-    }
-
-    /**
      * Store a newly created campus.
      */
     public function store(Request $request)
@@ -56,26 +23,8 @@ class CampusController extends Controller
         Campus::create($validated);
 
         return redirect()
-            ->route('campuses.index')
+            ->route('classrooms.index')
             ->with('success', 'Campus created successfully.');
-    }
-
-    /**
-     * Display the specified campus.
-     */
-    public function show(Campus $campus)
-    {
-        $campus->load('buildings');
-
-        return view('admin.campuses.show', compact('campus'));
-    }
-
-    /**
-     * Show the form for editing the specified campus.
-     */
-    public function edit(Campus $campus)
-    {
-        return view('admin.campuses.edit', compact('campus'));
     }
 
     /**
@@ -93,7 +42,7 @@ class CampusController extends Controller
         $campus->update($validated);
 
         return redirect()
-            ->route('campuses.index')
+            ->route('classrooms.index')
             ->with('success', 'Campus updated successfully.');
     }
 
@@ -105,14 +54,14 @@ class CampusController extends Controller
         // Deleting would also remove every building, floor and room under it.
         if ($campus->buildings()->exists()) {
             return redirect()
-                ->route('campuses.index')
+                ->route('classrooms.index')
                 ->with('error', 'This campus cannot be deleted because it still has buildings. Delete or move its buildings first.');
         }
 
         $campus->delete();
 
         return redirect()
-            ->route('campuses.index')
+            ->route('classrooms.index')
             ->with('success', 'Campus deleted successfully.');
     }
 }

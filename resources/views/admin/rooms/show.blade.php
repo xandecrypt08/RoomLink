@@ -35,7 +35,7 @@
         </a>
 
         <a
-            href="{{ route('rooms.index') }}"
+            href="{{ route('classrooms.index') }}"
             class="btn-secondary"
         >
             ← Back

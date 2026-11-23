@@ -3,70 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Facility;
-use App\Models\Floor;
 use App\Models\Room;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class RoomController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        $rooms = Room::with([
-            'floor.building.campus',
-            'facilities',
-        ])
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('room_name', 'like', "%{$search}%")
-                        ->orWhere('status', 'like', "%{$search}%")
-                        ->orWhereHas('floor', function ($floorQuery) use ($search) {
-                            $floorQuery->where(
-                                'floor_number',
-                                'like',
-                                "%{$search}%"
-                            );
-                        })
-                        ->orWhereHas('floor.building', function ($buildingQuery) use ($search) {
-                            $buildingQuery
-                                ->where('building_name', 'like', "%{$search}%")
-                                ->orWhere('building_code', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->orderBy('room_name')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.rooms.index', compact(
-            'rooms',
-            'search'
-        ));
-    }
-
-    public function create()
-    {
-        $floors = Floor::with('building.campus')
-            ->orderBy('building_id')
-            ->orderBy('floor_number')
-            ->get();
-
-        $facilities = Facility::orderBy('facility_name')->get();
-
-        return view('admin.rooms.create', compact(
-            'floors',
-            'facilities'
-        ));
-    }
-
-    public function store(Request $request)
+    /**
+     * Add one or more rooms to a floor. Several names, one per line or
+     * separated by commas, share the same capacity, status and facilities.
+     */
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'floor_id' => 'required|exists:floors,id',
-            'room_name' => 'required|string|max:100',
+            'room_name' => 'required|string|max:5000',
             'capacity' => 'nullable|integer|min:1',
             'status' => 'required|in:available,maintenance',
             'description' => 'nullable|string|max:500',
@@ -74,19 +27,58 @@ class RoomController extends Controller
             'facilities.*' => 'exists:facilities,id',
         ]);
 
-        $room = Room::create([
-            'floor_id' => $validated['floor_id'],
-            'room_name' => $validated['room_name'],
-            'capacity' => $validated['capacity'] ?? null,
-            'status' => $validated['status'],
-            'description' => $validated['description'] ?? null,
-        ]);
+        $names = $this->roomNames($validated['room_name'], (int) $validated['floor_id']);
 
-        $room->facilities()->sync($validated['facilities'] ?? []);
+        DB::transaction(function () use ($names, $validated): void {
+            foreach ($names as $name) {
+                $room = Room::create([
+                    'floor_id' => $validated['floor_id'],
+                    'room_name' => $name,
+                    'capacity' => $validated['capacity'] ?? null,
+                    'status' => $validated['status'],
+                    'description' => $validated['description'] ?? null,
+                ]);
+
+                $room->facilities()->sync($validated['facilities'] ?? []);
+            }
+        });
 
         return redirect()
-            ->route('rooms.index')
-            ->with('success', 'Room created successfully.');
+            ->route('classrooms.index')
+            ->withFragment("floor-{$validated['floor_id']}")
+            ->with('success', count($names) === 1 ? "{$names[0]} added." : count($names).' rooms added.');
+    }
+
+    /**
+     * The room names typed into the add form.
+     *
+     * @return list<string>
+     */
+    private function roomNames(string $input, int $floorId): array
+    {
+        $names = collect(preg_split('/[\r\n,]+/', $input))
+            ->map(fn (string $name) => trim($name))
+            ->filter(fn (string $name) => $name !== '')
+            ->unique(fn (string $name) => mb_strtolower($name))
+            ->values();
+
+        $existing = Room::where('floor_id', $floorId)->pluck('room_name')
+            ->map(fn (string $name) => mb_strtolower($name));
+
+        $duplicates = $names->filter(fn (string $name) => $existing->contains(mb_strtolower($name)));
+
+        $error = match (true) {
+            $names->isEmpty() => 'Enter at least one room name.',
+            $names->contains(fn (string $name) => mb_strlen($name) > 100) => 'Each room name must be 100 characters or fewer.',
+            $duplicates->isNotEmpty() => 'Already on this floor: '.$duplicates->implode(', ').'.',
+            default => null,
+        };
+
+        if ($error !== null) {
+            throw ValidationException::withMessages(['room_name' => $error]);
+        }
+
+        return $names->all();
     }
 
     public function show(Room $room)
@@ -103,22 +95,12 @@ class RoomController extends Controller
         return view('admin.rooms.show', compact('room'));
     }
 
-    public function edit(Room $room)
+    /**
+     * Rooms are edited in a pop-up on the Classrooms page.
+     */
+    public function edit(Room $room): RedirectResponse
     {
-        $floors = Floor::with('building.campus')
-            ->orderBy('building_id')
-            ->orderBy('floor_number')
-            ->get();
-
-        $facilities = Facility::orderBy('facility_name')->get();
-
-        $room->load('facilities');
-
-        return view('admin.rooms.edit', compact(
-            'room',
-            'floors',
-            'facilities'
-        ));
+        return redirect()->route('classrooms.index', ['edit' => $room->id]);
     }
 
     public function update(Request $request, Room $room)
@@ -144,7 +126,7 @@ class RoomController extends Controller
         $room->facilities()->sync($validated['facilities'] ?? []);
 
         return redirect()
-            ->route('rooms.index')
+            ->route('classrooms.index')
             ->with('success', 'Room updated successfully.');
     }
 
@@ -152,7 +134,7 @@ class RoomController extends Controller
     {
         if ($room->classSessions()->exists() || $room->roomSessions()->exists()) {
             return redirect()
-                ->route('rooms.index')
+                ->route('classrooms.index')
                 ->with(
                     'error',
                     'This room cannot be deleted because it has class schedules or session history.'
@@ -164,7 +146,7 @@ class RoomController extends Controller
         $room->delete();
 
         return redirect()
-            ->route('rooms.index')
+            ->route('classrooms.index')
             ->with('success', 'Room deleted successfully.');
     }
 
