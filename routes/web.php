@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\Admin\BuildingController;
 use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\ClassroomController;
@@ -46,6 +47,11 @@ Route::get('/faculty-locator', [FacultyLocatorController::class, 'index'])
     ->middleware('auth')
     ->name('faculty-locator.index');
 
+/* Switch between semesters (admin and faculty) */
+Route::post('/academic-term', [AcademicTermController::class, 'select'])
+    ->middleware('auth')
+    ->name('academic-term.select');
+
 /* My Profile, for every role. What can be changed depends on the role (User::editableProfileFields). */
 Route::middleware('auth')->prefix('profile')->group(function () {
     Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -60,6 +66,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
+
+    Route::post('/academic-terms/{academicTerm}/current', [AcademicTermController::class, 'makeCurrent'])
+        ->name('academic-terms.current');
 
     /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
     Route::get('/classrooms', [ClassroomController::class, 'index'])

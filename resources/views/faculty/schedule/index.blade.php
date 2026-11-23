@@ -19,6 +19,8 @@
     </div>
 
     <div class="page-header-actions">
+        <x-term-picker />
+
         <a href="{{ route('faculty.schedule.import.create') }}" class="btn btn-primary">
             Upload My Teaching Load
         </a>
@@ -26,6 +28,8 @@
 
 </div>
 
+
+<x-term-notice />
 
 @if(session('success'))
     <div class="alert alert-success">
@@ -39,7 +43,7 @@
     @if($classesByDay->isEmpty())
 
         <div class="small-empty-state">
-            <strong>No classes yet</strong>
+            <strong>No classes in {{ \App\Support\SelectedTerm::get()->label }} yet</strong>
             <span>Upload your teaching load (PDF, Excel, Word, or a photo of your class list) to add your classes.</span>
         </div>
 

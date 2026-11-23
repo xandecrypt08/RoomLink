@@ -24,7 +24,8 @@ class MarkClassNotHeld
     {
         $today = now();
 
-        if ($schedule->day !== ClassSession::dayCodeFor($today) || $schedule->status !== 'active') {
+        if ($schedule->day !== ClassSession::dayCodeFor($today) || $schedule->status !== 'active'
+            || ! $schedule->academicTerm?->is_current) {
             throw ClassNotHeldException::notScheduledToday($schedule);
         }
 

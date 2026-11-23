@@ -132,6 +132,7 @@ class Room extends Model
     {
         return $this->classSessions()
             ->with(['faculty', 'subject', 'section'])
+            ->inCurrentTerm()
             ->where('day', ClassSession::dayCodeFor($moment))
             ->where('status', 'active')
             ->get()

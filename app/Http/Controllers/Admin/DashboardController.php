@@ -9,6 +9,7 @@ use App\Models\ClassSession;
 use App\Models\Floor;
 use App\Models\Room;
 use App\Models\RoomSession;
+use App\Support\SelectedTerm;
 
 class DashboardController extends Controller
 {
@@ -38,6 +39,7 @@ class DashboardController extends Controller
             'subject',
             'section',
         ])
+            ->inTerm(SelectedTerm::get())
             ->orderedByWeek()
             ->take(5)
             ->get();

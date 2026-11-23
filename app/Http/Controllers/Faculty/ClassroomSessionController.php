@@ -292,6 +292,7 @@ class ClassroomSessionController extends Controller
 
         return $room->classSessions()
             ->with(['faculty', 'subject', 'section'])
+            ->inCurrentTerm()
             ->where('day', $this->dayCode($now->format('D')))
             ->where('status', 'active')
             ->orderBy('start_time')

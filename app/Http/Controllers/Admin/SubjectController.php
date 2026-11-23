@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use App\Models\Subject;
+use App\Support\SelectedTerm;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
@@ -14,7 +15,7 @@ class SubjectController extends Controller
         $search = $request->input('search');
         $programId = $request->integer('program') ?: null;
 
-        $subjects = Subject::withCount('classSessions')
+        $subjects = Subject::withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])
             ->with('programs')
             ->when($programId, fn ($query) => $query->whereHas('programs', fn ($q) => $q->whereKey($programId)))
             ->when($search, function ($query) use ($search) {
@@ -67,7 +68,7 @@ class SubjectController extends Controller
     {
         $subject->load([
             'programs',
-            'classSessions' => fn ($query) => $query->orderedByWeek(),
+            'classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.section',
             'classSessions.room.floor.building.campus',

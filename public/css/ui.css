@@ -2189,3 +2189,132 @@ input.profile-locked:focus {
     border-color: var(--danger);
     background: var(--danger-soft);
 }
+
+
+/* ---------------------------------------------------------
+   TERM PICKER (a button; the list opens when clicked)
+   --------------------------------------------------------- */
+
+.term-picker {
+    position: relative;
+}
+
+.term-picker > summary {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.term-picker > summary::-webkit-details-marker {
+    display: none;
+}
+
+.dashboard-header .term-picker > summary {
+    background: var(--surface);
+    box-shadow: 0 1px 4px rgba(24, 48, 66, .1);
+}
+
+.term-picker-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    max-height: 70vh;
+    padding: 8px 16px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 14px 40px rgba(24, 48, 66, .18);
+    overflow-y: auto;
+}
+
+.term-picker-year {
+    padding: 10px 0;
+}
+
+.term-picker-year + .term-picker-year {
+    border-top: 1px solid var(--line);
+}
+
+.term-picker-year strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-size: 12px;
+}
+
+.term-picker-semesters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+}
+
+.term-picker-semesters button {
+    padding: 9px 4px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.term-picker-semesters button:hover {
+    border-color: var(--brand);
+}
+
+.term-picker-semesters button.active {
+    background: var(--brand);
+    color: #fff;
+}
+
+.term-picker-semesters small {
+    display: block;
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 500;
+    opacity: .85;
+}
+
+.term-picker-current {
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}
+
+.term-picker-current .btn {
+    width: 100%;
+}
+
+.panel-term {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+@media (max-width: 760px) {
+
+    .dashboard-header {
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .term-picker,
+    .term-picker > summary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .term-picker-panel {
+        right: auto;
+        left: 0;
+        width: 100%;
+        max-width: none;
+    }
+}

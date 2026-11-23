@@ -31,6 +31,7 @@ class FacultyDashboardController extends Controller
                 'section',
             ])
                 ->where('faculty_id', $facultyRecord->id)
+                ->inCurrentTerm()
                 ->where('day', $currentDay)
                 ->where('status', 'active')
                 ->orderBy('start_time')

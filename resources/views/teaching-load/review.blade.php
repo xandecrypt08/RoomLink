@@ -17,7 +17,7 @@
         <h1>Review Classes</h1>
         <p>
             Found {{ $rows->count() }} {{ \Illuminate\Support\Str::plural('class', $rows->count()) }} in {{ $fileName }}
-            for <strong>{{ $faculty->full_name }}</strong>.
+            for <strong>{{ $faculty->full_name }}</strong>, {{ $term->label }}.
             Check each one, fix anything that was misread, then save.
         </p>
     </div>
@@ -46,7 +46,7 @@
 
 @if($mode === 'replace')
     <div class="alert alert-warning">
-        Saving replaces the current schedule: {{ $isAdmin ? 'their' : 'your' }} current classes will be set to inactive.
+        Saving replaces {{ $isAdmin ? 'their' : 'your' }} schedule for {{ $term->label }}: the classes already in it will be set to inactive.
     </div>
 @endif
 
@@ -56,6 +56,7 @@
     @csrf
 
     <input type="hidden" name="mode" value="{{ $mode }}">
+    <input type="hidden" name="academic_term_id" value="{{ $term->id }}">
 
     @if($isAdmin)
         <input type="hidden" name="faculty_id" value="{{ $faculty->id }}">

@@ -6,6 +6,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClassSession extends Model
@@ -15,6 +16,7 @@ class ClassSession extends Model
     protected $table = 'class_sessions';
 
     protected $fillable = [
+        'academic_term_id',
         'room_id',
         'faculty_id',
         'subject_id',
@@ -45,6 +47,29 @@ class ClassSession extends Model
         'S' => 'Saturday',
         'Su' => 'Sunday',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (ClassSession $session): void {
+            $session->academic_term_id ??= AcademicTerm::current()->id;
+        });
+    }
+
+    /**
+     * Only the term's classes.
+     */
+    public function scopeInTerm(Builder $query, AcademicTerm $term): void
+    {
+        $query->where('academic_term_id', $term->id);
+    }
+
+    /**
+     * Only classes of the term running now.
+     */
+    public function scopeInCurrentTerm(Builder $query): void
+    {
+        $query->where('academic_term_id', AcademicTerm::current()->id);
+    }
 
     /**
      * The full day name for display, e.g. "Monday" for "M".
@@ -100,6 +125,11 @@ class ClassSession extends Model
     public function roomSessions(): HasMany
     {
         return $this->hasMany(RoomSession::class);
+    }
+
+    public function academicTerm(): BelongsTo
+    {
+        return $this->belongsTo(AcademicTerm::class);
     }
 
     public function room()

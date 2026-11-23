@@ -11,13 +11,13 @@ use App\Models\ClassSession;
 class ScheduleConflicts
 {
     /**
-     * Find active schedules on the same day whose time overlaps the given
+     * Find active schedules of the same term and day whose time overlaps the given
      * one and that share its room, faculty member or section.
      *
      * Inactive schedules never conflict, and a schedule touching another
      * (one ends at 10:00, the next starts at 10:00) is not an overlap.
      *
-     * @param  array{room_id: int|string, faculty_id: int|string, section_id: int|string, day: string, start_time: string, end_time: string, status: string}  $schedule
+     * @param  array{academic_term_id: int, room_id: int|string, faculty_id: int|string, section_id: int|string, day: string, start_time: string, end_time: string, status: string}  $schedule
      * @param  int|null  $replacingFacultyId  a faculty member whose current schedule is
      *                                        about to be replaced by an uploaded teaching load,
      *                                        so their classes are left out
@@ -30,6 +30,7 @@ class ScheduleConflicts
         }
 
         $overlapping = ClassSession::with(['room', 'faculty', 'subject', 'section'])
+            ->where('academic_term_id', $schedule['academic_term_id'])
             ->where('day', $schedule['day'])
             ->where('status', 'active')
             ->where('start_time', '<', $schedule['end_time'])

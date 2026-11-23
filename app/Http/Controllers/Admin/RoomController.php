@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
+use App\Support\SelectedTerm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -86,7 +87,7 @@ class RoomController extends Controller
         $room->load([
             'floor.building.campus',
             'facilities',
-            'classSessions' => fn ($query) => $query->orderedByWeek(),
+            'classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.subject',
             'classSessions.section',

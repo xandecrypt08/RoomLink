@@ -6,6 +6,7 @@ use App\Models\ClassSession;
 use App\Models\Faculty;
 use App\Support\ScheduleImport\TeachingLoadParser;
 use App\Support\ScheduleImport\TeachingLoadReview;
+use App\Support\SelectedTerm;
 use App\Support\SubjectImport\DocumentText;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +37,7 @@ class TeachingLoadController extends Controller
 
         return view('teaching-load.create', [
             'routes' => $this->routeNames($request),
+            'term' => SelectedTerm::get(),
         ]);
     }
 
@@ -79,7 +81,7 @@ class TeachingLoadController extends Controller
             ]);
         }
 
-        return $this->reviewView($request, $faculty, $validated['mode'], $review->check($classes, $faculty, $validated['mode'] === 'replace'), [
+        return $this->reviewView($request, $faculty, $validated['mode'], $review->check($classes, $faculty, $validated['mode'] === 'replace', SelectedTerm::fromForm($request)), [
             'fileName' => $request->file('document')->getClientOriginalName(),
             'usedOcr' => $extracted->usedOcr,
             'text' => $extracted->text,
@@ -125,7 +127,8 @@ class TeachingLoadController extends Controller
 
         $mode = (string) $request->input('mode');
 
-        $checked = $review->check($this->submittedRows($request), $faculty, $mode === 'replace');
+        $term = SelectedTerm::fromForm($request);
+        $checked = $review->check($this->submittedRows($request), $faculty, $mode === 'replace', $term);
 
         if ($validator->fails()) {
             return $this->reviewView($request, $faculty, $mode, $checked)->withErrors($validator);
@@ -142,7 +145,8 @@ class TeachingLoadController extends Controller
                 ->withErrors(['rows' => 'Some ticked classes still have problems (marked below). Fix them or untick them, then save again.']);
         }
 
-        $counts = $review->save($checked, $faculty, $mode === 'replace');
+        $counts = $review->save($checked, $faculty, $mode === 'replace', $term);
+        SelectedTerm::set($term);
 
         $owner = $request->user()->isAdmin() ? $faculty->full_name."'s" : 'your';
         $message = 'Added '.$counts['classes'].' '.Str::plural('class', $counts['classes'])." to {$owner} schedule";
@@ -173,7 +177,7 @@ class TeachingLoadController extends Controller
         $faculty = $this->facultyFor($request);
         abort_if($faculty === null, 422);
 
-        $rows = $review->check($this->submittedRows($request), $faculty, $request->input('mode') === 'replace');
+        $rows = $review->check($this->submittedRows($request), $faculty, $request->input('mode') === 'replace', SelectedTerm::fromForm($request));
 
         return response()->json(['rows' => array_map(fn (array $row): array => [
             'problem' => ! $row['duplicate'] && $row['problems'] !== [],
@@ -215,6 +219,7 @@ class TeachingLoadController extends Controller
             'isAdmin' => $request->user()->isAdmin(),
             'faculty' => $faculty,
             'mode' => $mode,
+            'term' => SelectedTerm::fromForm($request),
             'rows' => collect($rows),
             'rooms' => app(TeachingLoadReview::class)->rooms(),
             'fileName' => $source['fileName'] ?? 'your teaching load',

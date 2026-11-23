@@ -16,6 +16,8 @@
     </div>
 
     <div class="page-header-actions">
+        <x-term-picker />
+
         <a href="{{ route($routes['back']) }}" class="btn btn-secondary">
             ← Back to My Schedule
         </a>
@@ -23,6 +25,8 @@
 
 </div>
 
+
+<x-term-notice />
 
 @if(session('error'))
     <div class="alert alert-error">
@@ -48,6 +52,8 @@
     >
 
         @csrf
+
+        <input type="hidden" name="academic_term_id" value="{{ $term->id }}">
 
         <div class="form-group">
 
@@ -82,7 +88,7 @@
                 <label class="facility-option">
                     <input type="radio" name="mode" value="add" {{ old('mode', 'add') === 'add' ? 'checked' : '' }}>
                     <span>
-                        <strong>Add to the current schedule</strong>
+                        <strong>Add to this semester's schedule</strong>
                         · classes already there are skipped
                     </span>
                 </label>
@@ -90,8 +96,8 @@
                 <label class="facility-option">
                     <input type="radio" name="mode" value="replace" {{ old('mode') === 'replace' ? 'checked' : '' }}>
                     <span>
-                        <strong>Replace the current schedule</strong>
-                        · for a new semester; current classes become inactive
+                        <strong>Replace this semester's schedule</strong>
+                        · its classes become inactive; other semesters stay as they are
                     </span>
                 </label>
 

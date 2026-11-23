@@ -17,7 +17,16 @@
         </p>
     </div>
 
+    <x-term-picker />
+
 </div>
+
+
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+<x-term-notice />
 
 
 {{-- SUMMARY CARDS --}}
@@ -278,6 +287,7 @@
         <div>
             <span class="panel-eyebrow">SCHEDULES</span>
             <h2>Class Schedules</h2>
+            <p class="panel-term">{{ \App\Support\SelectedTerm::get()->label }}</p>
         </div>
 
         <a href="{{ route('schedules.index') }}" class="panel-link">
