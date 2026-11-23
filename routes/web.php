@@ -133,6 +133,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/schedules/import', [TeachingLoadController::class, 'store'])
         ->name('schedules.import.store');
 
+    // Conflict warnings while a class is being filled in.
+    Route::post('/schedules/import/check', [TeachingLoadController::class, 'check'])
+        ->name('schedules.import.check');
+
+    Route::post('/schedules/check', [ClassSessionController::class, 'check'])
+        ->name('schedules.check');
+
     Route::resource('schedules', ClassSessionController::class)->except('show');
 
     /* User accounts (RLNK-208). Accounts are deactivated, never deleted. */
@@ -176,6 +183,9 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/schedule/import', [TeachingLoadController::class, 'store'])
         ->name('faculty.schedule.import.store');
+
+    Route::post('/schedule/import/check', [TeachingLoadController::class, 'check'])
+        ->name('faculty.schedule.import.check');
 
     /* Classroom transfer (RLNK-24) */
     Route::get('/transfer', [ClassroomTransferController::class, 'create'])

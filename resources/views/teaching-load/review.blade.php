@@ -51,7 +51,7 @@
 @endif
 
 
-<form method="POST" action="{{ route($routes['store']) }}">
+<form method="POST" action="{{ route($routes['store']) }}" data-load-review data-check-url="{{ route($routes['check']) }}">
 
     @csrf
 
@@ -67,7 +67,7 @@
 
             <div>
                 <h2>2. Review and save</h2>
-                <span class="table-count">
+                <span class="table-count" data-load-count>
                     {{ $readyCount }} ready
                     @if($problemCount) · {{ $problemCount }} need{{ $problemCount === 1 ? 's' : '' }} attention @endif
                     @if($duplicateCount) · {{ $duplicateCount }} already in the schedule @endif
@@ -111,7 +111,7 @@
 
                     @foreach($rows as $index => $row)
 
-                        <tr class="{{ ! $row['duplicate'] && $row['problems'] !== [] ? 'load-row-problem' : '' }}">
+                        <tr class="{{ ! $row['duplicate'] && $row['problems'] !== [] ? 'load-row-problem' : '' }}" data-load-row>
 
                             <td class="import-check-cell">
                                 <input
@@ -187,26 +187,8 @@
                                 @endif
                             </td>
 
-                            <td>
-                                @if($row['duplicate'])
-                                    <span class="status-badge status-neutral">Already in schedule</span>
-                                    <div class="table-secondary">Skipped if ticked</div>
-                                @elseif($row['problems'] !== [])
-                                    <span class="status-badge status-maintenance">Needs attention</span>
-                                    <ul class="load-problems">
-                                        @foreach($row['problems'] as $problem)
-                                            <li>{{ $problem }}</li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <span class="status-badge status-available">Ready</span>
-                                @endif
-
-                                @if(! $row['duplicate'] && ($row['subject'] === null || $row['new_section']))
-                                    <div class="table-secondary">
-                                        {{ collect([$row['subject'] === null ? 'New subject' : null, $row['new_section'] ? 'New section' : null])->filter()->implode(' · ') }}
-                                    </div>
-                                @endif
+                            <td data-row-status aria-live="polite">
+                                @include('teaching-load.partials.status')
                             </td>
 
                         </tr>
@@ -243,6 +225,7 @@
 
 
 @push('scripts')
+<script src="{{ \App\Support\Asset::url('js/load-review.js') }}"></script>
 <script>
     (function () {
         var selectAll = document.querySelector('[data-select-all]');

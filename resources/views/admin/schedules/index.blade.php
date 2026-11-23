@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div data-record-page data-session-page>
+<div data-record-page data-session-page data-check-url="{{ route('schedules.check') }}">
 
 <div class="page-header">
 
@@ -316,6 +316,8 @@
         <label for="session_description">Notes</label>
         <textarea id="session_description" name="description" rows="2" maxlength="500"></textarea>
     </div>
+
+    <div class="live-conflicts" data-live-conflicts role="status" aria-live="polite" hidden></div>
 
     <x-slot:actions>
         <button type="submit" name="another" value="1" class="btn btn-secondary" data-add-only>Save and add another</button>

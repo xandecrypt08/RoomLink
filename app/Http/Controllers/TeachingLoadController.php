@@ -7,6 +7,7 @@ use App\Models\Faculty;
 use App\Support\ScheduleImport\TeachingLoadParser;
 use App\Support\ScheduleImport\TeachingLoadReview;
 use App\Support\SubjectImport\DocumentText;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -124,19 +125,7 @@ class TeachingLoadController extends Controller
 
         $mode = (string) $request->input('mode');
 
-        $rows = collect($request->input('rows'))->values()->map(fn ($row) => [
-            'subject_code' => (string) ($row['subject_code'] ?? ''),
-            'title' => (string) ($row['title'] ?? ''),
-            'section' => (string) ($row['section'] ?? ''),
-            'day' => (string) ($row['day'] ?? ''),
-            'start_time' => (string) ($row['start_time'] ?? ''),
-            'end_time' => (string) ($row['end_time'] ?? ''),
-            'room' => (string) ($row['room'] ?? ''),
-            'room_id' => $row['room_id'] ?? null,
-            'import' => ! empty($row['import']),
-        ])->all();
-
-        $checked = $review->check($rows, $faculty, $mode === 'replace');
+        $checked = $review->check($this->submittedRows($request), $faculty, $mode === 'replace');
 
         if ($validator->fails()) {
             return $this->reviewView($request, $faculty, $mode, $checked)->withErrors($validator);
@@ -166,6 +155,53 @@ class TeachingLoadController extends Controller
         return redirect()
             ->route($routes['back'], $request->user()->isAdmin() ? ['search' => $faculty->last_name] : [])
             ->with('success', $message.($extras ? ' ('.implode('; ', $extras).')' : '').'.');
+    }
+
+    /**
+     * Check the classes while they are being edited on the review screen.
+     * Nothing is saved; saving checks everything again.
+     */
+    public function check(Request $request, TeachingLoadReview $review): JsonResponse
+    {
+        $request->validate([
+            'mode' => ['required', Rule::in(['add', 'replace'])],
+            'rows' => ['required', 'array', 'max:200'],
+            'rows.*' => ['array'],
+            'rows.*.*' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $faculty = $this->facultyFor($request);
+        abort_if($faculty === null, 422);
+
+        $rows = $review->check($this->submittedRows($request), $faculty, $request->input('mode') === 'replace');
+
+        return response()->json(['rows' => array_map(fn (array $row): array => [
+            'problem' => ! $row['duplicate'] && $row['problems'] !== [],
+            'duplicate' => $row['duplicate'],
+            // The title of a subject already in RoomLink isn't edited here.
+            'title' => $row['subject']?->subject_name,
+            'status' => view('teaching-load.partials.status', ['row' => $row])->render(),
+        ], $rows)]);
+    }
+
+    /**
+     * The classes as submitted from the review screen.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function submittedRows(Request $request): array
+    {
+        return collect($request->input('rows'))->values()->map(fn ($row) => [
+            'subject_code' => (string) ($row['subject_code'] ?? ''),
+            'title' => (string) ($row['title'] ?? ''),
+            'section' => (string) ($row['section'] ?? ''),
+            'day' => (string) ($row['day'] ?? ''),
+            'start_time' => (string) ($row['start_time'] ?? ''),
+            'end_time' => (string) ($row['end_time'] ?? ''),
+            'room' => (string) ($row['room'] ?? ''),
+            'room_id' => $row['room_id'] ?? null,
+            'import' => ! empty($row['import']),
+        ])->all();
     }
 
     /**
@@ -203,7 +239,7 @@ class TeachingLoadController extends Controller
     /**
      * Administrators import from Class Sessions; faculty from My Schedule.
      *
-     * @return array{create: string, preview: string, store: string, back: string}
+     * @return array{create: string, preview: string, store: string, check: string, back: string}
      */
     private function routeNames(Request $request): array
     {
@@ -213,6 +249,7 @@ class TeachingLoadController extends Controller
             'create' => "{$prefix}.create",
             'preview' => "{$prefix}.preview",
             'store' => "{$prefix}.store",
+            'check' => "{$prefix}.check",
             'back' => $request->user()->isAdmin() ? 'schedules.index' : 'faculty.schedule.index',
         ];
     }

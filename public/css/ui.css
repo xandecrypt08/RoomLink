@@ -2153,3 +2153,39 @@ input.profile-locked:focus {
 [data-faculty-only][hidden] {
     display: none;
 }
+
+
+/* ---------------------------------------------------------
+   LIVE CONFLICT WARNING (class form)
+   --------------------------------------------------------- */
+
+/* Stays in view at the bottom of the pop-up whichever field is being filled. */
+.live-conflicts {
+    position: sticky;
+    bottom: -24px;
+    z-index: 1;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid #efc4c4;
+    border-radius: 9px;
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.live-conflicts div + div {
+    margin-top: 6px;
+}
+
+.live-conflicts.is-clear {
+    border-color: #c5e3cf;
+    background: var(--ok-soft);
+    color: var(--ok);
+}
+
+.form-group .has-conflict {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+}
