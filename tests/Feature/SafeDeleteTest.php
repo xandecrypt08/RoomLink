@@ -34,7 +34,7 @@ class SafeDeleteTest extends TestCase
 
         $this->actingAs($this->admin)
             ->delete(route('campuses.destroy', $campus))
-            ->assertRedirect(route('campuses.index'))
+            ->assertRedirect(route('classrooms.index'))
             ->assertSessionHas('error');
 
         $this->assertModelExists($campus);

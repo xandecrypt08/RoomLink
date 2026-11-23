@@ -45,13 +45,11 @@ class RoomScheduleSlotTest extends TestCase
         Room::factory()->create();
         $room = Room::factory()->create();
 
-        $response = $this->actingAs(User::factory()->admin()->create())
-            ->get(route('schedules.create', ['room_id' => $room->id]));
-
-        $response->assertOk();
-        $this->assertMatchesRegularExpression(
-            '/value="'.$room->id.'"\s*selected/',
-            $response->getContent()
-        );
+        $this->actingAs(User::factory()->admin()->create())
+            ->followingRedirects()
+            ->get(route('schedules.create', ['room_id' => $room->id]))
+            ->assertOk()
+            ->assertSee('data-values="{&quot;room_id&quot;:'.$room->id.'}"', false)
+            ->assertSee('data-open-now', false);
     }
 }

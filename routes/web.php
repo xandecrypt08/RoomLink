@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BuildingController;
 use App\Http\Controllers\Admin\CampusController;
+use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\ClassSessionController;
 use App\Http\Controllers\Admin\CollegeController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -60,11 +61,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
 
-    Route::resource('campuses', CampusController::class);
+    /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
+    Route::get('/classrooms', [ClassroomController::class, 'index'])
+        ->name('classrooms.index');
 
-    Route::resource('buildings', BuildingController::class);
+    // Addresses of the separate lists this page replaced.
+    foreach (['campuses', 'buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
+        Route::get("/{$oldList}", fn () => redirect()->route('classrooms.index'))
+            ->name("{$oldList}.index");
+    }
 
-    Route::resource('floors', FloorController::class);
+    Route::post('/buildings/{building}/floors', [BuildingController::class, 'createFloors'])
+        ->name('buildings.floors.store');
+
+    Route::resource('campuses', CampusController::class)->only(['store', 'update', 'destroy']);
+
+    Route::resource('buildings', BuildingController::class)->only(['store', 'update', 'destroy']);
+
+    Route::resource('floors', FloorController::class)->only(['store', 'update', 'destroy']);
 
     Route::get(
         '/rooms/{room}/qr/print',
@@ -81,9 +95,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         [RoomController::class, 'regenerateQr']
     )->name('rooms.qr.regenerate');
 
-    Route::resource('rooms', RoomController::class);
+    Route::resource('rooms', RoomController::class)->except(['index', 'create']);
 
-    Route::resource('facilities', FacilityController::class);
+    Route::resource('facilities', FacilityController::class)->only(['store', 'update', 'destroy']);
 
     Route::resource('faculties', FacultyController::class);
 
@@ -103,7 +117,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('colleges', CollegeController::class)->except('show');
 
-    Route::resource('sections', SectionController::class);
+    /* Sections are managed on the Class Sessions page. */
+    Route::get('/sections', fn () => redirect()->route('schedules.index'))
+        ->name('sections.index');
+
+    Route::resource('sections', SectionController::class)->only(['store', 'update', 'destroy']);
 
     /* Import a faculty member's teaching load. Declared before the resource so "import" isn't read as a schedule. */
     Route::get('/schedules/import', [TeachingLoadController::class, 'create'])
@@ -115,7 +133,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/schedules/import', [TeachingLoadController::class, 'store'])
         ->name('schedules.import.store');
 
-    Route::resource('schedules', ClassSessionController::class);
+    Route::resource('schedules', ClassSessionController::class)->except('show');
 
     /* User accounts (RLNK-208). Accounts are deactivated, never deleted. */
     Route::patch('/users/{user}/password', [UserController::class, 'resetPassword'])

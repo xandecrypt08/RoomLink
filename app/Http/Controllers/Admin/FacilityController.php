@@ -8,33 +8,6 @@ use Illuminate\Http\Request;
 
 class FacilityController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        $facilities = Facility::withCount('rooms')
-            ->when($search, function ($query) use ($search) {
-                $query->where(
-                    'facility_name',
-                    'like',
-                    "%{$search}%"
-                );
-            })
-            ->orderBy('facility_name')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.facilities.index', compact(
-            'facilities',
-            'search'
-        ));
-    }
-
-    public function create()
-    {
-        return view('admin.facilities.create');
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -44,22 +17,8 @@ class FacilityController extends Controller
         Facility::create($validated);
 
         return redirect()
-            ->route('facilities.index')
+            ->route('classrooms.index')
             ->with('success', 'Facility created successfully.');
-    }
-
-    public function show(Facility $facility)
-    {
-        $facility->load([
-            'rooms.floor.building.campus',
-        ]);
-
-        return view('admin.facilities.show', compact('facility'));
-    }
-
-    public function edit(Facility $facility)
-    {
-        return view('admin.facilities.edit', compact('facility'));
     }
 
     public function update(Request $request, Facility $facility)
@@ -69,14 +28,14 @@ class FacilityController extends Controller
                 'required',
                 'string',
                 'max:100',
-                'unique:facilities,facility_name,' . $facility->id,
+                'unique:facilities,facility_name,'.$facility->id,
             ],
         ]);
 
         $facility->update($validated);
 
         return redirect()
-            ->route('facilities.index')
+            ->route('classrooms.index')
             ->with('success', 'Facility updated successfully.');
     }
 
@@ -87,7 +46,7 @@ class FacilityController extends Controller
         $facility->delete();
 
         return redirect()
-            ->route('facilities.index')
+            ->route('classrooms.index')
             ->with('success', 'Facility deleted successfully.');
     }
 }

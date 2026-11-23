@@ -54,7 +54,7 @@ class RoomStatusTest extends TestCase
 
         $this->actingAs($this->admin)
             ->put(route('rooms.update', $room), $this->roomPayload($room, 'available'))
-            ->assertRedirect(route('rooms.index'));
+            ->assertRedirect(route('classrooms.index'));
 
         $this->assertSame('occupied', $room->fresh()->status);
     }
@@ -87,7 +87,7 @@ class RoomStatusTest extends TestCase
 
         $this->actingAs($this->admin)
             ->delete(route('rooms.destroy', $room))
-            ->assertRedirect(route('rooms.index'))
+            ->assertRedirect(route('classrooms.index'))
             ->assertSessionHas('error', 'This room cannot be deleted because it has class schedules or session history.');
 
         $this->assertModelExists($room);

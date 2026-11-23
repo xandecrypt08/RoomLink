@@ -99,7 +99,7 @@
                 <h2>Room Status</h2>
             </div>
 
-            <a href="{{ route('rooms.index') }}" class="panel-link">
+            <a href="{{ route('classrooms.index') }}" class="panel-link">
                 View Rooms →
             </a>
 

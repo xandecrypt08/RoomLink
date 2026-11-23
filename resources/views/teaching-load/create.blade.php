@@ -8,16 +8,16 @@
 
     <div>
         <span class="page-eyebrow">CLASS SCHEDULE</span>
-        <h1>Upload {{ $isAdmin ? 'a' : 'My' }} Teaching Load</h1>
+        <h1>Upload My Teaching Load</h1>
         <p>
-            Upload {{ $isAdmin ? "a faculty member's" : 'your' }} class list or timetable and RoomLink adds each class
-            with its subject, section, day, time and room{{ $isAdmin ? '' : ', assigned to you' }}.
+            Upload your class list or timetable and RoomLink adds each class
+            with its subject, section, day, time and room, assigned to you.
         </p>
     </div>
 
     <div class="page-header-actions">
         <a href="{{ route($routes['back']) }}" class="btn btn-secondary">
-            ← Back to {{ $isAdmin ? 'Class Sessions' : 'My Schedule' }}
+            ← Back to My Schedule
         </a>
     </div>
 
@@ -31,7 +31,7 @@
 @endif
 
 
-@if(! $isAdmin && $faculty === null)
+@if($faculty === null)
 
     <div class="content-card">
         <div class="small-empty-state">
@@ -59,32 +59,6 @@
     >
 
         @csrf
-
-        @if($isAdmin)
-
-            <div class="form-group">
-
-                <label for="faculty_id">
-                    Faculty member <span class="required">*</span>
-                </label>
-
-                <select name="faculty_id" id="faculty_id" required>
-                    <option value="">Select faculty</option>
-
-                    @foreach($faculties as $option)
-                        <option value="{{ $option->id }}" {{ old('faculty_id', request('faculty_id')) == $option->id ? 'selected' : '' }}>
-                            {{ $option->last_name }}, {{ $option->first_name }}{{ $option->employee_id ? ' ('.$option->employee_id.')' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-
-                @error('faculty_id')
-                    <span class="form-error">{{ $message }}</span>
-                @enderror
-
-            </div>
-
-        @endif
 
         <div class="form-group">
 

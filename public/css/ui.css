@@ -1824,3 +1824,285 @@ input.profile-locked:focus {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ---------------------------------------------------------
+   CLASSROOMS (campuses, buildings, floors, rooms on one page)
+   --------------------------------------------------------- */
+
+[data-record-page] [hidden] {
+    display: none !important;
+}
+
+[data-record-page] > .content-card {
+    margin-bottom: 18px;
+    padding: 20px;
+}
+
+.classroom-toolbar,
+.classroom-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.classroom-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    color: var(--ink-soft);
+    font-size: 13px;
+}
+
+.classroom-counts strong {
+    color: var(--ink);
+}
+
+.classroom-head h2,
+.classroom-head h3 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0;
+    color: var(--ink);
+}
+
+.classroom-head h2 {
+    font-size: 17px;
+}
+
+.classroom-head h3 {
+    font-size: 13px;
+}
+
+.classroom-head p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+[data-record-page] .table-actions {
+    flex-wrap: wrap;
+}
+
+[data-record-page] .table-actions button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.classroom-facilities .program-tags {
+    margin-top: 12px;
+}
+
+.classroom-chip {
+    padding: 5px 11px;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.classroom-building {
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.classroom-building > summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.classroom-building > summary::-webkit-details-marker {
+    display: none;
+}
+
+.classroom-building-name {
+    display: inline-flex;
+    gap: 9px;
+    align-items: center;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.classroom-building-name::before {
+    width: 6px;
+    height: 6px;
+    border: solid var(--muted);
+    border-width: 0 2px 2px 0;
+    content: '';
+    transform: rotate(-45deg);
+    transition: transform .15s ease;
+}
+
+.classroom-building[open] .classroom-building-name::before {
+    transform: rotate(45deg);
+}
+
+.classroom-building-actions,
+.classroom-building > p {
+    padding: 0 16px 14px;
+}
+
+.classroom-floor {
+    padding: 13px 16px;
+    border-top: 1px solid var(--line);
+}
+
+.classroom-rooms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.classroom-rooms li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface-soft);
+}
+
+.classroom-room-info > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.classroom-room-info a {
+    text-decoration: none;
+}
+
+.record-dialog {
+    width: min(560px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    margin: auto;
+    padding: 24px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 20px 60px rgba(24, 48, 66, .3);
+    overflow-y: auto;
+}
+
+.record-dialog::backdrop {
+    background: rgba(24, 48, 66, .45);
+}
+
+.record-dialog .form-card {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.record-dialog h2 {
+    margin: 0 0 18px;
+    font-size: 18px;
+}
+
+.record-dialog textarea {
+    min-height: 0;
+}
+
+.record-dialog [data-dialog-delete] {
+    margin-top: 14px;
+    cursor: pointer;
+}
+
+@media (max-width: 760px) {
+
+    .classroom-rooms {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CLASS SESSIONS (sessions, sections and load import on one page)
+   --------------------------------------------------------- */
+
+.day-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.form-group .day-option {
+    display: inline-flex;
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-group .day-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.day-option span {
+    padding: 8px 13px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.day-option input:checked + span {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+}
+
+.day-option input:focus-visible + span {
+    outline: 3px solid rgba(72, 109, 135, .3);
+    outline-offset: 2px;
+}
+
+.new-record {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+}
+
+.session-sections > summary {
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.session-sections .program-tags {
+    margin-top: 14px;
+}
+
+.record-dialog input[readonly] {
+    background: var(--surface-soft);
+    color: var(--muted);
+}
+
+.record-dialog [data-dialog-submit] {
+    order: 1;
+}

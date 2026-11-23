@@ -9,204 +9,119 @@ use App\Models\Room;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Support\ScheduleConflicts;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
+/**
+ * Class Sessions on one page, with its sections and the teaching-load import.
+ *
+ * One form saves a class on several days at once. The subject and section are
+ * typed in and created when new, and a new faculty member can be added in the
+ * same form.
+ */
 class ClassSessionController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-        $search = $request->input('search');
-        $day = $request->input('day');
-        $status = $request->input('status');
-
-        $schedules = ClassSession::with([
-            'room.floor.building.campus',
-            'faculty',
-            'subject',
-            'section',
-        ])
-            ->when($search, function ($query) use ($search) {
-
-                $query->where(function ($q) use ($search) {
-
-                    $q->whereHas('room', function ($roomQuery) use ($search) {
-                        $roomQuery->where(
-                            'room_name',
-                            'like',
-                            "%{$search}%"
-                        );
-                    })
-                        ->orWhereHas('faculty', function ($facultyQuery) use ($search) {
-                            $facultyQuery
-                                ->where('first_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('subject', function ($subjectQuery) use ($search) {
-                            $subjectQuery
-                                ->where('subject_code', 'like', "%{$search}%")
-                                ->orWhere('subject_name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('section', function ($sectionQuery) use ($search) {
-                            $sectionQuery->where(
-                                'section_name',
-                                'like',
-                                "%{$search}%"
-                            );
-                        });
-
-                });
-
-            })
-
-            ->when($day, function ($query) use ($day) {
-                $query->where('day', $day);
-            })
-
-            ->when($status, function ($query) use ($status) {
-                $query->where('status', $status);
-            })
-
-            ->orderedByWeek()
-
-            ->paginate(10)
-
-            ->withQueryString();
-
-        return view('admin.schedules.index', compact(
-            'schedules',
-            'search',
-            'day',
-            'status'
-        ));
-    }
-
-    public function create()
-    {
-        $rooms = Room::with('floor.building.campus')
-            ->orderBy('room_name')
-            ->get();
-
-        $faculties = Faculty::orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
-
-        $subjects = Subject::orderBy('subject_code')
-            ->get();
-
-        $sections = Section::orderBy('section_name')
-            ->get();
-
-        return view('admin.schedules.create', compact(
-            'rooms',
-            'faculties',
-            'subjects',
-            'sections'
-        ));
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'room_id' => 'required|exists:rooms,id',
-            'faculty_id' => 'required|exists:faculties,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'section_id' => 'required|exists:sections,id',
-            'day' => 'required|in:M,T,W,Th,F,S,Su',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'status' => 'required|in:active,inactive',
-            'description' => 'nullable|string|max:500',
+        return view('admin.schedules.index', [
+            'schedules' => ClassSession::with(['room.floor.building', 'faculty', 'subject', 'section'])
+                ->orderedByWeek()
+                ->get(),
+            'sections' => Section::withCount('classSessions')->orderBy('section_name')->get(),
+            'subjects' => Subject::orderBy('subject_code')->get(['id', 'subject_code', 'subject_name']),
+            'faculties' => Faculty::orderBy('last_name')->orderBy('first_name')->get(),
+            'rooms' => Room::with('floor.building')->orderBy('room_name')->get(),
+            'search' => $request->input('search'),
+            // Links from other pages open a form straight away.
+            'openForm' => match (true) {
+                $request->boolean('add') => 'add',
+                $request->boolean('load') => 'load',
+                default => null,
+            },
+            'editId' => $request->integer('edit') ?: null,
+            'roomId' => $request->integer('room_id') ?: null,
+            'facultyId' => $request->integer('faculty_id') ?: null,
         ]);
+    }
 
-        $validated = $this->normalizeTimes($validated);
+    /**
+     * Classes are added in a pop-up on the Class Sessions page.
+     */
+    public function create(Request $request): RedirectResponse
+    {
+        return redirect()->route('schedules.index', ['add' => 1, ...$request->only('room_id')]);
+    }
 
-        $conflicts = app(ScheduleConflicts::class)->find($validated);
+    /**
+     * Save the class on every ticked day, or on none if any day has a conflict.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $class = $this->validatedClass($request);
 
-        if ($conflicts !== []) {
-            return back()
-                ->withInput()
-                ->withErrors($conflicts);
-        }
+        $this->rejectConflicts($class);
 
-        ClassSession::create($validated);
+        $saved = DB::transaction(function () use ($class): array {
+            $details = $this->withRecords($class);
 
-        return redirect()
+            foreach ($class['days'] as $day) {
+                ClassSession::create([...$details, 'day' => $day]);
+            }
+
+            return $details;
+        });
+
+        $count = count($class['days']);
+        $redirect = redirect()
             ->route('schedules.index')
-            ->with('success', 'Class session created successfully.');
-    }
+            ->with('success', $count === 1 ? 'Class session created successfully.' : "{$count} class sessions created successfully.");
 
-    public function show(ClassSession $schedule)
-    {
-        $schedule->load([
-            'room.floor.building.campus',
-            'room.facilities',
-            'faculty',
-            'subject',
-            'section',
-        ]);
-
-        return view('admin.schedules.show', compact(
-            'schedule'
-        ));
-    }
-
-    public function edit(ClassSession $schedule)
-    {
-        $rooms = Room::with('floor.building.campus')
-            ->orderBy('room_name')
-            ->get();
-
-        $faculties = Faculty::orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
-
-        $subjects = Subject::orderBy('subject_code')
-            ->get();
-
-        $sections = Section::orderBy('section_name')
-            ->get();
-
-        return view('admin.schedules.edit', compact(
-            'schedule',
-            'rooms',
-            'faculties',
-            'subjects',
-            'sections'
-        ));
-    }
-
-    public function update(Request $request, ClassSession $schedule)
-    {
-        $validated = $request->validate([
-            'room_id' => 'required|exists:rooms,id',
-            'faculty_id' => 'required|exists:faculties,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'section_id' => 'required|exists:sections,id',
-            'day' => 'required|in:M,T,W,Th,F,S,Su',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'status' => 'required|in:active,inactive',
-            'description' => 'nullable|string|max:500',
-        ]);
-
-        $validated = $this->normalizeTimes($validated);
-
-        $conflicts = app(ScheduleConflicts::class)->find($validated, $schedule->id);
-
-        if ($conflicts !== []) {
-            return back()
-                ->withInput()
-                ->withErrors($conflicts);
+        // Keep the details that usually stay the same for the next class.
+        if ($request->boolean('another')) {
+            $redirect->with('repeat', [
+                '_dialog' => 'session',
+                'faculty_id' => $saved['faculty_id'],
+                'section_name' => Section::find($saved['section_id'])->section_name,
+                'subject_code' => Subject::find($saved['subject_id'])->subject_code,
+                'room_id' => $saved['room_id'],
+            ]);
         }
 
-        $schedule->update($validated);
+        return $redirect;
+    }
+
+    /**
+     * Classes are edited in a pop-up on the Class Sessions page.
+     */
+    public function edit(ClassSession $schedule): RedirectResponse
+    {
+        return redirect()->route('schedules.index', ['edit' => $schedule->id]);
+    }
+
+    public function update(Request $request, ClassSession $schedule): RedirectResponse
+    {
+        $class = $this->validatedClass($request);
+
+        if (count($class['days']) > 1) {
+            throw ValidationException::withMessages(['days' => 'Choose one day when editing. Use Copy to add the class on another day.']);
+        }
+
+        $this->rejectConflicts($class, $schedule->id);
+
+        DB::transaction(function () use ($class, $schedule): void {
+            $schedule->update([...$this->withRecords($class), 'day' => $class['days'][0]]);
+        });
 
         return redirect()
             ->route('schedules.index')
             ->with('success', 'Class session updated successfully.');
     }
 
-    public function destroy(ClassSession $schedule)
+    public function destroy(ClassSession $schedule): RedirectResponse
     {
         // Keep held classes linked to their schedule in the session log.
         if ($schedule->roomSessions()->exists()) {
@@ -223,17 +138,135 @@ class ClassSessionController extends Controller
     }
 
     /**
-     * Store times as H:i:s so they compare correctly with the existing
-     * values in every database.
+     * The submitted class. Subject and section are given by ID or typed in;
+     * a typed one that already exists is reused.
      *
-     * @param  array<string, mixed>  $validated
      * @return array<string, mixed>
      */
-    private function normalizeTimes(array $validated): array
+    private function validatedClass(Request $request): array
     {
-        $validated['start_time'] .= ':00';
-        $validated['end_time'] .= ':00';
+        if (! $request->has('days') && $request->filled('day')) {
+            $request->merge(['days' => [$request->input('day')]]);
+        }
 
-        return $validated;
+        $newFaculty = $request->input('faculty_id') === 'new';
+
+        $class = $request->validate([
+            'room_id' => ['required', 'exists:rooms,id'],
+            'faculty_id' => ['required', $newFaculty ? 'in:new' : 'exists:faculties,id'],
+            'faculty_employee_id' => [Rule::excludeIf(! $newFaculty), 'required', 'string', 'max:50', 'unique:faculties,employee_id'],
+            'faculty_first_name' => [Rule::excludeIf(! $newFaculty), 'required', 'string', 'max:100'],
+            'faculty_last_name' => [Rule::excludeIf(! $newFaculty), 'required', 'string', 'max:100'],
+            'faculty_email' => [Rule::excludeIf(! $newFaculty), 'nullable', 'email', 'max:150', 'unique:faculties,email'],
+            'subject_id' => ['required_without:subject_code', 'nullable', 'exists:subjects,id'],
+            'subject_code' => ['required_without:subject_id', 'nullable', 'string', 'max:50'],
+            'subject_name' => ['nullable', 'string', 'max:150'],
+            'section_id' => ['required_without:section_name', 'nullable', 'exists:sections,id'],
+            'section_name' => ['required_without:section_id', 'nullable', 'string', 'max:100'],
+            'days' => ['required', 'array'],
+            'days.*' => ['distinct', Rule::in(array_keys(ClassSession::DAY_NAMES))],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'status' => ['required', 'in:active,inactive'],
+            'description' => ['nullable', 'string', 'max:500'],
+        ], [
+            'days.required' => 'Choose at least one day.',
+            'subject_code.required_without' => 'Enter the course number.',
+            'section_name.required_without' => 'Enter the section.',
+        ], [
+            'room_id' => 'room',
+            'faculty_id' => 'faculty member',
+            'faculty_employee_id' => 'employee number',
+            'faculty_first_name' => 'first name',
+            'faculty_last_name' => 'last name',
+            'faculty_email' => 'email',
+        ]);
+
+        $class['days'] = array_values($class['days']);
+
+        // Stored as H:i:s so times compare correctly in every database.
+        $class['start_time'] .= ':00';
+        $class['end_time'] .= ':00';
+
+        if (empty($class['subject_id'])) {
+            $code = Subject::normalizeCode($class['subject_code']);
+
+            $class['subject_code'] = $code;
+            $class['subject_id'] = Subject::all(['id', 'subject_code'])
+                ->first(fn (Subject $subject) => Subject::normalizeCode($subject->subject_code) === $code)?->id;
+
+            if ($class['subject_id'] === null && blank($class['subject_name'] ?? null)) {
+                throw ValidationException::withMessages(['subject_name' => "{$code} is a new subject. Enter its descriptive title."]);
+            }
+        }
+
+        if (empty($class['section_id'])) {
+            $class['section_id'] = Section::query()
+                ->whereRaw('LOWER(section_name) = ?', [mb_strtolower(trim($class['section_name']))])
+                ->value('id');
+        }
+
+        return $class;
+    }
+
+    /**
+     * @param  array<string, mixed>  $class
+     */
+    private function rejectConflicts(array $class, ?int $ignoreId = null): void
+    {
+        $errors = [];
+
+        foreach ($class['days'] as $day) {
+            $conflicts = app(ScheduleConflicts::class)->find([
+                ...$class,
+                'day' => $day,
+                // A record being created now can't be in another class yet.
+                'faculty_id' => (int) $class['faculty_id'],
+                'section_id' => (int) $class['section_id'],
+            ], $ignoreId);
+
+            foreach ($conflicts as $field => $message) {
+                $errors[$field][] = count($class['days']) > 1 ? ClassSession::DAY_NAMES[$day].': '.$message : $message;
+            }
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
+    /**
+     * The class's own columns, after creating its new subject, section or
+     * faculty member.
+     *
+     * @param  array<string, mixed>  $class
+     * @return array<string, mixed>
+     */
+    private function withRecords(array $class): array
+    {
+        $facultyId = $class['faculty_id'] !== 'new' ? (int) $class['faculty_id'] : Faculty::create([
+            'employee_id' => $class['faculty_employee_id'],
+            'first_name' => $class['faculty_first_name'],
+            'last_name' => $class['faculty_last_name'],
+            'email' => $class['faculty_email'] ?? null,
+        ])->id;
+
+        $subjectId = $class['subject_id'] ?? Subject::create([
+            'subject_code' => $class['subject_code'],
+            'subject_name' => trim($class['subject_name']),
+        ])->id;
+
+        $sectionId = $class['section_id'] ?? Section::create(['section_name' => trim($class['section_name'])])->id;
+
+        return [
+            'room_id' => (int) $class['room_id'],
+            'faculty_id' => $facultyId,
+            'subject_id' => (int) $subjectId,
+            'section_id' => (int) $sectionId,
+            'start_time' => $class['start_time'],
+            'end_time' => $class['end_time'],
+            'status' => $class['status'],
+            'description' => $class['description'] ?? null,
+        ];
     }
 }
