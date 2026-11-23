@@ -2106,3 +2106,50 @@ input.profile-locked:focus {
 .record-dialog [data-dialog-submit] {
     order: 1;
 }
+
+
+/* ---------------------------------------------------------
+   PAGE TABS (User Accounts: administrators, faculty, students)
+   --------------------------------------------------------- */
+
+.page-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    border-bottom: 1px solid #dfe6ea;
+}
+
+.page-tabs a {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    padding: 11px 16px;
+    border-bottom: 3px solid transparent;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.page-tabs a:hover {
+    color: var(--brand);
+}
+
+.page-tabs a.active {
+    border-bottom-color: var(--accent);
+    color: var(--ink);
+}
+
+.page-tab-count {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 11px;
+}
+
+[data-faculty-only][hidden] {
+    display: none;
+}

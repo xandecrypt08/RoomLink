@@ -300,13 +300,43 @@ class TeachingLoadImportTest extends TestCase
         $this->assertSame($this->faculty->id, ClassSession::sole()->faculty_id);
     }
 
-    public function test_a_faculty_account_without_a_faculty_record_is_told_to_ask_the_administrator(): void
+    public function test_a_faculty_account_without_a_faculty_record_can_upload_and_gets_one(): void
     {
-        $this->actingAs(User::factory()->faculty()->create())
-            ->get(route('faculty.schedule.import.create'))
+        $user = User::factory()->faculty()->create(['employee_student_id' => 'FAC001']);
+
+        foreach (['faculty.dashboard', 'faculty.schedule.index'] as $page) {
+            $this->actingAs($user)->get(route($page))->assertSee(route('faculty.schedule.import.create'));
+        }
+
+        $this->assertNull($user->fresh()->faculty);
+
+        $this->actingAs($user)
+            ->post(route('faculty.schedule.import.preview'), [
+                'document' => UploadedFile::fake()->createWithContent('load.txt', self::CLASS_LIST),
+                'mode' => 'add',
+            ])
             ->assertOk()
-            ->assertSee("Your account isn't linked to a faculty record yet", false)
-            ->assertDontSee('enctype="multipart/form-data"', false);
+            ->assertSee('Found 4 classes');
+
+        $this->actingAs($user->fresh())
+            ->post(route('faculty.schedule.import.store'), ['mode' => 'add', 'rows' => [$this->row()]])
+            ->assertRedirect(route('faculty.schedule.index'));
+
+        $record = Faculty::where('employee_id', 'FAC001')->sole();
+        $this->assertSame([$user->id, $user->last_name, $record->id], [$record->user_id, $record->last_name, ClassSession::sole()->faculty_id]);
+    }
+
+    public function test_an_account_cannot_take_over_a_faculty_record_that_belongs_to_someone_else(): void
+    {
+        $this->faculty->update(['employee_id' => 'FAC001']);
+        $user = User::factory()->faculty()->create(['employee_student_id' => 'FAC001']);
+
+        $this->actingAs($user)
+            ->post(route('faculty.schedule.import.store'), ['mode' => 'add', 'rows' => [$this->row()]])
+            ->assertRedirect(route('faculty.schedule.import.create'));
+
+        $this->assertSame($this->user->id, $this->faculty->fresh()->user_id);
+        $this->assertSame(0, ClassSession::count());
     }
 
     public function test_students_and_faculty_cannot_use_each_others_upload(): void

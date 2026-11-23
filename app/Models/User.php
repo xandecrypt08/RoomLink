@@ -37,6 +37,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * Names of the three User Accounts pages, keyed by role.
+     *
+     * @var array<string, string>
+     */
+    public const ROLE_PAGES = [
+        'admin' => 'Administrators',
+        'faculty' => 'Faculty',
+        'student' => 'Students',
+    ];
+
+    /**
      * Match the column default so new, unsaved users are active.
      *
      * @var array<string, mixed>
@@ -71,6 +82,44 @@ class User extends Authenticatable
     public function faculty(): HasOne
     {
         return $this->hasOne(Faculty::class);
+    }
+
+    /**
+     * This account's faculty record, linked or created from the account's
+     * details if it has none, so a faculty member can add their own classes.
+     *
+     * Null for other roles, or when the employee number already belongs to
+     * another account's record, which the administrator has to sort out.
+     */
+    public function ensureFacultyRecord(): ?Faculty
+    {
+        if (! $this->isFaculty() || $this->faculty !== null) {
+            return $this->isFaculty() ? $this->faculty : null;
+        }
+
+        $record = Faculty::where('employee_id', $this->employee_student_id)->first();
+
+        if ($record !== null && $record->user_id !== null) {
+            return null;
+        }
+
+        if ($record !== null) {
+            $record->update(['user_id' => $this->id]);
+        } else {
+            $record = Faculty::create([
+                'user_id' => $this->id,
+                'employee_id' => $this->employee_student_id,
+                'first_name' => $this->first_name,
+                'middle_name' => $this->middle_name,
+                'last_name' => $this->last_name,
+                'email' => Faculty::where('email', $this->email)->exists() ? null : $this->email,
+                'department' => $this->department,
+            ]);
+        }
+
+        $this->setRelation('faculty', $record);
+
+        return $record;
     }
 
     public function isAdmin(): bool

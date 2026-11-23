@@ -35,7 +35,6 @@ class TeachingLoadController extends Controller
 
         return view('teaching-load.create', [
             'routes' => $this->routeNames($request),
-            'faculty' => $request->user()->faculty,
         ]);
     }
 
@@ -57,7 +56,8 @@ class TeachingLoadController extends Controller
         $faculty = $this->facultyFor($request);
 
         if ($faculty === null) {
-            return redirect()->route($this->routeNames($request)['create']);
+            return redirect()->route($this->routeNames($request)['create'])
+                ->with('error', 'Your employee number belongs to another faculty record. Ask the administrator to correct it.');
         }
 
         // Scanned PDFs are read page by page with OCR, several seconds a page.
@@ -197,7 +197,7 @@ class TeachingLoadController extends Controller
             return Faculty::find($request->integer('faculty_id'));
         }
 
-        return $request->user()->faculty;
+        return $request->user()->ensureFacultyRecord();
     }
 
     /**

@@ -19,7 +19,7 @@
     </div>
 
     <a
-        href="{{ route('users.index') }}"
+        href="{{ route('users.index', ['role' => $role]) }}"
         class="btn-secondary"
     >
         ← Back to User Accounts
@@ -91,7 +91,7 @@
         <div class="form-actions">
 
             <a
-                href="{{ route('users.index') }}"
+                href="{{ route('users.index', ['role' => $role]) }}"
                 class="btn-secondary"
             >
                 Cancel

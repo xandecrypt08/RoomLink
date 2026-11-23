@@ -25,7 +25,6 @@ class MyScheduleController extends Controller
             ->groupBy('day');
 
         return view('faculty.schedule.index', [
-            'faculty' => $faculty,
             'classesByDay' => $classesByDay,
             'dayNames' => ClassSession::DAY_NAMES,
         ]);

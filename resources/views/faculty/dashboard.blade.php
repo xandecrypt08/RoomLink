@@ -17,6 +17,10 @@
     </div>
 
     <div class="page-header-actions">
+        <a href="{{ route('faculty.schedule.import.create') }}" class="btn btn-secondary">
+            Upload Teaching Load
+        </a>
+
         <a href="{{ route('faculty.rooms.index') }}" class="btn btn-secondary">
             Find a Room
         </a>
@@ -41,8 +45,8 @@
 @endif
 
 @if($facultyRecord === null)
-    <div class="alert alert-error">
-        Your account is not linked to a faculty record yet, so no classes can be shown. Please contact the administrator.
+    <div class="alert alert-warning">
+        You have no classes in RoomLink yet. <a href="{{ route('faculty.schedule.import.create') }}">Upload your teaching load</a> to add them.
     </div>
 @endif
 

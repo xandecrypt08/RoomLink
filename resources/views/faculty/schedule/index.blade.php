@@ -18,13 +18,11 @@
 
     </div>
 
-    @if($faculty)
-        <div class="page-header-actions">
-            <a href="{{ route('faculty.schedule.import.create') }}" class="btn btn-primary">
-                Upload My Teaching Load
-            </a>
-        </div>
-    @endif
+    <div class="page-header-actions">
+        <a href="{{ route('faculty.schedule.import.create') }}" class="btn btn-primary">
+            Upload My Teaching Load
+        </a>
+    </div>
 
 </div>
 
@@ -38,14 +36,7 @@
 
 <div class="content-card">
 
-    @if($faculty === null)
-
-        <div class="small-empty-state">
-            <strong>Your account isn't linked to a faculty record yet</strong>
-            <span>Ask the administrator to add you under Faculty with the same employee ID as your account.</span>
-        </div>
-
-    @elseif($classesByDay->isEmpty())
+    @if($classesByDay->isEmpty())
 
         <div class="small-empty-state">
             <strong>No classes yet</strong>
