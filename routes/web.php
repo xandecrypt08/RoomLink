@@ -117,7 +117,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('colleges', CollegeController::class)->except('show');
 
-    Route::resource('sections', SectionController::class);
+    /* Sections are managed on the Class Sessions page. */
+    Route::get('/sections', fn () => redirect()->route('schedules.index'))
+        ->name('sections.index');
+
+    Route::resource('sections', SectionController::class)->only(['store', 'update', 'destroy']);
 
     /* Import a faculty member's teaching load. Declared before the resource so "import" isn't read as a schedule. */
     Route::get('/schedules/import', [TeachingLoadController::class, 'create'])
@@ -129,7 +133,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/schedules/import', [TeachingLoadController::class, 'store'])
         ->name('schedules.import.store');
 
-    Route::resource('schedules', ClassSessionController::class);
+    Route::resource('schedules', ClassSessionController::class)->except('show');
 
     /* User accounts (RLNK-208). Accounts are deactivated, never deleted. */
     Route::patch('/users/{user}/password', [UserController::class, 'resetPassword'])

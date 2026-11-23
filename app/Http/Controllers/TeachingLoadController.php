@@ -24,13 +24,18 @@ use RuntimeException;
  */
 class TeachingLoadController extends Controller
 {
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
+        // Administrators upload from a pop-up on the Class Sessions page.
+        if ($request->user()->isAdmin()) {
+            $request->session()->reflash();
+
+            return redirect()->route('schedules.index', ['load' => 1, ...$request->only('faculty_id')]);
+        }
+
         return view('teaching-load.create', [
             'routes' => $this->routeNames($request),
-            'isAdmin' => $request->user()->isAdmin(),
             'faculty' => $request->user()->faculty,
-            'faculties' => $request->user()->isAdmin() ? Faculty::orderBy('last_name')->orderBy('first_name')->get() : collect(),
         ]);
     }
 

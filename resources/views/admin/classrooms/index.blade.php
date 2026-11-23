@@ -8,7 +8,7 @@
     $roomCount = $floors->sum(fn ($floor) => $floor->rooms->count());
 @endphp
 
-<div class="classroom-page">
+<div class="classroom-page" data-record-page>
 
 <div class="page-header">
 
@@ -286,7 +286,7 @@
 
 {{-- Pop-up forms --}}
 
-<x-classroom-dialog kind="campus" :store-url="route('campuses.store')" :update-url="route('campuses.update', '__ID__')">
+<x-record-dialog kind="campus" :store-url="route('campuses.store')" :update-url="route('campuses.update', '__ID__')">
     <div class="form-group">
         <label for="campus_name">Campus Name <span class="required">*</span></label>
         <input type="text" id="campus_name" name="campus_name" maxlength="255" required>
@@ -305,9 +305,9 @@
         <label for="campus_description">Description</label>
         <textarea id="campus_description" name="description" rows="2"></textarea>
     </div>
-</x-classroom-dialog>
+</x-record-dialog>
 
-<x-classroom-dialog kind="building" :store-url="route('buildings.store')" :update-url="route('buildings.update', '__ID__')">
+<x-record-dialog kind="building" :store-url="route('buildings.store')" :update-url="route('buildings.update', '__ID__')">
     <div class="form-group">
         <label for="building_campus">Campus <span class="required">*</span></label>
         <select id="building_campus" name="campus_id" required>
@@ -336,9 +336,9 @@
         <label for="building_description">Description</label>
         <textarea id="building_description" name="description" rows="2"></textarea>
     </div>
-</x-classroom-dialog>
+</x-record-dialog>
 
-<x-classroom-dialog kind="floor" :store-url="route('floors.store')" :update-url="route('floors.update', '__ID__')">
+<x-record-dialog kind="floor" :store-url="route('floors.store')" :update-url="route('floors.update', '__ID__')">
     <div class="form-group">
         <label for="floor_building">Building <span class="required">*</span></label>
         <select id="floor_building" name="building_id" required>
@@ -359,25 +359,25 @@
         <label for="floor_description">Description</label>
         <textarea id="floor_description" name="description" rows="2" maxlength="500"></textarea>
     </div>
-</x-classroom-dialog>
+</x-record-dialog>
 
-<x-classroom-dialog kind="rooms" :store-url="route('rooms.store')">
+<x-record-dialog kind="rooms" :store-url="route('rooms.store')">
     @include('admin.classrooms.partials.room-fields', ['prefix' => 'rooms', 'several' => true])
-</x-classroom-dialog>
+</x-record-dialog>
 
-<x-classroom-dialog kind="room" :update-url="route('rooms.update', '__ID__')">
+<x-record-dialog kind="room" :update-url="route('rooms.update', '__ID__')">
     @include('admin.classrooms.partials.room-fields', ['prefix' => 'room', 'several' => false])
-</x-classroom-dialog>
+</x-record-dialog>
 
-<x-classroom-dialog kind="facility" :store-url="route('facilities.store')" :update-url="route('facilities.update', '__ID__')">
+<x-record-dialog kind="facility" :store-url="route('facilities.store')" :update-url="route('facilities.update', '__ID__')">
     <div class="form-group">
         <label for="facility_name">Facility Name <span class="required">*</span></label>
         <input type="text" id="facility_name" name="facility_name" maxlength="100" placeholder="e.g. Projector" required>
     </div>
-    <button type="submit" form="delete-facility" class="action-delete" data-dialog-delete hidden>Delete facility</button>
-</x-classroom-dialog>
+    <button type="submit" form="delete-record" class="action-delete" data-dialog-delete hidden>Delete facility</button>
+</x-record-dialog>
 
-<form method="POST" id="delete-facility" onsubmit="return confirm('Delete this facility and remove it from every room?');">
+<form method="POST" id="delete-record" onsubmit="return confirm('Delete this facility and remove it from every room?');">
     @csrf
     @method('DELETE')
 </form>
@@ -392,5 +392,6 @@
 
 
 @push('scripts')
+<script src="{{ \App\Support\Asset::url('js/record-dialogs.js') }}"></script>
 <script src="{{ \App\Support\Asset::url('js/classrooms.js') }}"></script>
 @endpush

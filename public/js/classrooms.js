@@ -1,75 +1,10 @@
-/* Classrooms page: pop-up forms, search, and remembering which buildings are open. */
+/* Classrooms page: search and remembering which buildings are open. */
 (function () {
     var page = document.querySelector('.classroom-page');
 
     if (!page) {
         return;
     }
-
-    /* Pop-up forms */
-
-    function fill(form, values) {
-        Array.prototype.forEach.call(form.elements, function (field) {
-            var name = field.name.replace(/\[\]$/, '');
-
-            if (!name || name.charAt(0) === '_' || !(name in values)) {
-                return;
-            }
-
-            if (field.type === 'checkbox') {
-                field.checked = [].concat(values[name] || []).map(String).indexOf(field.value) !== -1;
-            } else {
-                field.value = values[name] === null ? '' : values[name];
-            }
-        });
-    }
-
-    function openDialog(kind, record, values, title, deleteUrl, keepErrors) {
-        var dialog = page.querySelector('[data-dialog="' + kind + '"]');
-        var form = dialog.querySelector('form');
-        var errors = dialog.querySelector('[data-dialog-errors]');
-        var remove = dialog.querySelector('[data-dialog-delete]');
-
-        form.reset();
-        fill(form, values);
-
-        form.action = record
-            ? dialog.dataset.updateUrl.replace('__ID__', encodeURIComponent(record))
-            : dialog.dataset.storeUrl;
-        dialog.querySelector('[data-dialog-method]').disabled = !record;
-        dialog.querySelector('[data-dialog-record]').value = record || '';
-        dialog.querySelector('[data-dialog-title]').textContent = title;
-
-        if (errors && !keepErrors) {
-            errors.remove();
-        }
-
-        if (remove) {
-            remove.hidden = !deleteUrl;
-            document.getElementById('delete-facility').action = deleteUrl || '';
-        }
-
-        dialog.showModal();
-    }
-
-    function openFrom(button) {
-        openDialog(
-            button.dataset.open,
-            button.dataset.record,
-            JSON.parse(button.dataset.values || '{}'),
-            button.dataset.title,
-            button.dataset.deleteUrl,
-            false
-        );
-    }
-
-    page.querySelectorAll('[data-open]').forEach(function (button) {
-        button.addEventListener('click', function () { openFrom(button); });
-    });
-
-    page.querySelectorAll('[data-dialog-close]').forEach(function (button) {
-        button.addEventListener('click', function () { button.closest('dialog').close(); });
-    });
 
     /* Open buildings, kept while moving around the site */
 
@@ -184,34 +119,4 @@
 
     search.addEventListener('input', filter);
     status.addEventListener('change', filter);
-
-    /* Show a form again after a validation error, or when a link asked for it. */
-
-    var old = page.querySelector('[data-old-input]');
-    var openNow = page.querySelector('[data-open-now]');
-
-    if (old) {
-        var values = JSON.parse(old.textContent);
-
-        if (values._dialog && page.querySelector('[data-dialog="' + CSS.escape(values._dialog) + '"]')) {
-            var selector = '[data-open="' + CSS.escape(values._dialog) + '"]';
-            var trigger = page.querySelector(selector + (values._record
-                ? '[data-record="' + CSS.escape(values._record) + '"]'
-                : ':not([data-record])'));
-
-            openDialog(
-                values._dialog,
-                values._record,
-                values,
-                trigger ? trigger.dataset.title : 'Fix the details below',
-                trigger ? trigger.dataset.deleteUrl : '',
-                true
-            );
-        }
-    } else if (openNow) {
-        openNow.closest('[data-building]').open = true;
-        openFrom(openNow);
-        // Reloading the page shouldn't open the form again.
-        history.replaceState(null, '', location.pathname);
-    }
 })();

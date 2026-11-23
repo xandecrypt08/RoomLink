@@ -79,14 +79,6 @@
         </a>
 
         <a
-            href="{{ route('sections.index') }}"
-            class="{{ request()->routeIs('sections.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="users" /></span>
-            <span>Sections</span>
-        </a>
-
-        <a
             href="{{ route('schedules.index') }}"
             class="{{ request()->routeIs('schedules.*') ? 'active' : '' }}"
         >

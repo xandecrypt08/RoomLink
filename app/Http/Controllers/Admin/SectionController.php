@@ -8,32 +8,6 @@ use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-
-        $sections = Section::withCount('classSessions')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('section_name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                });
-            })
-            ->orderBy('section_name')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('admin.sections.index', compact(
-            'sections',
-            'search'
-        ));
-    }
-
-    public function create()
-    {
-        return view('admin.sections.create');
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -44,25 +18,8 @@ class SectionController extends Controller
         Section::create($validated);
 
         return redirect()
-            ->route('sections.index')
+            ->route('schedules.index')
             ->with('success', 'Section created successfully.');
-    }
-
-    public function show(Section $section)
-    {
-        $section->load([
-            'classSessions' => fn ($query) => $query->orderedByWeek(),
-            'classSessions.faculty',
-            'classSessions.subject',
-            'classSessions.room.floor.building.campus',
-        ]);
-
-        return view('admin.sections.show', compact('section'));
-    }
-
-    public function edit(Section $section)
-    {
-        return view('admin.sections.edit', compact('section'));
     }
 
     public function update(Request $request, Section $section)
@@ -80,7 +37,7 @@ class SectionController extends Controller
         $section->update($validated);
 
         return redirect()
-            ->route('sections.index')
+            ->route('schedules.index')
             ->with('success', 'Section updated successfully.');
     }
 
@@ -88,7 +45,7 @@ class SectionController extends Controller
     {
         if ($section->classSessions()->exists()) {
             return redirect()
-                ->route('sections.index')
+                ->route('schedules.index')
                 ->with(
                     'error',
                     'This section cannot be deleted because it has class sessions.'
@@ -98,7 +55,7 @@ class SectionController extends Controller
         $section->delete();
 
         return redirect()
-            ->route('sections.index')
+            ->route('schedules.index')
             ->with('success', 'Section deleted successfully.');
     }
 }

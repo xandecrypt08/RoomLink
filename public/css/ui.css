@@ -1830,11 +1830,11 @@ input.profile-locked:focus {
    CLASSROOMS (campuses, buildings, floors, rooms on one page)
    --------------------------------------------------------- */
 
-.classroom-page [hidden] {
+[data-record-page] [hidden] {
     display: none !important;
 }
 
-.classroom-page > .content-card {
+[data-record-page] > .content-card {
     margin-bottom: 18px;
     padding: 20px;
 }
@@ -1883,11 +1883,11 @@ input.profile-locked:focus {
     font-size: 12px;
 }
 
-.classroom-page .table-actions {
+[data-record-page] .table-actions {
     flex-wrap: wrap;
 }
 
-.classroom-page .table-actions button {
+[data-record-page] .table-actions button {
     cursor: pointer;
     font-family: inherit;
 }
@@ -1990,7 +1990,7 @@ input.profile-locked:focus {
     text-decoration: none;
 }
 
-.classroom-dialog {
+.record-dialog {
     width: min(560px, calc(100vw - 32px));
     max-height: calc(100vh - 48px);
     margin: auto;
@@ -2003,11 +2003,11 @@ input.profile-locked:focus {
     overflow-y: auto;
 }
 
-.classroom-dialog::backdrop {
+.record-dialog::backdrop {
     background: rgba(24, 48, 66, .45);
 }
 
-.classroom-dialog .form-card {
+.record-dialog .form-card {
     margin: 0;
     padding: 0;
     border: 0;
@@ -2015,16 +2015,16 @@ input.profile-locked:focus {
     box-shadow: none;
 }
 
-.classroom-dialog h2 {
+.record-dialog h2 {
     margin: 0 0 18px;
     font-size: 18px;
 }
 
-.classroom-dialog textarea {
+.record-dialog textarea {
     min-height: 0;
 }
 
-.classroom-dialog [data-dialog-delete] {
+.record-dialog [data-dialog-delete] {
     margin-top: 14px;
     cursor: pointer;
 }
@@ -2034,4 +2034,75 @@ input.profile-locked:focus {
     .classroom-rooms {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* ---------------------------------------------------------
+   CLASS SESSIONS (sessions, sections and load import on one page)
+   --------------------------------------------------------- */
+
+.day-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.form-group .day-option {
+    display: inline-flex;
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-group .day-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.day-option span {
+    padding: 8px 13px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.day-option input:checked + span {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+}
+
+.day-option input:focus-visible + span {
+    outline: 3px solid rgba(72, 109, 135, .3);
+    outline-offset: 2px;
+}
+
+.new-record {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--brand-soft);
+}
+
+.session-sections > summary {
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.session-sections .program-tags {
+    margin-top: 14px;
+}
+
+.record-dialog input[readonly] {
+    background: var(--surface-soft);
+    color: var(--muted);
+}
+
+.record-dialog [data-dialog-submit] {
+    order: 1;
 }
