@@ -31,17 +31,6 @@
 @endif
 
 
-@if($faculty === null)
-
-    <div class="content-card">
-        <div class="small-empty-state">
-            <strong>Your account isn't linked to a faculty record yet</strong>
-            <span>Ask the administrator to add you under Faculty with the same employee ID as your account, then upload your load.</span>
-        </div>
-    </div>
-
-@else
-
 <div class="content-card form-card">
 
     <div class="form-card-header">
@@ -132,8 +121,6 @@
     </form>
 
 </div>
-
-@endif
 
 @endsection
 
