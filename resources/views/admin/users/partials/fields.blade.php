@@ -1,4 +1,4 @@
-{{-- Account fields shared by the create and edit forms. Expects $faculties and an optional $user. --}}
+{{-- Account fields shared by the create and edit forms. Expects $faculties and an optional $user or $role (preselected). --}}
 
 <div class="form-row">
 
@@ -46,7 +46,7 @@
 
                 <option
                     value="{{ $value }}"
-                    {{ old('role', $user->role ?? '') === $value ? 'selected' : '' }}
+                    {{ old('role', $user->role ?? $role ?? '') === $value ? 'selected' : '' }}
                 >
                     {{ $label }}
                 </option>
@@ -189,7 +189,7 @@
 </div>
 
 
-<div class="form-group">
+<div class="form-group" data-faculty-only>
 
     <label for="faculty_id">
         Linked Faculty Record
@@ -218,7 +218,7 @@
     </select>
 
     <span class="form-help">
-        Faculty accounts only. Linking gives the account the faculty member's schedules.
+        Linking gives the account the faculty member's schedules.
         Records already linked to another account are not listed.
     </span>
 
@@ -229,3 +229,20 @@
     @enderror
 
 </div>
+
+
+@push('scripts')
+<script>
+    (function () {
+        var role = document.getElementById('role');
+        var facultyOnly = document.querySelector('[data-faculty-only]');
+
+        function sync() {
+            facultyOnly.hidden = role.value !== 'faculty';
+        }
+
+        role.addEventListener('change', sync);
+        sync();
+    })();
+</script>
+@endpush

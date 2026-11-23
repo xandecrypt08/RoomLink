@@ -16,23 +16,30 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    /**
+     * One page per role: administrators, faculty and students. With a search,
+     * each page's count is its number of matches.
+     */
     public function index(Request $request): View
     {
         $search = $request->input('search');
-        $role = $request->input('role');
+        $role = array_key_exists((string) $request->input('role'), User::ROLE_PAGES) ? $request->input('role') : 'admin';
 
-        $users = User::with('faculty')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('middle_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('employee_student_id', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('department', 'like', "%{$search}%");
-                });
-            })
-            ->when(array_key_exists($role ?? '', User::ROLES), fn ($query) => $query->where('role', $role))
+        $matching = User::query()->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('employee_student_id', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('department', 'like', "%{$search}%");
+            });
+        });
+
+        $counts = (clone $matching)->selectRaw('role, count(*) as total')->groupBy('role')->pluck('total', 'role');
+
+        $users = $matching->with('faculty')
+            ->where('role', $role)
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->paginate(10)
@@ -41,15 +48,17 @@ class UserController extends Controller
         return view('admin.users.index', compact(
             'users',
             'search',
-            'role'
+            'role',
+            'counts'
         ));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $faculties = $this->linkableFaculties();
+        $role = array_key_exists((string) $request->input('role'), User::ROLE_PAGES) ? $request->input('role') : null;
 
-        return view('admin.users.create', compact('faculties'));
+        return view('admin.users.create', compact('faculties', 'role'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -68,7 +77,7 @@ class UserController extends Controller
         });
 
         return redirect()
-            ->route('users.index')
+            ->route('users.index', ['role' => $user->role])
             ->with('success', "Account for {$user->full_name} created successfully.");
     }
 
@@ -100,7 +109,7 @@ class UserController extends Controller
         });
 
         return redirect()
-            ->route('users.index')
+            ->route('users.index', ['role' => $user->role])
             ->with('success', "Account for {$user->full_name} updated successfully.");
     }
 
@@ -127,7 +136,7 @@ class UserController extends Controller
     {
         if ($user->is($request->user())) {
             return redirect()
-                ->route('users.index')
+                ->route('users.index', ['role' => $user->role])
                 ->with('error', 'You cannot deactivate your own account.');
         }
 
@@ -136,7 +145,7 @@ class UserController extends Controller
         $status = $user->is_active ? 'reactivated' : 'deactivated';
 
         return redirect()
-            ->route('users.index')
+            ->route('users.index', ['role' => $user->role])
             ->with('success', "Account for {$user->full_name} has been {$status}.");
     }
 

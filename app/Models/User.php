@@ -37,6 +37,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * Names of the three User Accounts pages, keyed by role.
+     *
+     * @var array<string, string>
+     */
+    public const ROLE_PAGES = [
+        'admin' => 'Administrators',
+        'faculty' => 'Faculty',
+        'student' => 'Students',
+    ];
+
+    /**
      * Match the column default so new, unsaved users are active.
      *
      * @var array<string, mixed>

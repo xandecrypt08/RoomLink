@@ -19,10 +19,10 @@
     </div>
 
     <a
-        href="{{ route('users.create') }}"
+        href="{{ route('users.create', ['role' => $role]) }}"
         class="btn-primary"
     >
-        + Add Account
+        + Add {{ \App\Models\User::ROLES[$role] }}
     </a>
 
 </div>
@@ -46,13 +46,32 @@
 @endif
 
 
+<nav class="page-tabs" aria-label="Account types">
+
+    @foreach(\App\Models\User::ROLE_PAGES as $value => $label)
+
+        <a
+            href="{{ route('users.index', array_filter(['role' => $value, 'search' => $search])) }}"
+            class="{{ $role === $value ? 'active' : '' }}"
+            @if($role === $value) aria-current="page" @endif
+        >
+            <x-icon :name="['admin' => 'shield', 'faculty' => 'user', 'student' => 'graduation-cap'][$value]" />
+            {{ $label }}
+            <span class="page-tab-count">{{ $counts[$value] ?? 0 }}</span>
+        </a>
+
+    @endforeach
+
+</nav>
+
+
 <div class="content-card">
 
     <div class="table-toolbar">
 
         <div>
 
-            <h2>Accounts</h2>
+            <h2>{{ \App\Models\User::ROLE_PAGES[$role] }}</h2>
 
             <span class="table-count">
                 {{ $users->total() }}
@@ -68,24 +87,11 @@
             class="table-search"
         >
 
-            <select name="role">
-
-                <option value="">
-                    All roles
-                </option>
-
-                @foreach(\App\Models\User::ROLES as $value => $label)
-
-                    <option
-                        value="{{ $value }}"
-                        {{ $role === $value ? 'selected' : '' }}
-                    >
-                        {{ $label }}
-                    </option>
-
-                @endforeach
-
-            </select>
+            <input
+                type="hidden"
+                name="role"
+                value="{{ $role }}"
+            >
 
             <input
                 type="text"
@@ -117,9 +123,11 @@
                     <tr>
 
                         <th>Name</th>
-                        <th>University ID</th>
-                        <th>Role</th>
-                        <th>Faculty Record</th>
+                        <th>{{ $role === 'student' ? 'Student Number' : 'Employee Number' }}</th>
+                        <th>{{ $role === 'student' ? 'Program or Department' : 'Department' }}</th>
+                        @if($role === 'faculty')
+                            <th>Faculty Record</th>
+                        @endif
                         <th>Status</th>
                         <th>Actions</th>
 
@@ -157,21 +165,23 @@
 
 
                             <td>
-                                {{ \App\Models\User::ROLES[$user->role] ?? $user->role }}
+                                {{ $user->department ?: '—' }}
                             </td>
 
 
-                            <td>
+                            @if($role === 'faculty')
 
-                                @if($user->faculty)
-                                    {{ $user->faculty->full_name }}
-                                @elseif($user->role === 'faculty')
-                                    <span class="table-secondary">Not linked</span>
-                                @else
-                                    —
-                                @endif
+                                <td>
 
-                            </td>
+                                    @if($user->faculty)
+                                        {{ $user->faculty->full_name }}
+                                    @else
+                                        <span class="table-secondary">Not linked</span>
+                                    @endif
+
+                                </td>
+
+                            @endif
 
 
                             <td>
@@ -246,7 +256,7 @@
             <h3>No accounts found</h3>
 
             <p>
-                Try a different search or role filter.
+                {{ $search ? 'Nothing here matches your search. Check the other pages above.' : 'Add the first account with the button above.' }}
             </p>
 
         </div>

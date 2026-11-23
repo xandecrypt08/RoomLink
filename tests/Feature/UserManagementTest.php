@@ -42,15 +42,50 @@ class UserManagementTest extends TestCase
         ];
     }
 
-    public function test_admin_can_list_accounts(): void
+    public function test_each_role_has_its_own_page(): void
     {
-        $student = User::factory()->student()->create();
+        $accounts = [
+            'admin' => $this->admin,
+            'faculty' => User::factory()->faculty()->create(['email' => 'teacher@lnu.edu.ph']),
+            'student' => User::factory()->student()->create(['email' => 'learner@lnu.edu.ph']),
+        ];
 
-        $response = $this->actingAs($this->admin)->get(route('users.index'));
+        foreach ($accounts as $role => $account) {
+            $response = $this->actingAs($this->admin)
+                ->get(route('users.index', ['role' => $role]))
+                ->assertOk()
+                ->assertSee(User::ROLE_PAGES[$role])
+                ->assertViewHas('users', fn ($users) => $users->pluck('id')->all() === [$account->id])
+                ->assertSee(route('users.create', ['role' => $role]));
 
-        $response->assertOk();
-        $response->assertSee($student->email);
-        $response->assertSee($this->admin->email);
+            $this->assertSame($role === 'faculty', str_contains($response->getContent(), '<th>Faculty Record</th>'));
+        }
+    }
+
+    public function test_user_accounts_opens_on_administrators(): void
+    {
+        foreach ([[], ['role' => 'janitor']] as $query) {
+            $this->actingAs($this->admin)->get(route('users.index', $query))->assertOk()->assertViewHas('role', 'admin');
+        }
+    }
+
+    public function test_a_search_counts_its_matches_on_every_page(): void
+    {
+        User::factory()->faculty()->create(['last_name' => 'Reyes']);
+        User::factory()->student()->count(2)->create(['last_name' => 'Reyes']);
+        User::factory()->student()->create(['last_name' => 'Cruz']);
+
+        $this->actingAs($this->admin)
+            ->get(route('users.index', ['role' => 'faculty', 'search' => 'Reyes']))
+            ->assertViewHas('counts', fn ($counts) => [(int) $counts->get('admin'), (int) $counts->get('faculty'), (int) $counts->get('student')] === [0, 1, 2])
+            ->assertSee(route('users.index', ['role' => 'student', 'search' => 'Reyes']));
+    }
+
+    public function test_adding_from_a_page_preselects_its_role(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('users.create', ['role' => 'student']))->assertOk();
+
+        $this->assertMatchesRegularExpression('/value="student"\s*selected/', $response->getContent());
     }
 
     public function test_accounts_can_be_searched_and_filtered_by_role(): void
@@ -79,7 +114,7 @@ class UserManagementTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->post(route('users.store'), $this->accountData());
 
-        $response->assertRedirect(route('users.index'));
+        $response->assertRedirect(route('users.index', ['role' => 'student']));
         $response->assertSessionHasNoErrors();
 
         $user = User::where('email', 'maria.santos@lnu.edu.ph')->firstOrFail();
@@ -168,7 +203,7 @@ class UserManagementTest extends TestCase
             'password_confirmation' => null,
         ]));
 
-        $response->assertRedirect(route('users.index'));
+        $response->assertRedirect(route('users.index', ['role' => 'student']));
         $user->refresh();
         $this->assertSame('BSEd', $user->department);
         $this->assertSame('Maria', $user->first_name);
@@ -237,7 +272,7 @@ class UserManagementTest extends TestCase
     {
         $user = User::factory()->student()->create();
 
-        $this->actingAs($this->admin)->patch(route('users.active', $user))->assertRedirect(route('users.index'));
+        $this->actingAs($this->admin)->patch(route('users.active', $user))->assertRedirect(route('users.index', ['role' => 'student']));
         $this->assertFalse($user->fresh()->is_active);
 
         auth()->logout();
