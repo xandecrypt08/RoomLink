@@ -8,7 +8,7 @@
 
     <div>
 
-        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
+        <span class="page-eyebrow">CAMPUS MANAGEMENT</span>
 
         <h1>{{ $room->room_name }}</h1>
 

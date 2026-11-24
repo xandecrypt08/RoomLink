@@ -40,8 +40,10 @@ class SubjectImportTest extends TestCase
     public function test_upload_page_lists_the_programs(): void
     {
         $this->actingAs($this->admin)
+            ->followingRedirects()
             ->get(route('subjects.import.create'))
             ->assertOk()
+            ->assertSee('data-open-now', false)
             ->assertSee('BSIT')
             ->assertSee('BSED')
             ->assertSee('enctype="multipart/form-data"', false);
@@ -95,7 +97,7 @@ class SubjectImportTest extends TestCase
                     ['code' => 'XX-999', 'title' => 'Unticked row'],
                 ],
             ])
-            ->assertRedirect(route('subjects.index', ['program' => $this->bsit->id]))
+            ->assertRedirect(route('curriculum.index', ['program' => $this->bsit->id]))
             ->assertSessionHas('success', 'Imported 1 new subject for BSIT; added BSIT to 1 existing subject.');
 
         $created = Subject::where('subject_code', 'IT-110')->firstOrFail();

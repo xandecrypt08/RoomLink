@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\ClassSessionController;
 use App\Http\Controllers\Admin\CollegeController;
+use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\TeachingLoadController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /* Authentication */
@@ -103,10 +105,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('academic-terms.current');
 
     /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
-    Route::get('/classrooms', [ClassroomController::class, 'index'])
+    Route::get('/campus-spaces', [ClassroomController::class, 'index'])
         ->name('classrooms.index');
 
     // Addresses of the separate lists this page replaced.
+    Route::get('/classrooms', fn () => redirect()->route('classrooms.index'));
+
     foreach (['campuses', 'buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
         Route::get("/{$oldList}", fn () => redirect()->route('classrooms.index'))
             ->name("{$oldList}.index");
@@ -142,6 +146,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('faculties', FacultyController::class);
 
+    /* Colleges, programs and subjects on one page */
+    Route::get('/curriculum', [CurriculumController::class, 'index'])
+        ->name('curriculum.index');
+
+    foreach (['colleges', 'programs', 'subjects'] as $oldList) {
+        Route::get("/{$oldList}", fn (Request $request) => redirect()->route('curriculum.index', $request->only('program')))
+            ->name("{$oldList}.index");
+    }
+
     /* Import subjects from a curriculum document. Declared before the resource so "import" isn't read as a subject. */
     Route::get('/subjects/import', [SubjectImportController::class, 'create'])
         ->name('subjects.import.create');
@@ -152,11 +165,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/subjects/import', [SubjectImportController::class, 'store'])
         ->name('subjects.import.store');
 
-    Route::resource('subjects', SubjectController::class);
+    Route::resource('subjects', SubjectController::class)->only(['store', 'update', 'destroy']);
 
-    Route::resource('programs', ProgramController::class)->except('show');
+    Route::resource('programs', ProgramController::class)->only(['store', 'update', 'destroy']);
 
-    Route::resource('colleges', CollegeController::class)->except('show');
+    Route::resource('colleges', CollegeController::class)->only(['store', 'update', 'destroy']);
 
     /* Sections are managed on the Class Sessions page. */
     Route::get('/sections', fn () => redirect()->route('schedules.index'))

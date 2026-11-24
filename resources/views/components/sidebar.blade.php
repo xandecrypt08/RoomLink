@@ -34,15 +34,15 @@
 
 
         <div class="sidebar-section-label">
-            CLASSROOM MANAGEMENT
+            CAMPUS MANAGEMENT
         </div>
 
         <a
             href="{{ route('classrooms.index') }}"
             class="{{ request()->routeIs('classrooms.*', 'rooms.*') ? 'active' : '' }}"
         >
-            <span class="menu-icon"><x-icon name="door" /></span>
-            <span>Classrooms</span>
+            <span class="menu-icon"><x-icon name="landmark" /></span>
+            <span>Campus Spaces</span>
         </a>
 
 
@@ -59,27 +59,11 @@
         </a>
 
         <a
-            href="{{ route('colleges.index') }}"
-            class="{{ request()->routeIs('colleges.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="library" /></span>
-            <span>Colleges</span>
-        </a>
-
-        <a
-            href="{{ route('programs.index') }}"
-            class="{{ request()->routeIs('programs.*') ? 'active' : '' }}"
+            href="{{ route('curriculum.index') }}"
+            class="{{ request()->routeIs('curriculum.*', 'subjects.*') ? 'active' : '' }}"
         >
             <span class="menu-icon"><x-icon name="graduation-cap" /></span>
-            <span>Programs</span>
-        </a>
-
-        <a
-            href="{{ route('subjects.index') }}"
-            class="{{ request()->routeIs('subjects.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="book" /></span>
-            <span>Subjects</span>
+            <span>Curriculum</span>
         </a>
 
         <a

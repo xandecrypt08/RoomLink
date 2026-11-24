@@ -41,7 +41,7 @@
 
 @if($rooms->isEmpty())
     <div class="alert alert-warning">
-        There are no rooms yet, and every class needs one. <a href="{{ route('classrooms.index') }}">Add rooms in Classrooms</a> first.
+        There are no rooms yet, and every class needs one. <a href="{{ route('classrooms.index') }}">Add rooms in Campus Spaces</a> first.
     </div>
 @endif
 

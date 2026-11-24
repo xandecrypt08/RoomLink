@@ -1,28 +1,24 @@
 @extends('layouts.admin')
 
-@section('title', 'Classrooms')
+@section('title', 'Campus Spaces')
 
 @section('content')
-
-@php
-    $roomCount = $floors->sum(fn ($floor) => $floor->rooms->count());
-@endphp
 
 <div class="classroom-page" data-record-page>
 
 <div class="page-header">
 
     <div>
-        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
-        <h1>Classrooms</h1>
-        <p>Campuses, buildings, floors, rooms and facilities in one place.</p>
+        <span class="page-eyebrow">CAMPUS MANAGEMENT</span>
+        <h1>Campus Spaces</h1>
+        <p>The buildings, floors and rooms of each campus, and the facilities in them.</p>
     </div>
 
     <div class="page-header-actions">
         <button type="button" class="btn btn-secondary" data-open="campus" data-title="Add Campus">+ Campus</button>
 
         @if($campuses->isNotEmpty())
-            <button type="button" class="btn btn-secondary" data-open="building" data-title="Add Building" data-values="{{ json_encode($campuses->count() === 1 ? ['campus_id' => $campuses->first()->id] : (object) []) }}">+ Building</button>
+            <button type="button" class="btn btn-secondary" data-open="building" data-title="Add Building" data-campus-preset data-values="{{ json_encode(['campus_id' => $campuses->first()->id]) }}">+ Building</button>
         @endif
 
         @if($floors->isNotEmpty())
@@ -44,15 +40,10 @@
 
 <div class="content-card classroom-toolbar">
 
-    <div class="classroom-counts">
-        <span><strong>{{ $campuses->count() }}</strong> {{ Str::plural('campus', $campuses->count()) }}</span>
-        <span><strong>{{ $buildings->count() }}</strong> {{ Str::plural('building', $buildings->count()) }}</span>
-        <span><strong>{{ $floors->count() }}</strong> {{ Str::plural('floor', $floors->count()) }}</span>
-        <span><strong>{{ $roomCount }}</strong> {{ Str::plural('room', $roomCount) }}</span>
-    </div>
+    <p class="table-secondary">Search looks in every campus; the tabs show how many rooms match.</p>
 
     <div class="table-search">
-        <input type="search" placeholder="Search rooms, buildings, facilities..." aria-label="Search classrooms" data-classroom-search>
+        <input type="search" placeholder="Search rooms, buildings, facilities..." aria-label="Search campus spaces" data-classroom-search>
 
         <select aria-label="Room status" data-classroom-status>
             <option value="">All statuses</option>
@@ -67,45 +58,47 @@
 </div>
 
 
-<div class="content-card classroom-facilities">
-
-    <div class="classroom-head">
-        <div>
-            <h2>Facilities</h2>
-            <p>Equipment you can tick on any room. Click one to rename or delete it.</p>
-        </div>
-
-        <button type="button" class="btn btn-secondary" data-open="facility" data-title="Add Facility">+ Facility</button>
-    </div>
-
-    <div class="program-tags">
-        @forelse($facilities as $facility)
+@if($campuses->isNotEmpty())
+    <nav class="page-tabs" aria-label="Campuses" role="tablist">
+        @foreach($campuses as $campus)
             <button
                 type="button"
-                class="program-tag classroom-chip"
-                data-open="facility"
-                data-title="Edit Facility"
-                data-record="{{ $facility->id }}"
-                data-values="{{ json_encode(['facility_name' => $facility->facility_name]) }}"
-                data-delete-url="{{ route('facilities.destroy', $facility) }}"
-            >{{ $facility->facility_name }} · {{ $facility->rooms_count }} {{ Str::plural('room', $facility->rooms_count) }}</button>
-        @empty
-            <span class="table-secondary">No facilities yet.</span>
-        @endforelse
-    </div>
-
-</div>
+                role="tab"
+                id="tab-campus-{{ $campus->id }}"
+                aria-controls="campus-{{ $campus->id }}"
+                aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                class="{{ $loop->first ? 'active' : '' }}"
+                data-campus-tab="campus-{{ $campus->id }}"
+            >
+                <x-icon name="landmark" />
+                {{ $campus->campus_name }}
+                <span class="page-tab-count" data-campus-count>{{ $campus->buildings->sum(fn ($building) => $building->floors->sum(fn ($floor) => $floor->rooms->count())) }}</span>
+            </button>
+        @endforeach
+    </nav>
+@endif
 
 
 @forelse($campuses as $campus)
 
-    <section class="content-card classroom-campus" data-campus>
+    <section class="content-card classroom-campus" id="campus-{{ $campus->id }}" role="tabpanel" aria-labelledby="tab-campus-{{ $campus->id }}" data-campus data-campus-id="{{ $campus->id }}" @if(! $loop->first) hidden @endif>
 
         <div class="classroom-head">
 
             <div>
                 <h2><x-icon name="landmark" /> {{ $campus->campus_name }}</h2>
                 <p>{{ collect([$campus->campus_code, $campus->address])->filter()->implode(' · ') }}</p>
+
+                @php
+                    $campusFloors = $campus->buildings->flatMap(fn ($building) => $building->floors);
+                    $campusRoomCount = $campusFloors->sum(fn ($floor) => $floor->rooms->count());
+                @endphp
+
+                <div class="classroom-counts">
+                    <span><strong>{{ $campus->buildings->count() }}</strong> {{ Str::plural('building', $campus->buildings->count()) }}</span>
+                    <span><strong>{{ $campusFloors->count() }}</strong> {{ Str::plural('floor', $campusFloors->count()) }}</span>
+                    <span><strong>{{ $campusRoomCount }}</strong> {{ Str::plural('room', $campusRoomCount) }}</span>
+                </div>
             </div>
 
             <div class="table-actions">
@@ -287,9 +280,39 @@
 
 <div class="content-card" data-no-results hidden>
     <div class="small-empty-state">
-        <strong>Nothing matches your search</strong>
-        <span>Try another room, building or facility.</span>
+        <strong>Nothing on this campus matches your search</strong>
+        <span>Check the other campuses above, or try another room, building or facility.</span>
     </div>
+</div>
+
+
+<div class="content-card classroom-facilities">
+
+    <div class="classroom-head">
+        <div>
+            <h2>Facilities</h2>
+            <p>Equipment you can tick on any room. Click one to rename or delete it.</p>
+        </div>
+
+        <button type="button" class="btn btn-secondary" data-open="facility" data-title="Add Facility">+ Facility</button>
+    </div>
+
+    <div class="program-tags">
+        @forelse($facilities as $facility)
+            <button
+                type="button"
+                class="program-tag classroom-chip"
+                data-open="facility"
+                data-title="Edit Facility"
+                data-record="{{ $facility->id }}"
+                data-values="{{ json_encode(['facility_name' => $facility->facility_name]) }}"
+                data-delete-url="{{ route('facilities.destroy', $facility) }}"
+            >{{ $facility->facility_name }} · {{ $facility->rooms_count }} {{ Str::plural('room', $facility->rooms_count) }}</button>
+        @empty
+            <span class="table-secondary">No facilities yet.</span>
+        @endforelse
+    </div>
+
 </div>
 
 

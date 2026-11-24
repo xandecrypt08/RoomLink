@@ -2120,7 +2120,8 @@ input.profile-locked:focus {
     border-bottom: 1px solid #dfe6ea;
 }
 
-.page-tabs a {
+.page-tabs a,
+.page-tabs button {
     display: inline-flex;
     gap: 8px;
     align-items: center;
@@ -2133,11 +2134,13 @@ input.profile-locked:focus {
     white-space: nowrap;
 }
 
-.page-tabs a:hover {
+.page-tabs a:hover,
+.page-tabs button:hover {
     color: var(--brand);
 }
 
-.page-tabs a.active {
+.page-tabs a.active,
+.page-tabs button.active {
     border-bottom-color: var(--accent);
     color: var(--ink);
 }
@@ -2589,4 +2592,71 @@ table.roomlink-table.campus-table {
 .brand span {
     font-size: 9px;
     white-space: nowrap;
+}
+
+
+/* Tabs that are buttons (Campus Spaces) */
+.page-tabs button {
+    border-width: 0 0 3px;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.classroom-campus .classroom-counts {
+    margin-top: 8px;
+}
+
+/* ---------------------------------------------------------
+   CURRICULUM (colleges, programs and subjects on one page)
+   --------------------------------------------------------- */
+
+.curriculum-colleges .classroom-building:first-of-type {
+    margin-top: 14px;
+}
+
+.curriculum-programs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.curriculum-programs li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+}
+
+.curriculum-programs .curriculum-group {
+    background: var(--surface-soft);
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.curriculum-programs strong {
+    margin-right: 8px;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.curriculum-programs .count-badge {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.record-dialog .facility-options {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.record-dialog .program-options-heading {
+    grid-column: 1 / -1;
 }

@@ -66,7 +66,7 @@ class ProgramManagementTest extends TestCase
                 'program_name' => 'Bachelor of Arts in Communication',
                 'program_group' => '',
             ])
-            ->assertRedirect(route('programs.index'));
+            ->assertRedirect(route('curriculum.index'));
 
         $this->assertDatabaseHas('programs', ['program_code' => 'BAComm', 'college_id' => $college->id, 'program_group' => null]);
     }
@@ -76,7 +76,7 @@ class ProgramManagementTest extends TestCase
         $this->seed(ProgramSeeder::class);
 
         $this->actingAs($this->admin)
-            ->get(route('programs.index'))
+            ->get(route('curriculum.index'))
             ->assertOk()
             ->assertSeeInOrder([
                 'College of Education', 'Elementary Education Programs', 'Bachelor of Elementary Education',
@@ -96,7 +96,7 @@ class ProgramManagementTest extends TestCase
         ]);
 
         $this->actingAs($this->admin)
-            ->get(route('programs.index'))
+            ->get(route('curriculum.index'))
             ->assertOk()
             ->assertSeeInOrder(['Bachelor of Science in Information Technology', 'BSIT', '2']);
 
@@ -108,7 +108,7 @@ class ProgramManagementTest extends TestCase
         $this->seed(ProgramSeeder::class);
 
         $this->actingAs($this->admin)
-            ->get(route('subjects.create'))
+            ->get(route('curriculum.index'))
             ->assertOk()
             ->assertSeeInOrder(['College of Education (COE)', 'BEED', 'College of Arts and Sciences (CAS)', 'BSIT', 'College of Management and Entrepreneurship (CME)', 'BSTM']);
     }
@@ -128,13 +128,13 @@ class ProgramManagementTest extends TestCase
     {
         $this->actingAs($this->admin)
             ->post(route('colleges.store'), ['college_code' => 'CTE', 'college_name' => 'College of Teacher Education'])
-            ->assertRedirect(route('colleges.index'));
+            ->assertRedirect(route('curriculum.index'));
 
         $college = College::where('college_code', 'CTE')->firstOrFail();
 
         $this->actingAs($this->admin)
             ->put(route('colleges.update', $college), ['college_code' => 'CTE', 'college_name' => 'College of Technology'])
-            ->assertRedirect(route('colleges.index'));
+            ->assertRedirect(route('curriculum.index'));
 
         $this->assertSame('College of Technology', $college->fresh()->college_name);
 
@@ -192,7 +192,7 @@ class ProgramManagementTest extends TestCase
                 'subject_name' => 'Purposive Communication',
                 'programs' => [$bsit->id, $bsed->id],
             ])
-            ->assertRedirect(route('subjects.index'));
+            ->assertRedirect(route('curriculum.index'));
 
         $this->actingAs($this->admin)
             ->post(route('subjects.store'), [
@@ -204,10 +204,10 @@ class ProgramManagementTest extends TestCase
         $this->assertSame(2, Subject::where('subject_code', 'GE-109')->first()->programs()->count());
 
         $this->actingAs($this->admin)
-            ->get(route('subjects.index', ['program' => $bsed->id]))
+            ->get(route('curriculum.index', ['program' => $bsed->id]))
             ->assertOk()
-            ->assertSee('Purposive Communication')
-            ->assertDontSee('Introduction to Computing');
+            ->assertSee('data-programs="'.$bsit->id.' '.$bsed->id.'"', false)
+            ->assertViewHas('programId', $bsed->id);
     }
 
     public function test_editing_a_subject_replaces_its_programs(): void
@@ -225,5 +225,31 @@ class ProgramManagementTest extends TestCase
             ]);
 
         $this->assertSame([$bsed->id], $subject->fresh()->programs->pluck('id')->all());
+    }
+
+    public function test_one_page_shows_colleges_programs_and_subjects(): void
+    {
+        $program = Program::factory()->for(College::factory()->create(['college_name' => 'College of Arts']))->create(['program_name' => 'Information Technology']);
+        Subject::create(['subject_code' => 'IT-110', 'subject_name' => 'Introduction to Computing'])->programs()->attach($program);
+
+        $this->actingAs($this->admin)
+            ->get(route('curriculum.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['College of Arts', 'Information Technology', 'IT-110', 'Introduction to Computing'])
+            ->assertSee('data-dialog="import"', false);
+    }
+
+    public function test_the_page_opens_without_any_records(): void
+    {
+        $this->actingAs($this->admin)->get(route('curriculum.index'))->assertOk()->assertSee('No subjects yet');
+    }
+
+    public function test_old_list_addresses_lead_to_the_one_page(): void
+    {
+        foreach (['colleges', 'programs', 'subjects'] as $list) {
+            $this->actingAs($this->admin)->get("/admin/{$list}")->assertRedirect(route('curriculum.index'));
+        }
+
+        $this->actingAs($this->admin)->get('/admin/subjects?program=3')->assertRedirect(route('curriculum.index', ['program' => 3]));
     }
 }

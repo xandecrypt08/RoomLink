@@ -36,7 +36,7 @@ class ClassroomManagementTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('classrooms.index'))
             ->assertOk()
-            ->assertSeeInOrder(['Projector', 'Main Campus', 'Science Hall', 'Ground Floor', 'COMLAB 1A'])
+            ->assertSeeInOrder(['Main Campus', 'Science Hall', 'Ground Floor', 'COMLAB 1A', 'Projector'])
             ->assertSee(route('rooms.qr', $room));
     }
 
@@ -155,5 +155,30 @@ class ClassroomManagementTest extends TestCase
             ->get(route('rooms.edit', $room))
             ->assertOk()
             ->assertSee('data-open-now', false);
+    }
+
+    public function test_each_campus_has_its_own_tab(): void
+    {
+        $campuses = Campus::factory()->count(3)->create();
+
+        $response = $this->actingAs($this->admin)->get(route('classrooms.index'))->assertOk()->assertSee('Campus Spaces');
+
+        foreach ($campuses as $campus) {
+            $response->assertSee('data-campus-tab="campus-'.$campus->id.'"', false);
+        }
+
+        $this->assertSame(2, preg_match_all('/data-campus-id="\d+"\s+hidden/', $response->getContent()), 'Only the first campus is shown at first.');
+    }
+
+    public function test_a_new_campus_opens_its_own_tab(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('campuses.store'), ['campus_name' => 'North Campus']);
+
+        $response->assertRedirect(route('classrooms.index').'#campus-'.Campus::sole()->id);
+    }
+
+    public function test_the_old_classrooms_address_still_works(): void
+    {
+        $this->actingAs($this->admin)->get('/admin/classrooms')->assertRedirect(route('classrooms.index'));
     }
 }

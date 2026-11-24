@@ -7,7 +7,7 @@
 <div class="page-header">
 
     <div>
-        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
+        <span class="page-eyebrow">CAMPUS MANAGEMENT</span>
         <h1>Room QR Code</h1>
         <p>QR identification code for this classroom.</p>
     </div>

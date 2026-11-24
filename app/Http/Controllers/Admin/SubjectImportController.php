@@ -23,11 +23,14 @@ use RuntimeException;
  */
 class SubjectImportController extends Controller
 {
-    public function create(): View
+    /**
+     * Documents are uploaded in a pop-up on the Curriculum page.
+     */
+    public function create(Request $request): RedirectResponse
     {
-        $programs = Program::with('college')->inListOrder()->get();
+        $request->session()->reflash();
 
-        return view('admin.subjects.import', compact('programs'));
+        return redirect()->route('curriculum.index', ['import' => 1]);
     }
 
     /**
@@ -149,7 +152,7 @@ class SubjectImportController extends Controller
         $programCodes = Program::whereKey($validated['programs'])->orderBy('program_code')->pluck('program_code')->implode(', ');
 
         return redirect()
-            ->route('subjects.index', count($validated['programs']) === 1 ? ['program' => $validated['programs'][0]] : [])
+            ->route('curriculum.index', count($validated['programs']) === 1 ? ['program' => $validated['programs'][0]] : [])
             ->with('success', "Imported {$created} new subject".($created === 1 ? '' : 's')." for {$programCodes}"
                 .($updated ? "; added {$programCodes} to {$updated} existing subject".($updated === 1 ? '' : 's') : '').'.');
     }

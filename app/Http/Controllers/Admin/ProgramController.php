@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\College;
 use App\Models\Program;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\View\View;
 
 /**
  * Degree programs (BSIT, BSED, BSBIo, ...) that subjects are grouped under,
@@ -17,44 +14,13 @@ use Illuminate\View\View;
  */
 class ProgramController extends Controller
 {
-    public function index(): View
-    {
-        $programsByCollege = Program::query()
-            ->with('college')
-            ->withCount('subjects')
-            ->inListOrder()
-            ->get()
-            ->groupBy(fn (Program $program) => $program->college_id ?? 0);
-
-        $colleges = College::orderBy('id')->get()->keyBy('id');
-
-        return view('admin.programs.index', compact('programsByCollege', 'colleges'));
-    }
-
-    public function create(Request $request): View
-    {
-        return view('admin.programs.create', [
-            ...$this->formOptions(),
-            'selectedCollegeId' => $request->integer('college') ?: null,
-        ]);
-    }
-
     public function store(Request $request): RedirectResponse
     {
         Program::create($this->validated($request));
 
         return redirect()
-            ->route('programs.index')
+            ->route('curriculum.index')
             ->with('success', 'Program created successfully.');
-    }
-
-    public function edit(Program $program): View
-    {
-        return view('admin.programs.edit', [
-            ...$this->formOptions(),
-            'program' => $program,
-            'selectedCollegeId' => $program->college_id,
-        ]);
     }
 
     public function update(Request $request, Program $program): RedirectResponse
@@ -62,7 +28,7 @@ class ProgramController extends Controller
         $program->update($this->validated($request, $program));
 
         return redirect()
-            ->route('programs.index')
+            ->route('curriculum.index')
             ->with('success', 'Program updated successfully.');
     }
 
@@ -70,26 +36,15 @@ class ProgramController extends Controller
     {
         if ($program->subjects()->exists()) {
             return redirect()
-                ->route('programs.index')
+                ->route('curriculum.index')
                 ->with('error', 'This program cannot be deleted because subjects are still assigned to it. Remove it from those subjects first.');
         }
 
         $program->delete();
 
         return redirect()
-            ->route('programs.index')
+            ->route('curriculum.index')
             ->with('success', 'Program deleted successfully.');
-    }
-
-    /**
-     * @return array{colleges: \Illuminate\Database\Eloquent\Collection<int, College>, groups: Collection<int, string>}
-     */
-    private function formOptions(): array
-    {
-        return [
-            'colleges' => College::orderBy('id')->get(),
-            'groups' => Program::whereNotNull('program_group')->distinct()->orderBy('program_group')->pluck('program_group'),
-        ];
     }
 
     /**

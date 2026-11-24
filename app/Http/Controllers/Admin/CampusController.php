@@ -20,10 +20,11 @@ class CampusController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Campus::create($validated);
+        $campus = Campus::create($validated);
 
         return redirect()
             ->route('classrooms.index')
+            ->withFragment("campus-{$campus->id}")
             ->with('success', 'Campus created successfully.');
     }
 

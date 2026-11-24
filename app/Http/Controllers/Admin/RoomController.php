@@ -99,7 +99,7 @@ class RoomController extends Controller
     }
 
     /**
-     * Rooms are edited in a pop-up on the Classrooms page.
+     * Rooms are edited in a pop-up on the Campus Spaces page.
      */
     public function edit(Room $room): RedirectResponse
     {
