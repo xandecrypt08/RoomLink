@@ -187,13 +187,7 @@
         0 8px 18px rgba(72, 109, 135, 0.22);
 }
 
-.brand-mark span:first-child {
-    transform: translateX(2px);
-}
 
-.brand-mark span:last-child {
-    transform: translateX(-1px);
-}
 
 .login-brand h1 {
     margin: 0;

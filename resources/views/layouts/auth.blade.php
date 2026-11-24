@@ -24,6 +24,10 @@
         href="{{ \App\Support\Asset::url('css/auth.css') }}"
     >
 
+    <link rel="icon" href="{{ \App\Support\Asset::url('images/logo.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ \App\Support\Asset::url('favicon.ico') }}" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ \App\Support\Asset::url('images/apple-touch-icon.png') }}">
+
 </head>
 
 <body>

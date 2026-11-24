@@ -2561,3 +2561,32 @@ table.roomlink-table.campus-table {
         break-inside: avoid;
     }
 }
+
+
+/* ---------------------------------------------------------
+   LOGO
+   --------------------------------------------------------- */
+
+.brand {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+.brand h2 {
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+.brand span {
+    font-size: 9px;
+    white-space: nowrap;
+}
