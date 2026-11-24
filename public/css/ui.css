@@ -2684,115 +2684,108 @@ table.roomlink-table.campus-table {
    SIDEBAR MENUS (campuses; colleges, then programs)
    --------------------------------------------------------- */
 
-.sidebar-flyout[hidden],
-.sidebar-flyout ul[hidden] {
-    display: none;
+/* Unfolds smoothly; folded items can't be reached with the keyboard. */
+.nav-fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows .2s ease, visibility .2s;
 }
 
-.sidebar-flyout ul {
-    margin: 0;
+.open > .nav-fold {
+    grid-template-rows: 1fr;
+    visibility: visible;
+}
+
+.nav-fold > ul {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sidebar .nav-sub {
+    margin: 0 0 0 20px;
     padding: 0;
+    border-left: 1px solid rgba(255, 255, 255, .2);
     list-style: none;
 }
 
-.sidebar-flyout button,
-.sidebar-flyout a {
-    display: block;
-    width: 100%;
+.sidebar .nav-sub .nav-sub {
+    margin-left: 12px;
+}
+
+.sidebar .nav-sub a,
+.sidebar .nav-sub button {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: calc(100% - 8px);
     min-height: 0;
-    padding: 10px 14px;
+    margin: 2px 0 2px 8px;
+    padding: 8px 10px;
     border: 0;
     border-radius: 8px;
     background: none;
-    color: var(--ink-soft);
+    color: rgba(255, 255, 255, .82);
     font-family: inherit;
     font-size: 12px;
-    line-height: 1.4;
+    font-weight: 500;
+    line-height: 1.35;
     text-align: left;
-    text-decoration: none;
-    cursor: pointer;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
-.sidebar-flyout strong {
-    display: block;
-    color: var(--ink);
-    font-size: 13px;
+.sidebar .nav-sub a:hover,
+.sidebar .nav-sub button:hover,
+.sidebar .nav-sub .open > button {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
 }
 
-.sidebar-flyout-group {
-    padding: 10px 14px 4px;
-    color: var(--brand);
-    font-size: 10px;
+.sidebar .nav-sub a:focus-visible,
+.sidebar .nav-sub button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.sidebar .nav-programs a {
+    padding: 6px 10px;
+}
+
+.sidebar .nav-sub-label {
+    padding: 8px 10px 2px 18px;
+    color: rgba(255, 255, 255, .55);
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: .5px;
+    letter-spacing: .6px;
     text-transform: uppercase;
 }
 
-.sidebar-flyout.floating {
-    position: fixed;
-    z-index: 60;
-    width: 300px;
-    padding: 8px;
-    border-radius: 0 12px 12px 12px;
-    background: var(--surface);
-    box-shadow: 0 14px 40px rgba(24, 48, 66, .24);
-    box-sizing: border-box;
-}
-
-.sidebar-flyout.floating [data-menu-college-button] {
-    position: relative;
-    padding-right: 30px;
-}
-
-.sidebar-flyout.floating [data-menu-college-button]::after {
-    position: absolute;
-    top: 50%;
-    right: 14px;
-    width: 6px;
-    height: 6px;
-    border: solid var(--muted);
-    border-width: 2px 2px 0 0;
+/* Arrow that turns when the item is unfolded. */
+[data-menu-trigger]::after {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    margin: -3px 3px 0 auto;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
     content: '';
-    transform: translateY(-50%) rotate(45deg);
+    opacity: .7;
+    transform: rotate(45deg);
+    transition: transform .2s ease;
 }
 
-.sidebar-flyout.floating .open > button,
-.sidebar-flyout.floating button:hover,
-.sidebar-flyout.floating a:hover,
-.sidebar-flyout.floating a:focus-visible {
-    background: var(--brand-soft);
+.open > [data-menu-trigger]::after {
+    margin-top: 3px;
+    transform: rotate(225deg);
 }
 
-.sidebar-flyout.floating .sidebar-flyout-programs {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    width: 340px;
-    max-height: calc(100vh - 16px);
-    padding: 8px;
-    border-left: 1px solid var(--line);
-    border-radius: 0 12px 12px 0;
-    background: var(--surface);
-    box-shadow: 14px 14px 40px rgba(24, 48, 66, .18);
-    overflow-y: auto;
-    box-sizing: border-box;
-}
+@media (prefers-reduced-motion: reduce) {
 
-/* Small screens: the menu opens inside the sidebar instead. */
-.sidebar-flyout:not(.floating) {
-    padding-left: 22px;
-}
-
-.sidebar-flyout:not(.floating) button,
-.sidebar-flyout:not(.floating) a,
-.sidebar-flyout:not(.floating) strong,
-.sidebar-flyout:not(.floating) .sidebar-flyout-group {
-    color: rgba(255, 255, 255, .9);
-}
-
-.sidebar-flyout:not(.floating) .open > button {
-    background: rgba(255, 255, 255, .12);
+    .nav-fold,
+    [data-menu-trigger]::after {
+        transition: none;
+    }
 }
 
 /* A campus opened from the menu starts at the top of the page, not at its card. */
