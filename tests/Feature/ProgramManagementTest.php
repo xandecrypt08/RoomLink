@@ -206,8 +206,11 @@ class ProgramManagementTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('curriculum.index', ['program' => $bsed->id]))
             ->assertOk()
-            ->assertSee('data-programs="'.$bsit->id.' '.$bsed->id.'"', false)
-            ->assertViewHas('programId', $bsed->id);
+            ->assertSee('data-go-to="program-'.$bsed->id.'"', false)
+            ->assertViewHas('subjectGroups', fn ($groups) => $groups->mapWithKeys(fn ($group) => [$group['program']->program_code => $group['subjects']->pluck('subject_code')->all()])->all() === [
+                'BSED' => ['GE-109'],
+                'BSIT' => ['GE-109', 'IT-110'],
+            ]);
     }
 
     public function test_editing_a_subject_replaces_its_programs(): void
@@ -251,5 +254,28 @@ class ProgramManagementTest extends TestCase
         }
 
         $this->actingAs($this->admin)->get('/admin/subjects?program=3')->assertRedirect(route('curriculum.index', ['program' => 3]));
+    }
+
+    public function test_the_full_list_ends_with_subjects_that_have_no_program(): void
+    {
+        $program = Program::factory()->create();
+        Subject::create(['subject_code' => 'XX-1', 'subject_name' => 'Unassigned']);
+
+        $this->actingAs($this->admin)
+            ->get(route('curriculum.index'))
+            ->assertSee('id="program-'.$program->id.'"', false)
+            ->assertSee('id="program-none"', false);
+    }
+
+    public function test_the_sidebar_menu_leads_from_colleges_to_programs(): void
+    {
+        $this->seed(ProgramSeeder::class);
+        $bsit = Program::where('program_code', 'BSIT')->first();
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSeeInOrder(['College of Education', 'BEED', 'College of Arts and Sciences', 'BSIT', 'College of Management and Entrepreneurship', 'BSTM'])
+            ->assertSee('href="'.route('curriculum.index').'#program-'.$bsit->id.'"', false);
     }
 }

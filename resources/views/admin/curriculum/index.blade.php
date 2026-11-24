@@ -47,7 +47,7 @@
     <div class="classroom-head">
         <div>
             <h2><x-icon name="library" /> Colleges and Programs</h2>
-            <p>Open a college to see its programs. Click a program's subject count to list its subjects.</p>
+            <p>Open a college to see its programs. Click a program's subject count to go to its subjects.</p>
         </div>
     </div>
 
@@ -98,7 +98,7 @@
                             </span>
 
                             <div class="table-actions">
-                                <button type="button" class="count-badge" data-show-program="{{ $program->id }}" title="Show this program's subjects">{{ $program->subjects_count }} {{ Str::plural('subject', $program->subjects_count) }}</button>
+                                <button type="button" class="count-badge" data-show-program="program-{{ $program->id }}" title="Go to this program's subjects">{{ $program->subjects_count }} {{ Str::plural('subject', $program->subjects_count) }}</button>
                                 <button type="button" class="action-edit" data-open="program" data-title="Edit Program" data-record="{{ $program->id }}" data-values="{{ json_encode($program->only(['college_id', 'program_code', 'program_name', 'program_group'])) }}">Edit</button>
 
                                 <form method="POST" action="{{ route('programs.destroy', $program) }}" onsubmit="return confirm('Delete this program?');">
@@ -125,7 +125,7 @@
 </div>
 
 
-<div class="content-card" id="subjects">
+<div class="content-card" id="subjects" @if($programId) data-go-to="program-{{ $programId }}" @endif>
 
     <div class="table-toolbar">
 
@@ -135,16 +135,18 @@
         </div>
 
         <div class="table-search">
-            <select aria-label="Program" data-subject-program>
-                <option value="">All programs</option>
-                <option value="none">No program yet</option>
+            <select aria-label="Go to a program" data-subject-program>
+                <option value="">Go to program...</option>
                 @foreach($programs->groupBy(fn ($program) => $program->college?->college_code ?? 'Other') as $collegeCode => $collegePrograms)
                     <optgroup label="{{ $collegeCode }}">
                         @foreach($collegePrograms as $program)
-                            <option value="{{ $program->id }}" {{ $programId === $program->id ? 'selected' : '' }}>{{ $program->program_code }}</option>
+                            <option value="program-{{ $program->id }}">{{ $program->program_code }}</option>
                         @endforeach
                     </optgroup>
                 @endforeach
+                @if($subjectGroups->contains('program', null))
+                    <option value="program-none">No program yet</option>
+                @endif
             </select>
 
             <input type="search" placeholder="Search subjects..." aria-label="Search subjects" data-subject-search>
@@ -152,7 +154,7 @@
 
     </div>
 
-    @if($subjects->isEmpty())
+    @if($subjectGroups->isEmpty())
 
         <div class="empty-state">
             <div class="empty-state-icon"><x-icon name="book" /></div>
@@ -176,48 +178,75 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                @foreach($subjectGroups as $group)
 
-                    @foreach($subjects as $subject)
+                    <tbody class="subject-group" id="program-{{ $group['program']?->id ?? 'none' }}" data-subject-group>
 
-                        <tr
-                            data-subject
-                            data-programs="{{ $subject->programs->pluck('id')->sort()->implode(' ') }}"
-                            data-search="{{ mb_strtolower($subject->subject_code.' '.$subject->subject_name.' '.$subject->description) }}"
-                        >
-                            <td><span class="code-badge">{{ $subject->subject_code }}</span></td>
-                            <td>
-                                <div class="table-primary">{{ $subject->subject_name }}</div>
-                                <div class="table-secondary">{{ $subject->description }}</div>
-                            </td>
-                            <td>
-                                <div class="program-tags">
-                                    @forelse($subject->programs as $program)
-                                        <span class="program-tag">{{ $program->program_code }}</span>
-                                    @empty
-                                        <span class="table-secondary">—</span>
-                                    @endforelse
-                                </div>
-                            </td>
-                            <td>
-                                <a href="{{ route('schedules.index', ['search' => $subject->subject_code]) }}" class="count-badge" title="Show its class sessions">{{ $subject->class_sessions_count }}</a>
-                            </td>
-                            <td>
-                                <div class="table-actions">
-                                    <button type="button" class="action-edit" data-open="subject" data-title="Edit Subject" data-record="{{ $subject->id }}" data-values="{{ json_encode([...$subject->only(['subject_code', 'subject_name', 'description']), 'programs' => $subject->programs->pluck('id')->all()]) }}">Edit</button>
+                        <tr class="subject-group-heading">
+                            <td colspan="5">
+                                <div>
+                                    <span>
+                                        @if($group['program'])
+                                            <span class="code-badge">{{ $group['program']->program_code }}</span>
+                                            <strong>{{ $group['program']->program_name }}</strong>
+                                        @else
+                                            <strong>No program yet</strong>
+                                        @endif
+                                        <span class="table-secondary">{{ $group['subjects']->count() }} {{ Str::plural('subject', $group['subjects']->count()) }}</span>
+                                    </span>
 
-                                    <form method="POST" action="{{ route('subjects.destroy', $subject) }}" onsubmit="return confirm('Delete this subject?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="action-delete">Delete</button>
-                                    </form>
+                                    @if($group['program'])
+                                        <div class="table-actions">
+                                            <button type="button" class="action-view" data-open="subject" data-title="Add Subject to {{ $group['program']->program_code }}" data-values="{{ json_encode(['programs' => [$group['program']->id]]) }}">+ Subject</button>
+                                        </div>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
 
-                    @endforeach
+                        @forelse($group['subjects'] as $subject)
 
-                </tbody>
+                            <tr
+                                data-subject="{{ $subject->id }}"
+                                data-search="{{ mb_strtolower($subject->subject_code.' '.$subject->subject_name.' '.$subject->description) }}"
+                            >
+                                <td><span class="code-badge">{{ $subject->subject_code }}</span></td>
+                                <td>
+                                    <div class="table-primary">{{ $subject->subject_name }}</div>
+                                    <div class="table-secondary">{{ $subject->description }}</div>
+                                </td>
+                                <td>
+                                    <div class="program-tags">
+                                        @forelse($subject->programs as $program)
+                                            <span class="program-tag">{{ $program->program_code }}</span>
+                                        @empty
+                                            <span class="table-secondary">—</span>
+                                        @endforelse
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="{{ route('schedules.index', ['search' => $subject->subject_code]) }}" class="count-badge" title="Show its class sessions">{{ $subject->class_sessions_count }}</a>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button type="button" class="action-edit" data-open="subject" data-title="Edit Subject" data-record="{{ $subject->id }}" data-values="{{ json_encode([...$subject->only(['subject_code', 'subject_name', 'description']), 'programs' => $subject->programs->pluck('id')->all()]) }}">Edit</button>
+
+                                        <form method="POST" action="{{ route('subjects.destroy', $subject) }}" onsubmit="return confirm('Delete this subject from every program?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="action-delete">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        @empty
+                            <tr data-empty-group><td colspan="5" class="table-secondary">No subjects yet.</td></tr>
+                        @endforelse
+
+                    </tbody>
+
+                @endforeach
 
             </table>
 
@@ -225,7 +254,7 @@
 
         <div class="small-empty-state" data-no-results hidden>
             <strong>Nothing matches your search</strong>
-            <span>Try another program, course number or title.</span>
+            <span>Try another course number or title.</span>
         </div>
 
     @endif

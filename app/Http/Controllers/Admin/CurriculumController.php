@@ -20,15 +20,30 @@ class CurriculumController extends Controller
     {
         $programs = Program::with('college')->withCount('subjects')->inListOrder()->get();
 
+        $subjects = Subject::with(['programs' => fn ($query) => $query->inListOrder()])
+            ->withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])
+            ->orderBy('subject_code')
+            ->get();
+
+        // The full list, program by program. A shared subject is under each of its programs.
+        $subjectGroups = $programs->map(fn (Program $program): array => [
+            'program' => $program,
+            'subjects' => $subjects->filter(fn (Subject $subject) => $subject->programs->contains($program))->values(),
+        ]);
+
+        $withoutProgram = $subjects->filter(fn (Subject $subject) => $subject->programs->isEmpty())->values();
+
+        if ($withoutProgram->isNotEmpty()) {
+            $subjectGroups->push(['program' => null, 'subjects' => $withoutProgram]);
+        }
+
         return view('admin.curriculum.index', [
             'colleges' => College::orderBy('id')->get(),
             'programs' => $programs,
             'programsByCollege' => $programs->groupBy(fn (Program $program) => $program->college_id ?? 0),
             'groups' => $programs->pluck('program_group')->filter()->unique()->sort()->values(),
-            'subjects' => Subject::with('programs')
-                ->withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])
-                ->orderBy('subject_code')
-                ->get(),
+            'subjects' => $subjects,
+            'subjectGroups' => $subjectGroups,
             'programId' => $request->integer('program') ?: null,
             'openImport' => $request->boolean('import'),
         ]);

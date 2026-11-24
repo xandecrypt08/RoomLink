@@ -2660,3 +2660,148 @@ table.roomlink-table.campus-table {
 .record-dialog .program-options-heading {
     grid-column: 1 / -1;
 }
+
+
+/* Subject list, program by program */
+.subject-group {
+    /* Below the top bar, which stays in view. */
+    scroll-margin-top: 84px;
+}
+
+.subject-group-heading td {
+    background: var(--brand-soft);
+}
+
+.subject-group-heading td > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.subject-group-heading strong {
+    margin: 0 8px;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.subject-group.pointed-out .subject-group-heading td {
+    background: #fff1d6;
+    box-shadow: inset 4px 0 0 var(--accent);
+}
+
+/* ---------------------------------------------------------
+   CURRICULUM MENU (sidebar: colleges, then programs)
+   --------------------------------------------------------- */
+
+.curriculum-flyout[hidden],
+.curriculum-flyout ul[hidden] {
+    display: none;
+}
+
+.curriculum-flyout ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.curriculum-flyout button,
+.curriculum-flyout a {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.curriculum-flyout strong {
+    display: block;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.curriculum-flyout-group {
+    padding: 10px 14px 4px;
+    color: var(--brand);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.curriculum-flyout.floating {
+    position: fixed;
+    z-index: 60;
+    width: 300px;
+    padding: 8px;
+    border-radius: 0 12px 12px 12px;
+    background: var(--surface);
+    box-shadow: 0 14px 40px rgba(24, 48, 66, .24);
+    box-sizing: border-box;
+}
+
+.curriculum-flyout.floating [data-menu-college-button] {
+    position: relative;
+    padding-right: 30px;
+}
+
+.curriculum-flyout.floating [data-menu-college-button]::after {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 6px;
+    height: 6px;
+    border: solid var(--muted);
+    border-width: 2px 2px 0 0;
+    content: '';
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.curriculum-flyout.floating .open > button,
+.curriculum-flyout.floating button:hover,
+.curriculum-flyout.floating a:hover,
+.curriculum-flyout.floating a:focus-visible {
+    background: var(--brand-soft);
+}
+
+.curriculum-flyout.floating .curriculum-flyout-programs {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 340px;
+    max-height: calc(100vh - 16px);
+    padding: 8px;
+    border-left: 1px solid var(--line);
+    border-radius: 0 12px 12px 0;
+    background: var(--surface);
+    box-shadow: 14px 14px 40px rgba(24, 48, 66, .18);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Small screens: the menu opens inside the sidebar instead. */
+.curriculum-flyout:not(.floating) {
+    padding-left: 22px;
+}
+
+.curriculum-flyout:not(.floating) button,
+.curriculum-flyout:not(.floating) a,
+.curriculum-flyout:not(.floating) strong,
+.curriculum-flyout:not(.floating) .curriculum-flyout-group {
+    color: rgba(255, 255, 255, .9);
+}
+
+.curriculum-flyout:not(.floating) .open > button {
+    background: rgba(255, 255, 255, .12);
+}

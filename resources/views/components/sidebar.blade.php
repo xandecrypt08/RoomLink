@@ -58,13 +58,7 @@
             <span>Faculty</span>
         </a>
 
-        <a
-            href="{{ route('curriculum.index') }}"
-            class="{{ request()->routeIs('curriculum.*', 'subjects.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="graduation-cap" /></span>
-            <span>Curriculum</span>
-        </a>
+        <x-curriculum-menu />
 
         <a
             href="{{ route('schedules.index') }}"
@@ -142,3 +136,7 @@
     </div>
 
 </aside>
+
+@push('scripts')
+<script src="{{ \App\Support\Asset::url('js/curriculum-menu.js') }}"></script>
+@endpush

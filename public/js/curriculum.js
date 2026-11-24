@@ -1,4 +1,4 @@
-/* Curriculum page: subject search and filter, and remembering which colleges are open. */
+/* Curriculum page: the subject list by program, and remembering which colleges are open. */
 (function () {
     var page = document.querySelector('[data-curriculum-page]');
 
@@ -10,43 +10,85 @@
 
     var search = page.querySelector('[data-subject-search]');
     var program = page.querySelector('[data-subject-program]');
-    var rows = Array.prototype.slice.call(page.querySelectorAll('[data-subject]'));
+    var groups = Array.prototype.slice.call(page.querySelectorAll('[data-subject-group]'));
     var count = page.querySelector('[data-subject-count]');
     var noResults = page.querySelector('[data-no-results]');
 
+    // A shared subject is listed under each of its programs but counted once.
+    function countSubjects(rows) {
+        var ids = {};
+
+        rows.forEach(function (row) { ids[row.dataset.subject] = true; });
+
+        return Object.keys(ids).length;
+    }
+
     function filter() {
         var text = search.value.trim().toLowerCase();
-        var shown = 0;
+        var all = [];
+        var shown = [];
 
-        rows.forEach(function (row) {
-            var programs = row.dataset.programs === '' ? [] : row.dataset.programs.split(' ');
-            var match = row.dataset.search.indexOf(text) !== -1
-                && (program.value === ''
-                    || (program.value === 'none' ? programs.length === 0 : programs.indexOf(program.value) !== -1));
+        groups.forEach(function (group) {
+            var matches = 0;
 
-            row.hidden = !match;
-            shown += match ? 1 : 0;
+            group.querySelectorAll('[data-subject]').forEach(function (row) {
+                row.hidden = row.dataset.search.indexOf(text) === -1;
+                all.push(row);
+
+                if (!row.hidden) {
+                    shown.push(row);
+                    matches++;
+                }
+            });
+
+            group.hidden = text !== '' && matches === 0;
         });
 
-        count.textContent = (shown === rows.length ? '' : shown + ' of ')
-            + rows.length + ' subject' + (rows.length === 1 ? '' : 's');
+        var total = countSubjects(all);
+        var found = countSubjects(shown);
+
+        count.textContent = (found === total ? '' : found + ' of ') + total + ' subject' + (total === 1 ? '' : 's');
 
         if (noResults) {
-            noResults.hidden = shown > 0;
+            noResults.hidden = text === '' || found > 0;
         }
     }
 
     search.addEventListener('input', filter);
-    program.addEventListener('change', filter);
     filter();
 
+    // Scroll the full list to a program and point it out.
+    function goTo(id) {
+        var group = groups.filter(function (item) { return item.id === id; })[0];
+
+        if (!group) {
+            return;
+        }
+
+        search.value = '';
+        filter();
+        groups.forEach(function (item) { item.classList.toggle('pointed-out', item === group); });
+        group.scrollIntoView({ block: 'start' });
+    }
+
+    program.addEventListener('change', function () {
+        goTo(program.value);
+        program.value = '';
+    });
+
     page.querySelectorAll('[data-show-program]').forEach(function (button) {
-        button.addEventListener('click', function () {
-            program.value = button.dataset.showProgram;
-            search.value = '';
-            filter();
-            document.getElementById('subjects').scrollIntoView({ behavior: 'smooth' });
-        });
+        button.addEventListener('click', function () { goTo(button.dataset.showProgram); });
+    });
+
+    window.addEventListener('hashchange', function () { goTo(location.hash.slice(1)); });
+
+    // Clicking the program already in the address sends no hashchange.
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('a[href*="#program-"]');
+
+        if (link && link.hash === location.hash && link.pathname === location.pathname) {
+            goTo(link.hash.slice(1));
+        }
     });
 
     /* Open colleges, kept after saving */
@@ -69,6 +111,11 @@
             } catch (error) { /* storage is off */ }
         });
     });
+
+    // Once the colleges above are opened or closed, the list is where it stays.
+    var subjects = document.getElementById('subjects');
+
+    goTo(location.hash ? location.hash.slice(1) : (subjects.dataset.goTo || ''));
 
     /* Reading a scan takes a while; show it and prevent a second upload. */
 
