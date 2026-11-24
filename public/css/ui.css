@@ -9,7 +9,7 @@
 :root {
     --ink: #183042;
     --ink-soft: #52636d;
-    --muted: #8b989f;
+    --muted: #5f6e77;
     --line: #e8ecee;
     --line-soft: #edf0f1;
     --surface: #ffffff;
@@ -18,11 +18,11 @@
     --brand-hover: #3d6078;
     --brand-soft: #eef3f6;
     --accent: #FFB838;
-    --ok: #3c8054;
+    --ok: #35744b;
     --ok-soft: #edf7f0;
-    --warn: #a36b00;
+    --warn: #855600;
     --warn-soft: #fff5df;
-    --danger: #b84b4b;
+    --danger: #ab4141;
     --danger-soft: #fff0f0;
 }
 
@@ -89,7 +89,7 @@ textarea {
     border-radius: 999px;
     background: var(--accent);
     color: var(--ink);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -170,7 +170,7 @@ textarea {
     border-radius: 999px;
     background: #d9534f;
     color: #ffffff;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
 }
 
@@ -195,7 +195,7 @@ textarea {
 }
 
 .profile-info span {
-    font-size: 11px;
+    font-size: 12px;
 }
 
 
@@ -301,7 +301,7 @@ textarea {
     display: inline-flex;
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
@@ -401,7 +401,7 @@ textarea {
     display: block;
     margin-top: 2px;
     color: var(--warn);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 /* Marks a session that was started without scanning the room's QR code. */
@@ -412,7 +412,7 @@ textarea {
     border-radius: 999px;
     background: var(--warn-soft);
     color: var(--warn);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .4px;
     text-transform: uppercase;
@@ -603,7 +603,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .session-facts span {
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: .4px;
     text-transform: uppercase;
@@ -653,7 +653,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 .live-session-row small {
     margin-left: auto;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -665,7 +665,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .stat-icon-available {
     background: var(--ok-soft);
-    color: #5c9b70;
+    color: #3a7750;
 }
 
 .stat-icon-occupied {
@@ -675,7 +675,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .stat-icon-maintenance {
     background: var(--danger-soft);
-    color: #d86b6b;
+    color: #b84b4b;
 }
 
 .verify-card {
@@ -752,7 +752,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .location-text {
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .room-status,
@@ -761,7 +761,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
     align-items: center;
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -769,7 +769,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 .status-badge,
 .status-neutral {
     background: #f1f4f5;
-    color: #61717b;
+    color: #5a6871;
 }
 
 .status-active {
@@ -1103,7 +1103,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
         display: block;
         margin-bottom: 2px;
         color: var(--muted);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: .6px;
         text-transform: uppercase;
@@ -1422,11 +1422,11 @@ body.qr-live-open {
 
 /* Icon colours match each tile's tinted background. */
 .campus-icon { color: var(--brand); }
-.building-icon { color: #b7791f; }
-.floor-icon { color: #3d7ea6; }
-.room-icon { color: #c2702a; }
+.building-icon { color: #8a5a00; }
+.floor-icon { color: #2f6a8e; }
+.room-icon { color: #9a5418; }
 .stat-icon-available { color: #3c8054; }
-.stat-icon-occupied { color: #b7791f; }
+.stat-icon-occupied { color: #8a5a00; }
 .stat-icon-maintenance { color: #c0504d; }
 
 .empty-state-icon,
@@ -1477,7 +1477,7 @@ body.qr-live-open {
     border-radius: 999px;
     background: var(--brand-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -1577,7 +1577,7 @@ body.qr-live-open {
     border-radius: 8px;
     background: var(--surface-soft);
     color: var(--ink-soft);
-    font-size: 11px;
+    font-size: 12px;
     white-space: pre-wrap;
 }
 
@@ -1702,7 +1702,7 @@ table.roomlink-table.load-table {
     padding-bottom: 8px;
     background: var(--surface-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -1716,7 +1716,7 @@ table.roomlink-table.load-table {
     display: block;
     margin-bottom: 6px;
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -2147,7 +2147,7 @@ input.profile-locked:focus {
     border-radius: 999px;
     background: var(--brand-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 [data-faculty-only][hidden] {
@@ -2261,7 +2261,7 @@ input.profile-locked:focus {
     background: var(--brand-soft);
     color: var(--brand);
     font-family: inherit;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
 }
@@ -2278,7 +2278,7 @@ input.profile-locked:focus {
 .term-picker-semesters small {
     display: block;
     margin-top: 2px;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 500;
     opacity: .85;
 }
@@ -2512,7 +2512,7 @@ input.profile-locked:focus {
 .live-figures span {
     margin-top: 2px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 a.program-tag {
@@ -2587,8 +2587,8 @@ table.roomlink-table.campus-table {
 }
 
 .brand span {
-    font-size: 9px;
-    white-space: nowrap;
+    font-size: 11px;
+    line-height: 1.35;
 }
 
 
@@ -2623,7 +2623,7 @@ table.roomlink-table.campus-table {
 .curriculum-programs .curriculum-group {
     background: var(--surface-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .5px;
     text-transform: uppercase;
@@ -2754,8 +2754,8 @@ table.roomlink-table.campus-table {
 
 .sidebar .nav-sub-label {
     padding: 8px 10px 2px 18px;
-    color: rgba(255, 255, 255, .55);
-    font-size: 9px;
+    color: rgba(255, 255, 255, .85);
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -2791,4 +2791,84 @@ table.roomlink-table.campus-table {
 /* A campus opened from the menu starts at the top of the page, not at its card. */
 .classroom-campus {
     scroll-margin-top: 2000px;
+}
+
+
+/* ---------------------------------------------------------
+   ACCESSIBILITY
+   --------------------------------------------------------- */
+
+/* First thing the Tab key reaches; jumps past the sidebar. */
+.skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    padding: 11px 18px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    outline: 3px solid var(--accent);
+    transform: none;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+/* A clear outline for keyboard users on everything that can be pressed. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.free-rooms {
+    padding-top: 8px;
+    border-top: 1px solid #efc4c4;
+    color: var(--ink);
+}
+
+.free-rooms button {
+    margin: 4px 6px 0 0;
+    padding: 5px 11px;
+    border: 1px solid var(--brand);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--brand);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.free-rooms button:hover {
+    background: var(--brand);
+    color: #fff;
+}
+
+/* Highlighted menu item: dark enough for its white text. */
+.sidebar-menu a.active,
+.sidebar-profile-link.active {
+    background: #34546a;
+}
+
+.action-edit {
+    color: #875500;
+}
+
+.required {
+    color: #b23a3a;
+}
+
+.roomlink-table small {
+    font-size: 11px;
 }

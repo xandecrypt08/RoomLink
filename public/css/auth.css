@@ -15,7 +15,7 @@
     --surface: #FFFFFF;
 
     --text: #183042;
-    --muted: #71818D;
+    --muted: #5f6e77;
 
     --border: #DCE4E8;
     --danger: #C75A5A;
@@ -205,7 +205,7 @@
 
     color: var(--muted);
 
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
 
     letter-spacing: 0.3px;
@@ -227,7 +227,7 @@
 
     color: var(--primary);
 
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
 
     letter-spacing: 1.5px;
@@ -293,7 +293,7 @@
 
     color: white;
 
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
 }
 
@@ -312,7 +312,7 @@
 
     color: #9B6666;
 
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.4;
 }
 
@@ -377,7 +377,7 @@
     align-items: center;
     justify-content: center;
 
-    color: var(--secondary);
+    color: var(--primary);
 
     font-size: 17px;
     font-weight: 700;
@@ -403,7 +403,7 @@
 }
 
 .input-wrapper input::placeholder {
-    color: #A5B0B7;
+    color: #5f6e77;
 }
 
 .password-toggle {
@@ -419,7 +419,7 @@
 
     font-family: inherit;
 
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
 
     cursor: pointer;
@@ -449,7 +449,7 @@
 
     color: var(--muted);
 
-    font-size: 11px;
+    font-size: 12px;
 
     cursor: pointer;
 }
@@ -524,7 +524,7 @@
 
     border-radius: 7px;
 
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, .18);
 
     font-size: 16px;
 }
@@ -537,7 +537,7 @@
 .login-device-note {
     margin: 18px 0 0;
 
-    color: #8b989f;
+    color: #5f6e77;
     font-size: 12px;
     text-align: center;
 }
@@ -562,7 +562,7 @@
 
     color: var(--muted);
 
-    font-size: 10px;
+    font-size: 11px;
 
     line-height: 1.5;
 }
@@ -570,7 +570,7 @@
 .login-footer span {
     color: var(--primary);
 
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
 
     letter-spacing: 0.2px;

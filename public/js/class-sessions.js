@@ -156,6 +156,33 @@
             line.textContent = message;
             notice.appendChild(line);
         });
+
+        if (result.free_rooms) {
+            showFreeRooms(result.free_rooms);
+        }
+    }
+
+    // Rooms free at that time; choosing one checks the form again.
+    function showFreeRooms(rooms) {
+        var box = document.createElement('div');
+
+        box.className = 'free-rooms';
+        box.textContent = rooms.length ? 'Free at that time: ' : 'No other room is free at that time.';
+
+        rooms.forEach(function (room) {
+            var button = document.createElement('button');
+
+            button.type = 'button';
+            button.textContent = room.label;
+            button.addEventListener('click', function () {
+                field('room_id').value = room.id;
+                field('room_id').dispatchEvent(new Event('input', { bubbles: true }));
+                field('room_id').focus();
+            });
+            box.appendChild(button);
+        });
+
+        notice.appendChild(box);
     }
 
     function checkConflicts() {

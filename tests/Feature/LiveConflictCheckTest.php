@@ -97,6 +97,23 @@ class LiveConflictCheckTest extends TestCase
             ->assertJsonPath('conflicts', []);
     }
 
+    public function test_free_rooms_are_suggested_when_the_room_is_taken(): void
+    {
+        $nearby = Room::factory()->create(['floor_id' => $this->existing->room->floor_id, 'room_name' => 'Z Nearby']);
+        $elsewhere = Room::factory()->create(['room_name' => 'A Elsewhere']);
+        Room::factory()->create(['status' => 'maintenance']);
+        ClassSession::factory()->create(['day' => 'W', 'start_time' => '09:00:00', 'end_time' => '10:00:00']);
+
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('schedules.check'), ['days' => ['M', 'W'], 'start_time' => '08:00', 'end_time' => '10:00', 'room_id' => $this->existing->room_id]);
+
+        $this->assertSame([$nearby->id, $elsewhere->id], array_column($response->json('free_rooms'), 'id'), 'Same building first; only rooms free on both days.');
+
+        $this->actingAs($this->admin)
+            ->postJson(route('schedules.check'), ['days' => ['M'], 'start_time' => '08:00', 'end_time' => '10:00', 'faculty_id' => $this->existing->faculty_id])
+            ->assertJsonMissingPath('free_rooms');
+    }
+
     public function test_only_administrators_can_check_the_class_form(): void
     {
         $this->actingAs(User::factory()->faculty()->create())

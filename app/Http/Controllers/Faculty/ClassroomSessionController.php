@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Faculty;
 
+use App\Actions\EndForgottenSessions;
 use App\Actions\EndRoomSession;
 use App\Actions\MarkClassNotHeld;
 use App\Actions\StartRoomSession;
@@ -205,6 +206,10 @@ class ClassroomSessionController extends Controller
         if ($faculty === null) {
             return [null, 'Your account is not linked to a faculty record yet. Please contact the administrator.', null];
         }
+
+        // A session someone forgot to end must not block this one.
+        app(EndForgottenSessions::class)->handle();
+        $room->refresh();
 
         if ($room->isUnderMaintenance()) {
             return [null, "{$room->room_name} is under maintenance and cannot be used right now.", null];

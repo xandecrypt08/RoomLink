@@ -10,7 +10,7 @@
     </div>
 
 
-    <nav class="sidebar-menu">
+    <nav class="sidebar-menu" aria-label="Main menu">
 
         <div class="sidebar-section-label">
             OVERVIEW

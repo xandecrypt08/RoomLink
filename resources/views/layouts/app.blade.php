@@ -27,6 +27,8 @@
 
 <body>
 
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <div class="dashboard-container">
 
         @php
@@ -47,7 +49,7 @@
 
             @include('components.topnav')
 
-            <section class="page-body">
+            <section class="page-body" id="main-content" tabindex="-1">
 
                 @yield('content')
 

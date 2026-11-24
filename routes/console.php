@@ -12,3 +12,8 @@ Artisan::command('inspire', function () {
 Schedule::command('roomlink:send-session-reminders')
     ->everyMinute()
     ->withoutOverlapping();
+
+/* Release rooms whose session was never ended */
+Schedule::command('roomlink:end-forgotten-sessions')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();

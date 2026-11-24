@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use App\Models\ClassSession;
+use App\Models\Room;
+use Illuminate\Support\Collection;
 
 /**
  * Schedule conflict detection (RLNK-20), shared by the admin Class Sessions
@@ -62,6 +64,34 @@ class ScheduleConflicts
         }
 
         return $errors;
+    }
+
+    /**
+     * Rooms free on every given day at the schedule's time, those in the same
+     * building first. Rooms under maintenance are left out.
+     *
+     * @param  array{academic_term_id: int, room_id: int, start_time: string, end_time: string}  $schedule
+     * @param  list<string>  $days
+     * @return Collection<int, Room>
+     */
+    public function freeRooms(array $schedule, array $days, ?int $ignoreId = null, int $limit = 6): Collection
+    {
+        $buildingId = Room::with('floor')->find($schedule['room_id'])?->floor?->building_id;
+
+        return Room::with('floor.building')
+            ->where('status', '!=', 'maintenance')
+            ->whereDoesntHave('classSessions', fn ($query) => $query
+                ->where('academic_term_id', $schedule['academic_term_id'])
+                ->whereIn('day', $days)
+                ->where('status', 'active')
+                ->where('start_time', '<', $schedule['end_time'])
+                ->where('end_time', '>', $schedule['start_time'])
+                ->when($ignoreId, fn ($query) => $query->whereKeyNot($ignoreId)))
+            ->orderBy('room_name')
+            ->get()
+            ->sortBy(fn (Room $room) => $room->floor?->building_id === $buildingId ? 0 : 1)
+            ->take($limit)
+            ->values();
     }
 
     /**

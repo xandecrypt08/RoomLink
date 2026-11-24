@@ -141,11 +141,24 @@ class ClassSessionController extends Controller
             'status' => $request->input('status') ?? 'active',
         ];
 
-        return response()->json([
-            'conflicts' => (object) $this->conflicts($class, $edited?->id),
+        $conflicts = $this->conflicts($class, $edited?->id);
+
+        $answer = [
+            'conflicts' => (object) $conflicts,
             'complete' => $class['days'] !== [] && $class['room_id'] > 0
                 && $request->filled('faculty_id') && $request->filled('section_name'),
-        ]);
+        ];
+
+        if (isset($conflicts['room_id'])) {
+            $answer['free_rooms'] = app(ScheduleConflicts::class)
+                ->freeRooms($class, $class['days'], $edited?->id)
+                ->map(fn (Room $room): array => [
+                    'id' => $room->id,
+                    'label' => $room->room_name.($room->floor?->building ? ' · '.$room->floor->building->building_name : ''),
+                ]);
+        }
+
+        return response()->json($answer);
     }
 
     /**

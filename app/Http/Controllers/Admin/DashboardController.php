@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\EndForgottenSessions;
 use App\Http\Controllers\Controller;
 use App\Models\Building;
 use App\Models\Campus;
@@ -56,6 +57,8 @@ class DashboardController extends Controller
      */
     private function liveSummary(): array
     {
+        app(EndForgottenSessions::class)->handle();
+
         $now = now();
         $rooms = Room::with('floor.building.campus')->orderBy('room_name')->get();
 
