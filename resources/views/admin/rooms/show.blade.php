@@ -21,6 +21,13 @@
     <div class="page-header-actions">
 
         <a
+            href="{{ route('timetable', ['type' => 'room', 'id' => $room->id]) }}"
+            class="btn-secondary"
+        >
+            Timetable
+        </a>
+
+        <a
             href="{{ route('rooms.qr', $room) }}"
             class="btn-secondary"
         >

@@ -25,6 +25,14 @@
         </a>
 
         <a
+            href="{{ route('timetable') }}"
+            class="{{ request()->routeIs('timetable') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="calendar" /></span>
+            <span>Timetables</span>
+        </a>
+
+        <a
             href="{{ route('faculty-locator.index') }}"
             class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >

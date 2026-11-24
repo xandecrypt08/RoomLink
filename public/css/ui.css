@@ -2811,11 +2811,13 @@ table.roomlink-table.campus-table {
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
+    opacity: 0;
     transform: translateY(-200%);
 }
 
 .skip-link:focus {
     outline: 3px solid var(--accent);
+    opacity: 1;
     transform: none;
 }
 
@@ -2871,4 +2873,161 @@ summary:focus-visible {
 
 .roomlink-table small {
     font-size: 11px;
+}
+
+
+/* ---------------------------------------------------------
+   WEEKLY TIMETABLE
+   --------------------------------------------------------- */
+
+.timetable-card {
+    padding: 18px;
+}
+
+.timetable {
+    display: grid;
+    grid-template-columns: 62px repeat(var(--days), minmax(96px, 1fr));
+    grid-template-rows: auto repeat(var(--rows), 5px);
+    overflow-x: auto;
+}
+
+.timetable-day {
+    grid-row: 1;
+    padding: 8px 4px;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.timetable-column {
+    grid-row: 2 / -1;
+    border-left: 1px solid var(--line);
+}
+
+.timetable-hour {
+    grid-column: 1;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1;
+}
+
+.timetable-line {
+    grid-column: 2 / -1;
+    border-top: 1px solid var(--line);
+}
+
+.timetable-class {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 1px 3px;
+    padding: 6px 8px;
+    border-left: 4px solid var(--accent);
+    border-radius: 7px;
+    background: #e3edf3;
+    color: var(--ink);
+    font-size: 11px;
+    line-height: 1.35;
+    overflow: hidden;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+.timetable-class strong {
+    font-size: 12px;
+}
+
+.timetable-class-day {
+    display: none;
+}
+
+@media screen and (max-width: 760px) {
+
+    /* A list by day reads better than a tiny grid. */
+    .timetable {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        gap: 8px;
+    }
+
+    .timetable-day,
+    .timetable-column,
+    .timetable-hour,
+    .timetable-line {
+        display: none;
+    }
+
+    .timetable-class {
+        grid-column: 1 !important;
+        grid-row: auto !important;
+        margin: 0;
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .timetable-class-day {
+        display: block;
+        color: var(--brand);
+        font-weight: 700;
+    }
+}
+
+/* ---------------------------------------------------------
+   STUDENT SEARCH, ISSUE PHOTO, INSTALL HELP
+   --------------------------------------------------------- */
+
+.free-now {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.table-search .free-now {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+}
+
+.table-search .free-now input {
+    flex: none;
+    width: 18px;
+    min-width: 0;
+    height: 18px;
+    accent-color: var(--brand);
+}
+
+.issue-photo img {
+    display: block;
+    max-width: 100%;
+    max-height: 320px;
+    margin-top: 16px;
+    border-radius: 10px;
+}
+
+.install-help {
+    margin-top: 18px;
+    padding: 18px 20px;
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.install-help summary {
+    color: var(--ink);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* My Schedule lists the same classes in a table below. */
+@media screen and (max-width: 760px) {
+    .wide-only {
+        display: none;
+    }
 }

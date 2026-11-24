@@ -65,6 +65,9 @@
                             </td>
                             <td>
                                 <div class="table-primary">{{ $issue->category_label }}</div>
+                                @if($issue->photo)
+                                    <a href="{{ route('room-issues.photo', $issue) }}" target="_blank">View photo</a>
+                                @endif
                                 <div class="table-secondary">{{ $issue->description ?: ($issue->qr_replacement_requested ? 'Replacement QR code requested' : '') }}</div>
                             </td>
                             <td class="nowrap">{{ $issue->created_at->format('M j, Y g:i A') }}</td>

@@ -68,6 +68,12 @@
             @endif
         </div>
 
+        @if($issue->photo)
+            <a href="{{ route('room-issues.photo', $issue) }}" target="_blank" class="issue-photo">
+                <img src="{{ route('room-issues.photo', $issue) }}" alt="Photo of the issue in {{ $issue->room->room_name }}, sent by {{ $issue->reporter->full_name }}">
+            </a>
+        @endif
+
         @if($issue->isQrIssue() && ! $issue->isResolved())
             <div class="issue-qr">
                 <p>{{ $issue->qr_replacement_requested ? 'A replacement QR code was requested.' : 'The QR code was reported as damaged.' }}</p>

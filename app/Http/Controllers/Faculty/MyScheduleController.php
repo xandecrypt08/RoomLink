@@ -18,16 +18,16 @@ class MyScheduleController extends Controller
     {
         $faculty = $request->user()->faculty;
 
-        $classesByDay = $faculty === null ? collect() : $faculty->classSessions()
+        $classes = $faculty === null ? collect() : $faculty->classSessions()
             ->with(['room.floor.building', 'subject', 'section'])
             ->inTerm(SelectedTerm::get())
             ->where('status', 'active')
             ->orderedByWeek()
-            ->get()
-            ->groupBy('day');
+            ->get();
 
         return view('faculty.schedule.index', [
-            'classesByDay' => $classesByDay,
+            'classes' => $classes,
+            'classesByDay' => $classes->groupBy('day'),
             'dayNames' => ClassSession::DAY_NAMES,
         ]);
     }

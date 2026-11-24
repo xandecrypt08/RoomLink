@@ -62,6 +62,14 @@
             <span>Class Sessions</span>
         </a>
 
+        <a
+            href="{{ route('timetable') }}"
+            class="{{ request()->routeIs('timetable') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="calendar" /></span>
+            <span>Timetables</span>
+        </a>
+
 
         <div class="sidebar-section-label">
             MAINTENANCE AND REPORTS
