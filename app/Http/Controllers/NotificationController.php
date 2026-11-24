@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+/**
+ * Notifications of faculty members and administrators.
+ */
 class NotificationController extends Controller
 {
     /**
-     * Show the faculty member's notifications, newest first.
+     * Show the user's notifications, newest first.
      * Unread ones are highlighted on this visit, then marked as read.
      */
     public function index(Request $request): View
@@ -30,7 +32,7 @@ class NotificationController extends Controller
             ->whereIn('id', $unreadIds)
             ->update(['read_at' => now()]);
 
-        return view('faculty.notifications.index', compact('notifications', 'unreadIds'));
+        return view('notifications.index', compact('notifications', 'unreadIds'));
     }
 
     public function markAllRead(Request $request): RedirectResponse
@@ -38,7 +40,7 @@ class NotificationController extends Controller
         $request->user()->unreadNotifications()->update(['read_at' => now()]);
 
         return redirect()
-            ->route('faculty.notifications.index')
+            ->route($request->user()->isAdmin() ? 'admin.notifications.index' : 'faculty.notifications.index')
             ->with('success', 'All notifications marked as read.');
     }
 }

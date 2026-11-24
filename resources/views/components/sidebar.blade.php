@@ -88,6 +88,35 @@
 
 
         <div class="sidebar-section-label">
+            MAINTENANCE AND REPORTS
+        </div>
+
+        <a
+            href="{{ route('room-issues.index') }}"
+            class="{{ request()->routeIs('room-issues.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="wrench" /></span>
+            <span>Room Issues</span>
+
+            @php
+                $pendingIssues = \App\Models\RoomIssue::where('status', \App\Models\RoomIssue::STATUS_PENDING)->count();
+            @endphp
+
+            @if($pendingIssues > 0)
+                <span class="menu-badge">{{ $pendingIssues }}</span>
+            @endif
+        </a>
+
+        <a
+            href="{{ route('reports.utilization') }}"
+            class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="chart" /></span>
+            <span>Reports</span>
+        </a>
+
+
+        <div class="sidebar-section-label">
             SYSTEM
         </div>
 

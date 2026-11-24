@@ -87,6 +87,8 @@ class RoomController extends Controller
         $room->load([
             'floor.building.campus',
             'facilities',
+            'currentMaintenance.starter',
+            'issues' => fn ($query) => $query->open()->latest('id'),
             'classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.subject',
@@ -133,6 +135,12 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
+        if ($room->issues()->exists() || $room->maintenances()->exists()) {
+            return redirect()
+                ->route('classrooms.index')
+                ->with('error', 'This room cannot be deleted because it has issue reports or maintenance history.');
+        }
+
         if ($room->classSessions()->exists() || $room->roomSessions()->exists()) {
             return redirect()
                 ->route('classrooms.index')

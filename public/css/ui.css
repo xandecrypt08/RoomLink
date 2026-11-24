@@ -2318,3 +2318,246 @@ input.profile-locked:focus {
         max-width: none;
     }
 }
+
+
+/* ---------------------------------------------------------
+   ROOM ISSUES, MAINTENANCE AND REPORTS
+   --------------------------------------------------------- */
+
+.issue-pending {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.issue-acknowledged {
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.issue-in_progress {
+    background: var(--warn-soft);
+    color: var(--warn);
+}
+
+.issue-resolved {
+    background: var(--ok-soft);
+    color: var(--ok);
+}
+
+[data-qr-only][hidden],
+[data-description-required][hidden] {
+    display: none;
+}
+
+.issue-steps {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+}
+
+.issue-steps li {
+    flex: 1;
+    padding: 10px 6px;
+    border-top: 4px solid #dfe6ea;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.issue-steps .done {
+    border-color: var(--ok);
+    color: var(--ok);
+}
+
+.issue-steps .current {
+    border-color: var(--accent);
+    color: var(--ink);
+}
+
+.issue-qr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.issue-qr p {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 13px;
+}
+
+.room-maintenance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 18px;
+    padding: 18px 20px;
+}
+
+.details-grid + .room-maintenance {
+    margin-top: 18px;
+}
+
+.room-maintenance.is-closed {
+    border-left: 4px solid var(--danger);
+}
+
+.room-maintenance h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 15px;
+}
+
+.room-maintenance p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.room-maintenance form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.room-maintenance input[type="text"],
+.report-filters select,
+.report-filters input {
+    padding: 9px 12px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.report-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 18px;
+    padding: 20px;
+}
+
+.report-filters label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.report-filters select,
+.report-filters input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.report-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    gap: 8px;
+}
+
+.dashboard-stats ~ .content-card + .content-card {
+    margin-top: 18px;
+}
+
+.live-updated {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.live-figures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px 0 8px;
+}
+
+.live-figures > * {
+    padding: 12px 6px;
+    border-radius: 10px;
+    background: var(--surface-soft);
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+}
+
+.live-figures strong,
+.live-figures span {
+    display: block;
+}
+
+.live-figures strong {
+    color: var(--ink);
+    font-size: 17px;
+}
+
+.live-figures span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+a.program-tag {
+    text-decoration: none;
+}
+
+.campus-table th,
+.campus-table td {
+    padding: 9px 8px;
+}
+
+table.roomlink-table.campus-table {
+    min-width: 0;
+}
+
+@media print {
+
+    .sidebar,
+    .topbar,
+    .no-print,
+    .table-pagination {
+        display: none !important;
+    }
+
+    .content,
+    .page-body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body,
+    .content {
+        background: #fff !important;
+    }
+
+    .content-card {
+        break-inside: auto;
+        box-shadow: none !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+}

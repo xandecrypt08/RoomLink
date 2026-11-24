@@ -30,6 +30,21 @@ class Room extends Model
                 $room->qr_code = self::newQrCode();
             }
         });
+
+        // However the status changes, the maintenance history follows it.
+        static::saved(function (Room $room) {
+            if (! $room->wasRecentlyCreated && ! $room->wasChanged('status')) {
+                return;
+            }
+
+            $open = $room->maintenances()->whereNull('ended_at');
+
+            if (! $room->isUnderMaintenance()) {
+                $open->update(['ended_at' => now(), 'ended_by' => auth()->id()]);
+            } elseif (! $open->exists()) {
+                $room->maintenances()->create(['started_at' => now(), 'started_by' => auth()->id()]);
+            }
+        });
     }
 
     /**
@@ -99,6 +114,55 @@ class Room extends Model
     public function activeSession(): HasOne
     {
         return $this->hasOne(RoomSession::class)->active();
+    }
+
+    public function issues(): HasMany
+    {
+        return $this->hasMany(RoomIssue::class);
+    }
+
+    /**
+     * Every period the room was under maintenance.
+     */
+    public function maintenances(): HasMany
+    {
+        return $this->hasMany(RoomMaintenance::class);
+    }
+
+    /**
+     * The maintenance going on now, if any.
+     */
+    public function currentMaintenance(): HasOne
+    {
+        return $this->hasOne(RoomMaintenance::class)->whereNull('ended_at')->latestOfMany();
+    }
+
+    /**
+     * Take the room out of use. A session already running may finish, but no
+     * new one can be started until the room is restored.
+     */
+    public function startMaintenance(?string $reason = null, ?RoomIssue $issue = null): void
+    {
+        DB::transaction(function () use ($reason, $issue): void {
+            $room = self::query()->lockForUpdate()->findOrFail($this->id);
+            $room->update(['status' => 'maintenance']);
+            $room->currentMaintenance()->first()?->update(['reason' => $reason, 'room_issue_id' => $issue?->id]);
+        });
+
+        $this->refresh();
+    }
+
+    /**
+     * Put the room back in use.
+     */
+    public function endMaintenance(): void
+    {
+        DB::transaction(function (): void {
+            $room = self::query()->lockForUpdate()->findOrFail($this->id);
+            $room->update(['status' => $room->activeSession()->exists() ? 'occupied' : 'available']);
+        });
+
+        $this->refresh();
     }
 
     /**

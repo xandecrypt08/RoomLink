@@ -228,6 +228,15 @@
 
                                         <div class="table-actions">
                                             <a href="{{ route('rooms.qr', $room) }}" class="action-view">QR</a>
+
+                                            @if($room->isUnderMaintenance())
+                                                <form method="POST" action="{{ route('rooms.maintenance.destroy', $room) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="action-view">Restore</button>
+                                                </form>
+                                            @endif
+
                                             <button type="button" class="action-edit" data-open="room" data-title="Edit {{ $room->room_name }}" data-record="{{ $room->id }}" data-values="{{ json_encode($roomValues) }}" @if($editRoomId === $room->id) data-open-now @endif>Edit</button>
 
                                             <form method="POST" action="{{ route('rooms.destroy', $room) }}" onsubmit="return confirm('Delete this room?');">

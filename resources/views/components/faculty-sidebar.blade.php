@@ -77,6 +77,14 @@
         </a>
 
         <a
+            href="{{ route('faculty.issues.index') }}"
+            class="{{ request()->routeIs('faculty.issues.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="wrench" /></span>
+            <span>Report an Issue</span>
+        </a>
+
+        <a
             href="{{ route('faculty-locator.index') }}"
             class="{{ request()->routeIs('faculty-locator.*') ? 'active' : '' }}"
         >

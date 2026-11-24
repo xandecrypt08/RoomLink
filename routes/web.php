@@ -11,7 +11,10 @@ use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\FloorController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\RoomIssueController;
+use App\Http\Controllers\Admin\RoomMaintenanceController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\SubjectImportController;
@@ -22,11 +25,12 @@ use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Faculty\MyScheduleController;
-use App\Http\Controllers\Faculty\NotificationController;
+use App\Http\Controllers\Faculty\RoomIssueController as FacultyRoomIssueController;
 use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\TeachingLoadController;
@@ -66,6 +70,34 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
+
+    Route::get('/dashboard/live', [DashboardController::class, 'live'])
+        ->name('admin.dashboard.live');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('admin.notifications.index');
+
+    Route::post('/notifications/read', [NotificationController::class, 'markAllRead'])
+        ->name('admin.notifications.read');
+
+    /* Room issues (RLNK-33) and room maintenance (RLNK-34) */
+    Route::resource('room-issues', RoomIssueController::class)->only(['index', 'show', 'update']);
+
+    Route::post('/room-issues/{roomIssue}/replace-qr', [RoomIssueController::class, 'replaceQr'])
+        ->name('room-issues.replace-qr');
+
+    Route::post('/rooms/{room}/maintenance', [RoomMaintenanceController::class, 'store'])
+        ->name('rooms.maintenance.store');
+
+    Route::delete('/rooms/{room}/maintenance', [RoomMaintenanceController::class, 'destroy'])
+        ->name('rooms.maintenance.destroy');
+
+    /* Reports (RLNK-35, RLNK-36) */
+    Route::get('/reports/utilization', [ReportController::class, 'utilization'])
+        ->name('reports.utilization');
+
+    Route::get('/reports/maintenance', [ReportController::class, 'maintenance'])
+        ->name('reports.maintenance');
 
     Route::post('/academic-terms/{academicTerm}/current', [AcademicTermController::class, 'makeCurrent'])
         ->name('academic-terms.current');
@@ -219,6 +251,11 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/temporary-requests/{temporaryClassroomRequest}/reject', [TemporaryClassroomRequestDecisionController::class, 'reject'])
         ->name('faculty.temporary-requests.reject');
+
+    /* Report a room issue or damaged QR code (RLNK-31, RLNK-32) */
+    Route::resource('issues', FacultyRoomIssueController::class)
+        ->only(['index', 'create', 'store'])
+        ->names('faculty.issues');
 
     /* Notifications (RLNK-30) */
     Route::get('/notifications', [NotificationController::class, 'index'])

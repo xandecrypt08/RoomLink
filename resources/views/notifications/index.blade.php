@@ -8,19 +8,19 @@
 
     <div>
 
-        <span class="page-eyebrow">FACULTY PORTAL</span>
+        <span class="page-eyebrow">{{ auth()->user()->isAdmin() ? 'ROOMLINK ADMINISTRATION' : 'FACULTY PORTAL' }}</span>
 
         <h1>Notifications</h1>
 
         <p>
-            Class reminders and updates on temporary classroom requests.
+            {{ auth()->user()->isAdmin() ? 'Room issues reported by faculty.' : 'Class reminders and updates on your requests and reports.' }}
         </p>
 
     </div>
 
     <div class="page-header-actions">
 
-        <a href="{{ route('faculty.dashboard') }}" class="btn btn-secondary">
+        <a href="{{ route(auth()->user()->dashboardRoute()) }}" class="btn btn-secondary">
             ← Back to Dashboard
         </a>
 
@@ -50,7 +50,7 @@
         </div>
 
         @if(auth()->user()->unreadNotifications()->exists())
-            <form method="POST" action="{{ route('faculty.notifications.read') }}">
+            <form method="POST" action="{{ route(auth()->user()->isAdmin() ? 'admin.notifications.read' : 'faculty.notifications.read') }}">
                 @csrf
 
                 <button type="submit" class="btn btn-secondary">
@@ -94,6 +94,10 @@
                                 @endif
 
                                 {{ $notification->data['message'] ?? 'Notification' }}
+
+                                @isset($notification->data['room_issue_id'])
+                                    <a href="{{ auth()->user()->isAdmin() ? route('room-issues.show', $notification->data['room_issue_id']) : route('faculty.issues.index') }}">View</a>
+                                @endisset
                             </td>
 
                             <td class="nowrap">
