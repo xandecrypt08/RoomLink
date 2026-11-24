@@ -1,28 +1,24 @@
 @extends('layouts.admin')
 
-@section('title', 'Classrooms')
+@section('title', 'Campuses')
 
 @section('content')
-
-@php
-    $roomCount = $floors->sum(fn ($floor) => $floor->rooms->count());
-@endphp
 
 <div class="classroom-page" data-record-page>
 
 <div class="page-header">
 
     <div>
-        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
-        <h1>Classrooms</h1>
-        <p>Campuses, buildings, floors, rooms and facilities in one place.</p>
+        <span class="page-eyebrow">CAMPUS MANAGEMENT</span>
+        <h1 data-campus-title>Campuses</h1>
+        <p>The buildings, floors and rooms of each campus, and the facilities in them.</p>
     </div>
 
     <div class="page-header-actions">
         <button type="button" class="btn btn-secondary" data-open="campus" data-title="Add Campus">+ Campus</button>
 
         @if($campuses->isNotEmpty())
-            <button type="button" class="btn btn-secondary" data-open="building" data-title="Add Building" data-values="{{ json_encode($campuses->count() === 1 ? ['campus_id' => $campuses->first()->id] : (object) []) }}">+ Building</button>
+            <button type="button" class="btn btn-secondary" data-open="building" data-title="Add Building" data-campus-preset data-values="{{ json_encode($campuses->count() === 1 ? ['campus_id' => $campuses->first()->id] : (object) []) }}">+ Building</button>
         @endif
 
         @if($floors->isNotEmpty())
@@ -44,15 +40,10 @@
 
 <div class="content-card classroom-toolbar">
 
-    <div class="classroom-counts">
-        <span><strong>{{ $campuses->count() }}</strong> {{ Str::plural('campus', $campuses->count()) }}</span>
-        <span><strong>{{ $buildings->count() }}</strong> {{ Str::plural('building', $buildings->count()) }}</span>
-        <span><strong>{{ $floors->count() }}</strong> {{ Str::plural('floor', $floors->count()) }}</span>
-        <span><strong>{{ $roomCount }}</strong> {{ Str::plural('room', $roomCount) }}</span>
-    </div>
+    <p class="table-secondary"><span data-campus-scope>All campuses</span> <a href="#all" data-show-all hidden>Show all campuses</a></p>
 
     <div class="table-search">
-        <input type="search" placeholder="Search rooms, buildings, facilities..." aria-label="Search classrooms" data-classroom-search>
+        <input type="search" placeholder="Search rooms, buildings, facilities..." aria-label="Search rooms and buildings" data-classroom-search>
 
         <select aria-label="Room status" data-classroom-status>
             <option value="">All statuses</option>
@@ -67,45 +58,26 @@
 </div>
 
 
-<div class="content-card classroom-facilities">
-
-    <div class="classroom-head">
-        <div>
-            <h2>Facilities</h2>
-            <p>Equipment you can tick on any room. Click one to rename or delete it.</p>
-        </div>
-
-        <button type="button" class="btn btn-secondary" data-open="facility" data-title="Add Facility">+ Facility</button>
-    </div>
-
-    <div class="program-tags">
-        @forelse($facilities as $facility)
-            <button
-                type="button"
-                class="program-tag classroom-chip"
-                data-open="facility"
-                data-title="Edit Facility"
-                data-record="{{ $facility->id }}"
-                data-values="{{ json_encode(['facility_name' => $facility->facility_name]) }}"
-                data-delete-url="{{ route('facilities.destroy', $facility) }}"
-            >{{ $facility->facility_name }} · {{ $facility->rooms_count }} {{ Str::plural('room', $facility->rooms_count) }}</button>
-        @empty
-            <span class="table-secondary">No facilities yet.</span>
-        @endforelse
-    </div>
-
-</div>
-
-
 @forelse($campuses as $campus)
 
-    <section class="content-card classroom-campus" data-campus>
+    <section class="content-card classroom-campus" id="campus-{{ $campus->id }}" data-campus data-campus-id="{{ $campus->id }}" data-campus-name="{{ $campus->campus_name }}">
 
         <div class="classroom-head">
 
             <div>
                 <h2><x-icon name="landmark" /> {{ $campus->campus_name }}</h2>
                 <p>{{ collect([$campus->campus_code, $campus->address])->filter()->implode(' · ') }}</p>
+
+                @php
+                    $campusFloors = $campus->buildings->flatMap(fn ($building) => $building->floors);
+                    $campusRoomCount = $campusFloors->sum(fn ($floor) => $floor->rooms->count());
+                @endphp
+
+                <div class="classroom-counts">
+                    <span><strong>{{ $campus->buildings->count() }}</strong> {{ Str::plural('building', $campus->buildings->count()) }}</span>
+                    <span><strong>{{ $campusFloors->count() }}</strong> {{ Str::plural('floor', $campusFloors->count()) }}</span>
+                    <span><strong>{{ $campusRoomCount }}</strong> {{ Str::plural('room', $campusRoomCount) }}</span>
+                </div>
             </div>
 
             <div class="table-actions">
@@ -228,6 +200,15 @@
 
                                         <div class="table-actions">
                                             <a href="{{ route('rooms.qr', $room) }}" class="action-view">QR</a>
+
+                                            @if($room->isUnderMaintenance())
+                                                <form method="POST" action="{{ route('rooms.maintenance.destroy', $room) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="action-view">Restore</button>
+                                                </form>
+                                            @endif
+
                                             <button type="button" class="action-edit" data-open="room" data-title="Edit {{ $room->room_name }}" data-record="{{ $room->id }}" data-values="{{ json_encode($roomValues) }}" @if($editRoomId === $room->id) data-open-now @endif>Edit</button>
 
                                             <form method="POST" action="{{ route('rooms.destroy', $room) }}" onsubmit="return confirm('Delete this room?');">
@@ -279,8 +260,38 @@
 <div class="content-card" data-no-results hidden>
     <div class="small-empty-state">
         <strong>Nothing matches your search</strong>
-        <span>Try another room, building or facility.</span>
+        <span>Try another room, building, facility or campus.</span>
     </div>
+</div>
+
+
+<div class="content-card classroom-facilities">
+
+    <div class="classroom-head">
+        <div>
+            <h2>Facilities</h2>
+            <p>Equipment you can tick on any room. Click one to rename or delete it.</p>
+        </div>
+
+        <button type="button" class="btn btn-secondary" data-open="facility" data-title="Add Facility">+ Facility</button>
+    </div>
+
+    <div class="program-tags">
+        @forelse($facilities as $facility)
+            <button
+                type="button"
+                class="program-tag classroom-chip"
+                data-open="facility"
+                data-title="Edit Facility"
+                data-record="{{ $facility->id }}"
+                data-values="{{ json_encode(['facility_name' => $facility->facility_name]) }}"
+                data-delete-url="{{ route('facilities.destroy', $facility) }}"
+            >{{ $facility->facility_name }} · {{ $facility->rooms_count }} {{ Str::plural('room', $facility->rooms_count) }}</button>
+        @empty
+            <span class="table-secondary">No facilities yet.</span>
+        @endforelse
+    </div>
+
 </div>
 
 

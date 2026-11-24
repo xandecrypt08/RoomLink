@@ -15,7 +15,7 @@ class AssetVersioningTest extends TestCase
         $version = filemtime(public_path('css/ui.css'));
 
         $this->actingAs(User::factory()->admin()->create())
-            ->get(route('subjects.index'))
+            ->get(route('curriculum.index'))
             ->assertOk()
             ->assertSee('css/ui.css?v='.$version, false);
 

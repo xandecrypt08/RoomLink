@@ -1,12 +1,16 @@
 <aside class="sidebar" id="sidebar">
 
     <div class="brand">
-        <h2>RoomLink</h2>
-        <span>Smart Spaces. Seamless Classes.</span>
+        <img src="{{ \App\Support\Asset::url('images/logo.svg') }}" alt="" class="brand-logo">
+
+        <div>
+            <h2>RoomLink</h2>
+            <span>Smart Spaces. Seamless Classes.</span>
+        </div>
     </div>
 
 
-    <nav class="sidebar-menu">
+    <nav class="sidebar-menu" aria-label="Main menu">
 
         <div class="sidebar-section-label">
             OVERVIEW
@@ -74,6 +78,14 @@
             @if($unreadRequests > 0)
                 <span class="menu-badge">{{ $unreadRequests }}</span>
             @endif
+        </a>
+
+        <a
+            href="{{ route('faculty.issues.index') }}"
+            class="{{ request()->routeIs('faculty.issues.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="wrench" /></span>
+            <span>Report an Issue</span>
         </a>
 
         <a

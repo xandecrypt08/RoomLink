@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div data-record-page data-session-page>
+<div data-record-page data-session-page data-check-url="{{ route('schedules.check') }}">
 
 <div class="page-header">
 
@@ -15,6 +15,8 @@
     </div>
 
     <div class="page-header-actions">
+        <x-term-picker />
+
         <button type="button" class="btn btn-secondary" data-open="load" data-title="Import Teaching Load" data-values="{{ json_encode($facultyId ? ['faculty_id' => $facultyId] : (object) []) }}" @if($openForm === 'load') data-open-now @endif>
             Import Teaching Load
         </button>
@@ -35,9 +37,11 @@
     <div class="alert alert-error">{{ session('error') }}</div>
 @endif
 
+<x-term-notice />
+
 @if($rooms->isEmpty())
     <div class="alert alert-warning">
-        There are no rooms yet, and every class needs one. <a href="{{ route('classrooms.index') }}">Add rooms in Classrooms</a> first.
+        There are no rooms yet, and every class needs one. <a href="{{ route('classrooms.index') }}">Add rooms in Campuses</a> first.
     </div>
 @endif
 
@@ -200,7 +204,7 @@
 
         <div class="empty-state">
             <div class="empty-state-icon"><x-icon name="clock" /></div>
-            <h3>No class sessions yet</h3>
+            <h3>No class sessions in {{ $term->label }} yet</h3>
             <p>Import a faculty member's teaching load, or add a class. New subjects and sections are created as you go.</p>
         </div>
 
@@ -212,6 +216,8 @@
 {{-- Pop-up forms --}}
 
 <x-record-dialog kind="session" :store-url="route('schedules.store')" :update-url="route('schedules.update', '__ID__')">
+
+    <input type="hidden" name="academic_term_id" value="{{ $term->id }}">
 
     <div class="form-row">
         <div class="form-group">
@@ -317,6 +323,8 @@
         <textarea id="session_description" name="description" rows="2" maxlength="500"></textarea>
     </div>
 
+    <div class="live-conflicts" data-live-conflicts role="status" aria-live="polite" hidden></div>
+
     <x-slot:actions>
         <button type="submit" name="another" value="1" class="btn btn-secondary" data-add-only>Save and add another</button>
     </x-slot:actions>
@@ -353,6 +361,8 @@
 </form>
 
 <x-record-dialog kind="load" :store-url="route('schedules.import.preview')" submit="Find Classes" :upload="true">
+    <input type="hidden" name="academic_term_id" value="{{ $term->id }}">
+
     <div class="form-group">
         <label for="load_faculty">Faculty member <span class="required">*</span></label>
         <select id="load_faculty" name="faculty_id" required>
@@ -371,15 +381,15 @@
         <span class="form-help">PDF, Excel (.xlsx or .csv), Word (.docx), or a photo. Up to 25 MB. You review every class before anything is saved.</span>
     </div>
     <div class="form-group">
-        <label>These classes</label>
+        <label>These classes ({{ $term->label }})</label>
         <div class="facility-options">
             <label class="facility-option">
                 <input type="radio" name="mode" value="add" checked>
-                <span><strong>Add</strong> to the current schedule</span>
+                <span><strong>Add</strong> to this semester's schedule</span>
             </label>
             <label class="facility-option">
                 <input type="radio" name="mode" value="replace">
-                <span><strong>Replace</strong> it; current classes become inactive</span>
+                <span><strong>Replace</strong> it; this semester's classes become inactive</span>
             </label>
         </div>
     </div>

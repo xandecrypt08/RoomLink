@@ -126,6 +126,116 @@
         }
     });
 
+    /*
+     * Conflict warnings while the form is being filled in. The server checks
+     * with the same rules it uses when saving.
+     */
+
+    var notice = dialog.querySelector('[data-live-conflicts]');
+    var timer = null;
+    var latest = 0;
+
+    function showConflicts(result) {
+        var messages = [];
+
+        ['room_id', 'faculty_id', 'section_name', 'end_time'].forEach(function (name) {
+            // The server names the section by its record.
+            var found = result.conflicts[name === 'section_name' ? 'section_id' : name] || [];
+
+            field(name).classList.toggle('has-conflict', found.length > 0);
+            messages = messages.concat(found);
+        });
+
+        notice.textContent = '';
+        notice.hidden = messages.length === 0 && !result.complete;
+        notice.classList.toggle('is-clear', messages.length === 0);
+
+        (messages.length ? messages : ['No conflicts. The room, faculty and section are free.']).forEach(function (message) {
+            var line = document.createElement('div');
+
+            line.textContent = message;
+            notice.appendChild(line);
+        });
+
+        if (result.free_rooms) {
+            showFreeRooms(result.free_rooms);
+        }
+    }
+
+    // Rooms free at that time; choosing one checks the form again.
+    function showFreeRooms(rooms) {
+        var box = document.createElement('div');
+
+        box.className = 'free-rooms';
+        box.textContent = rooms.length ? 'Free at that time: ' : 'No other room is free at that time.';
+
+        rooms.forEach(function (room) {
+            var button = document.createElement('button');
+
+            button.type = 'button';
+            button.textContent = room.label;
+            button.addEventListener('click', function () {
+                field('room_id').value = room.id;
+                field('room_id').dispatchEvent(new Event('input', { bubbles: true }));
+                field('room_id').focus();
+            });
+            box.appendChild(button);
+        });
+
+        notice.appendChild(box);
+    }
+
+    function checkConflicts() {
+        var request = ++latest;
+        var data = new FormData(form);
+
+        // The form's own method is for saving an edit.
+        data.delete('_method');
+
+        fetch(page.dataset.checkUrl, {
+            method: 'POST',
+            body: data,
+            headers: { Accept: 'application/json' }
+        }).then(function (response) {
+            return response.ok ? response.json() : Promise.reject();
+        }).then(function (result) {
+            // A slower answer to an earlier choice is out of date.
+            if (request === latest) {
+                showConflicts(result);
+            }
+        }).catch(function () {
+            // Can't check right now; saving still checks for conflicts.
+            if (request === latest) {
+                showConflicts({ conflicts: {}, complete: false });
+            }
+        });
+    }
+
+    function scheduleCheck() {
+        clearTimeout(timer);
+        timer = setTimeout(checkConflicts, 250);
+    }
+
+    form.addEventListener('input', function () {
+        var errors = dialog.querySelector('[data-dialog-errors]');
+
+        // Errors from the last save don't describe the changed form.
+        if (errors) {
+            errors.remove();
+        }
+
+        // Nothing is known to be free until the change has been checked.
+        latest++;
+        notice.hidden = notice.hidden || notice.classList.contains('is-clear');
+        scheduleCheck();
+    });
+
+    dialog.addEventListener('dialog:filled', function () {
+        latest++;
+        showConflicts({ conflicts: {}, complete: false });
+        scheduleCheck();
+    });
+
     /* Reading a photo or scan takes a while; show it and prevent a second upload. */
 
     var load = page.querySelector('[data-dialog="load"]');

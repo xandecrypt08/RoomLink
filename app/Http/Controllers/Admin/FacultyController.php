@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Faculty;
+use App\Support\SelectedTerm;
 use Illuminate\Http\Request;
 
 class FacultyController extends Controller
@@ -12,7 +13,7 @@ class FacultyController extends Controller
     {
         $search = $request->input('search');
 
-        $faculties = Faculty::withCount('classSessions')
+        $faculties = Faculty::withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('employee_id', 'like', "%{$search}%")
@@ -60,7 +61,7 @@ class FacultyController extends Controller
     public function show(Faculty $faculty)
     {
         $faculty->load([
-            'classSessions' => fn ($query) => $query->orderedByWeek(),
+            'classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())->orderedByWeek(),
             'classSessions.room.floor.building.campus',
             'classSessions.subject',
             'classSessions.section',

@@ -31,6 +31,12 @@
     </div>
 
     <div class="page-header-actions">
+        @if($room)
+            <a href="{{ route('faculty.issues.create', array_filter(['room' => $room->id, 'category' => $manual ? 'qr_code' : null])) }}" class="btn btn-secondary">
+                {{ $manual ? 'Report Damaged QR Code' : 'Report an Issue' }}
+            </a>
+        @endif
+
         <a href="{{ route('faculty.dashboard') }}" class="btn btn-secondary">
             ← Dashboard
         </a>
@@ -120,6 +126,10 @@
 
         <div class="form-actions">
             @if($room === null)
+                <a href="{{ route('faculty.issues.create', ['category' => 'qr_code']) }}" class="btn btn-secondary">
+                    Report Damaged QR Code
+                </a>
+
                 <a href="{{ route('faculty.rooms.index') }}" class="btn btn-primary">
                     Find the Room Manually
                 </a>

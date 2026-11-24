@@ -97,6 +97,16 @@ class RoomSession extends Model
         return $this->status === self::STATUS_ACTIVE;
     }
 
+    /**
+     * How long the session lasted, or has lasted so far.
+     */
+    public function durationMinutes(): int
+    {
+        $end = $this->ended_at ?? ($this->isActive() ? now() : $this->started_at);
+
+        return max(0, (int) $this->started_at->diffInMinutes($end));
+    }
+
     public function wasStartedManually(): bool
     {
         return $this->started_via === self::STARTED_VIA_MANUAL;

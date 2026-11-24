@@ -9,7 +9,7 @@
 :root {
     --ink: #183042;
     --ink-soft: #52636d;
-    --muted: #8b989f;
+    --muted: #5f6e77;
     --line: #e8ecee;
     --line-soft: #edf0f1;
     --surface: #ffffff;
@@ -18,11 +18,11 @@
     --brand-hover: #3d6078;
     --brand-soft: #eef3f6;
     --accent: #FFB838;
-    --ok: #3c8054;
+    --ok: #35744b;
     --ok-soft: #edf7f0;
-    --warn: #a36b00;
+    --warn: #855600;
     --warn-soft: #fff5df;
-    --danger: #b84b4b;
+    --danger: #ab4141;
     --danger-soft: #fff0f0;
 }
 
@@ -89,7 +89,7 @@ textarea {
     border-radius: 999px;
     background: var(--accent);
     color: var(--ink);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -170,7 +170,7 @@ textarea {
     border-radius: 999px;
     background: #d9534f;
     color: #ffffff;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
 }
 
@@ -195,7 +195,7 @@ textarea {
 }
 
 .profile-info span {
-    font-size: 11px;
+    font-size: 12px;
 }
 
 
@@ -301,7 +301,7 @@ textarea {
     display: inline-flex;
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
@@ -401,7 +401,7 @@ textarea {
     display: block;
     margin-top: 2px;
     color: var(--warn);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 /* Marks a session that was started without scanning the room's QR code. */
@@ -412,7 +412,7 @@ textarea {
     border-radius: 999px;
     background: var(--warn-soft);
     color: var(--warn);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .4px;
     text-transform: uppercase;
@@ -603,7 +603,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .session-facts span {
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: .4px;
     text-transform: uppercase;
@@ -653,7 +653,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 .live-session-row small {
     margin-left: auto;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -665,7 +665,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .stat-icon-available {
     background: var(--ok-soft);
-    color: #5c9b70;
+    color: #3a7750;
 }
 
 .stat-icon-occupied {
@@ -675,7 +675,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .stat-icon-maintenance {
     background: var(--danger-soft);
-    color: #d86b6b;
+    color: #b84b4b;
 }
 
 .verify-card {
@@ -752,7 +752,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 
 .location-text {
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 .room-status,
@@ -761,7 +761,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
     align-items: center;
     padding: 4px 10px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -769,7 +769,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
 .status-badge,
 .status-neutral {
     background: #f1f4f5;
-    color: #61717b;
+    color: #5a6871;
 }
 
 .status-active {
@@ -1103,7 +1103,7 @@ input[type="file"]:not(.qr-scanner-input):hover::file-selector-button {
         display: block;
         margin-bottom: 2px;
         color: var(--muted);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: .6px;
         text-transform: uppercase;
@@ -1422,11 +1422,11 @@ body.qr-live-open {
 
 /* Icon colours match each tile's tinted background. */
 .campus-icon { color: var(--brand); }
-.building-icon { color: #b7791f; }
-.floor-icon { color: #3d7ea6; }
-.room-icon { color: #c2702a; }
+.building-icon { color: #8a5a00; }
+.floor-icon { color: #2f6a8e; }
+.room-icon { color: #9a5418; }
 .stat-icon-available { color: #3c8054; }
-.stat-icon-occupied { color: #b7791f; }
+.stat-icon-occupied { color: #8a5a00; }
 .stat-icon-maintenance { color: #c0504d; }
 
 .empty-state-icon,
@@ -1477,7 +1477,7 @@ body.qr-live-open {
     border-radius: 999px;
     background: var(--brand-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -1577,7 +1577,7 @@ body.qr-live-open {
     border-radius: 8px;
     background: var(--surface-soft);
     color: var(--ink-soft);
-    font-size: 11px;
+    font-size: 12px;
     white-space: pre-wrap;
 }
 
@@ -1702,7 +1702,7 @@ table.roomlink-table.load-table {
     padding-bottom: 8px;
     background: var(--surface-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -1716,7 +1716,7 @@ table.roomlink-table.load-table {
     display: block;
     margin-bottom: 6px;
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -2147,9 +2147,728 @@ input.profile-locked:focus {
     border-radius: 999px;
     background: var(--brand-soft);
     color: var(--brand);
-    font-size: 11px;
+    font-size: 12px;
 }
 
 [data-faculty-only][hidden] {
     display: none;
+}
+
+
+/* ---------------------------------------------------------
+   LIVE CONFLICT WARNING (class form)
+   --------------------------------------------------------- */
+
+/* Stays in view at the bottom of the pop-up whichever field is being filled. */
+.live-conflicts {
+    position: sticky;
+    bottom: -24px;
+    z-index: 1;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid #efc4c4;
+    border-radius: 9px;
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.live-conflicts div + div {
+    margin-top: 6px;
+}
+
+.live-conflicts.is-clear {
+    border-color: #c5e3cf;
+    background: var(--ok-soft);
+    color: var(--ok);
+}
+
+.form-group .has-conflict {
+    border-color: var(--danger);
+    background: var(--danger-soft);
+}
+
+
+/* ---------------------------------------------------------
+   TERM PICKER (a button; the list opens when clicked)
+   --------------------------------------------------------- */
+
+.term-picker {
+    position: relative;
+}
+
+.term-picker > summary {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.term-picker > summary::-webkit-details-marker {
+    display: none;
+}
+
+.dashboard-header .term-picker > summary {
+    background: var(--surface);
+    box-shadow: 0 1px 4px rgba(24, 48, 66, .1);
+}
+
+.term-picker-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    max-height: 70vh;
+    padding: 8px 16px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 14px 40px rgba(24, 48, 66, .18);
+    overflow-y: auto;
+}
+
+.term-picker-year {
+    padding: 10px 0;
+}
+
+.term-picker-year + .term-picker-year {
+    border-top: 1px solid var(--line);
+}
+
+.term-picker-year strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-size: 12px;
+}
+
+.term-picker-semesters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+}
+
+.term-picker-semesters button {
+    padding: 9px 4px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.term-picker-semesters button:hover {
+    border-color: var(--brand);
+}
+
+.term-picker-semesters button.active {
+    background: var(--brand);
+    color: #fff;
+}
+
+.term-picker-semesters small {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: .85;
+}
+
+.term-picker-current {
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}
+
+.term-picker-current .btn {
+    width: 100%;
+}
+
+.panel-term {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+@media (max-width: 760px) {
+
+    .dashboard-header {
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .term-picker,
+    .term-picker > summary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .term-picker-panel {
+        right: auto;
+        left: 0;
+        width: 100%;
+        max-width: none;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ROOM ISSUES, MAINTENANCE AND REPORTS
+   --------------------------------------------------------- */
+
+.issue-pending {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.issue-acknowledged {
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.issue-in_progress {
+    background: var(--warn-soft);
+    color: var(--warn);
+}
+
+.issue-resolved {
+    background: var(--ok-soft);
+    color: var(--ok);
+}
+
+[data-qr-only][hidden],
+[data-description-required][hidden] {
+    display: none;
+}
+
+.issue-steps {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+}
+
+.issue-steps li {
+    flex: 1;
+    padding: 10px 6px;
+    border-top: 4px solid #dfe6ea;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.issue-steps .done {
+    border-color: var(--ok);
+    color: var(--ok);
+}
+
+.issue-steps .current {
+    border-color: var(--accent);
+    color: var(--ink);
+}
+
+.issue-qr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.issue-qr p {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 13px;
+}
+
+.room-maintenance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 18px;
+    padding: 18px 20px;
+}
+
+.details-grid + .room-maintenance {
+    margin-top: 18px;
+}
+
+.room-maintenance.is-closed {
+    border-left: 4px solid var(--danger);
+}
+
+.room-maintenance h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 15px;
+}
+
+.room-maintenance p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.room-maintenance form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.room-maintenance input[type="text"],
+.report-filters select,
+.report-filters input {
+    padding: 9px 12px;
+    border: 1px solid #dce4e8;
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.report-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 18px;
+    padding: 20px;
+}
+
+.report-filters label {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.report-filters select,
+.report-filters input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.report-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    gap: 8px;
+}
+
+.dashboard-stats ~ .content-card + .content-card {
+    margin-top: 18px;
+}
+
+.live-updated {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.live-figures {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 18px 0 8px;
+}
+
+.live-figures > * {
+    padding: 12px 6px;
+    border-radius: 10px;
+    background: var(--surface-soft);
+    color: inherit;
+    text-align: center;
+    text-decoration: none;
+}
+
+.live-figures strong,
+.live-figures span {
+    display: block;
+}
+
+.live-figures strong {
+    color: var(--ink);
+    font-size: 17px;
+}
+
+.live-figures span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+a.program-tag {
+    text-decoration: none;
+}
+
+.campus-table th,
+.campus-table td {
+    padding: 9px 8px;
+}
+
+table.roomlink-table.campus-table {
+    min-width: 0;
+}
+
+@media print {
+
+    .sidebar,
+    .topbar,
+    .no-print,
+    .table-pagination {
+        display: none !important;
+    }
+
+    .content,
+    .page-body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body,
+    .content {
+        background: #fff !important;
+    }
+
+    .content-card {
+        break-inside: auto;
+        box-shadow: none !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    tr {
+        break-inside: avoid;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   LOGO
+   --------------------------------------------------------- */
+
+.brand {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+.brand h2 {
+    font-size: 22px;
+    line-height: 1.2;
+}
+
+.brand span {
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+
+.classroom-campus .classroom-counts {
+    margin-top: 8px;
+}
+
+/* ---------------------------------------------------------
+   CURRICULUM (colleges, programs and subjects on one page)
+   --------------------------------------------------------- */
+
+.curriculum-colleges .classroom-building:first-of-type {
+    margin-top: 14px;
+}
+
+.curriculum-programs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.curriculum-programs li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--line);
+}
+
+.curriculum-programs .curriculum-group {
+    background: var(--surface-soft);
+    color: var(--brand);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+.curriculum-programs strong {
+    margin-right: 8px;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.curriculum-programs .count-badge {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.record-dialog .facility-options {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.record-dialog .program-options-heading {
+    grid-column: 1 / -1;
+}
+
+
+/* Subject list, program by program */
+.subject-group {
+    /* Below the top bar, which stays in view. */
+    scroll-margin-top: 84px;
+}
+
+.subject-group-heading td {
+    background: var(--brand-soft);
+}
+
+.subject-group-heading td > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.subject-group-heading strong {
+    margin: 0 8px;
+    color: var(--ink);
+    font-size: 13px;
+}
+
+.subject-group.pointed-out .subject-group-heading td {
+    background: #fff1d6;
+    box-shadow: inset 4px 0 0 var(--accent);
+}
+
+/* ---------------------------------------------------------
+   SIDEBAR MENUS (campuses; colleges, then programs)
+   --------------------------------------------------------- */
+
+/* Unfolds smoothly; folded items can't be reached with the keyboard. */
+.nav-fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition: grid-template-rows .2s ease, visibility .2s;
+}
+
+.open > .nav-fold {
+    grid-template-rows: 1fr;
+    visibility: visible;
+}
+
+.nav-fold > ul {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sidebar .nav-sub {
+    margin: 0 0 0 20px;
+    padding: 0;
+    border-left: 1px solid rgba(255, 255, 255, .2);
+    list-style: none;
+}
+
+.sidebar .nav-sub .nav-sub {
+    margin-left: 12px;
+}
+
+.sidebar .nav-sub a,
+.sidebar .nav-sub button {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: calc(100% - 8px);
+    min-height: 0;
+    margin: 2px 0 2px 8px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: rgba(255, 255, 255, .82);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: left;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.sidebar .nav-sub a:hover,
+.sidebar .nav-sub button:hover,
+.sidebar .nav-sub .open > button {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+.sidebar .nav-sub a:focus-visible,
+.sidebar .nav-sub button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
+.sidebar .nav-programs a {
+    padding: 6px 10px;
+}
+
+.sidebar .nav-sub-label {
+    padding: 8px 10px 2px 18px;
+    color: rgba(255, 255, 255, .85);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+}
+
+/* Arrow that turns when the item is unfolded. */
+[data-menu-trigger]::after {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    margin: -3px 3px 0 auto;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    content: '';
+    opacity: .7;
+    transform: rotate(45deg);
+    transition: transform .2s ease;
+}
+
+.open > [data-menu-trigger]::after {
+    margin-top: 3px;
+    transform: rotate(225deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .nav-fold,
+    [data-menu-trigger]::after {
+        transition: none;
+    }
+}
+
+/* A campus opened from the menu starts at the top of the page, not at its card. */
+.classroom-campus {
+    scroll-margin-top: 2000px;
+}
+
+
+/* ---------------------------------------------------------
+   ACCESSIBILITY
+   --------------------------------------------------------- */
+
+/* First thing the Tab key reaches; jumps past the sidebar. */
+.skip-link {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 100;
+    padding: 11px 18px;
+    border-radius: 8px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    outline: 3px solid var(--accent);
+    transform: none;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+/* A clear outline for keyboard users on everything that can be pressed. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.free-rooms {
+    padding-top: 8px;
+    border-top: 1px solid #efc4c4;
+    color: var(--ink);
+}
+
+.free-rooms button {
+    margin: 4px 6px 0 0;
+    padding: 5px 11px;
+    border: 1px solid var(--brand);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--brand);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.free-rooms button:hover {
+    background: var(--brand);
+    color: #fff;
+}
+
+/* Highlighted menu item: dark enough for its white text. */
+.sidebar-menu a.active,
+.sidebar-profile-link.active {
+    background: #34546a;
+}
+
+.action-edit {
+    color: #875500;
+}
+
+.required {
+    color: #b23a3a;
+}
+
+.roomlink-table small {
+    font-size: 11px;
 }

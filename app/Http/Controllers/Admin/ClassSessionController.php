@@ -9,6 +9,8 @@ use App\Models\Room;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Support\ScheduleConflicts;
+use App\Support\SelectedTerm;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,9 +31,11 @@ class ClassSessionController extends Controller
     {
         return view('admin.schedules.index', [
             'schedules' => ClassSession::with(['room.floor.building', 'faculty', 'subject', 'section'])
+                ->inTerm(SelectedTerm::get())
                 ->orderedByWeek()
                 ->get(),
-            'sections' => Section::withCount('classSessions')->orderBy('section_name')->get(),
+            'term' => SelectedTerm::get(),
+            'sections' => Section::withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])->orderBy('section_name')->get(),
             'subjects' => Subject::orderBy('subject_code')->get(['id', 'subject_code', 'subject_name']),
             'faculties' => Faculty::orderBy('last_name')->orderBy('first_name')->get(),
             'rooms' => Room::with('floor.building')->orderBy('room_name')->get(),
@@ -61,7 +65,8 @@ class ClassSessionController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $class = $this->validatedClass($request);
+        $term = SelectedTerm::fromForm($request);
+        $class = [...$this->validatedClass($request), 'academic_term_id' => $term->id];
 
         $this->rejectConflicts($class);
 
@@ -69,11 +74,13 @@ class ClassSessionController extends Controller
             $details = $this->withRecords($class);
 
             foreach ($class['days'] as $day) {
-                ClassSession::create([...$details, 'day' => $day]);
+                ClassSession::create([...$details, 'day' => $day, 'academic_term_id' => $class['academic_term_id']]);
             }
 
             return $details;
         });
+
+        SelectedTerm::set($term);
 
         $count = count($class['days']);
         $redirect = redirect()
@@ -95,16 +102,81 @@ class ClassSessionController extends Controller
     }
 
     /**
+     * Conflicts of the class being filled in, shown while the form is open.
+     * Works on a partly filled form; saving checks everything again.
+     */
+    public function check(Request $request): JsonResponse
+    {
+        $request->validate([
+            'days' => ['nullable', 'array'],
+            'days.*' => [Rule::in(array_keys(ClassSession::DAY_NAMES))],
+            'start_time' => ['nullable', 'string'],
+            'end_time' => ['nullable', 'string'],
+            'section_name' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', 'in:active,inactive'],
+        ]);
+
+        $start = (string) $request->input('start_time');
+        $end = (string) $request->input('end_time');
+        $isTime = fn (string $time): bool => preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time) === 1;
+
+        if (! $isTime($start) || ! $isTime($end)) {
+            return response()->json(['conflicts' => (object) [], 'complete' => false]);
+        }
+
+        if ($end <= $start) {
+            return response()->json(['conflicts' => ['end_time' => ['The class must end after it starts.']], 'complete' => false]);
+        }
+
+        $edited = ClassSession::find($request->integer('_record'));
+
+        $class = [
+            'academic_term_id' => $edited->academic_term_id ?? SelectedTerm::fromForm($request)->id,
+            'room_id' => $request->integer('room_id'),
+            'faculty_id' => $request->integer('faculty_id'),
+            'section_id' => $this->sectionIdFor((string) $request->input('section_name')),
+            'days' => array_values(array_unique($request->input('days') ?? [])),
+            'start_time' => $start.':00',
+            'end_time' => $end.':00',
+            'status' => $request->input('status') ?? 'active',
+        ];
+
+        $conflicts = $this->conflicts($class, $edited?->id);
+
+        $answer = [
+            'conflicts' => (object) $conflicts,
+            'complete' => $class['days'] !== [] && $class['room_id'] > 0
+                && $request->filled('faculty_id') && $request->filled('section_name'),
+        ];
+
+        if (isset($conflicts['room_id'])) {
+            $answer['free_rooms'] = app(ScheduleConflicts::class)
+                ->freeRooms($class, $class['days'], $edited?->id)
+                ->map(fn (Room $room): array => [
+                    'id' => $room->id,
+                    'label' => $room->room_name.($room->floor?->building ? ' · '.$room->floor->building->building_name : ''),
+                ]);
+        }
+
+        return response()->json($answer);
+    }
+
+    /**
      * Classes are edited in a pop-up on the Class Sessions page.
      */
     public function edit(ClassSession $schedule): RedirectResponse
     {
+        // The page lists one term, so show the class's own.
+        if ($schedule->academicTerm !== null) {
+            SelectedTerm::set($schedule->academicTerm);
+        }
+
         return redirect()->route('schedules.index', ['edit' => $schedule->id]);
     }
 
     public function update(Request $request, ClassSession $schedule): RedirectResponse
     {
-        $class = $this->validatedClass($request);
+        $class = [...$this->validatedClass($request), 'academic_term_id' => $schedule->academic_term_id];
 
         if (count($class['days']) > 1) {
             throw ValidationException::withMessages(['days' => 'Choose one day when editing. Use Copy to add the class on another day.']);
@@ -201,12 +273,17 @@ class ClassSessionController extends Controller
         }
 
         if (empty($class['section_id'])) {
-            $class['section_id'] = Section::query()
-                ->whereRaw('LOWER(section_name) = ?', [mb_strtolower(trim($class['section_name']))])
-                ->value('id');
+            $class['section_id'] = $this->sectionIdFor($class['section_name']);
         }
 
         return $class;
+    }
+
+    private function sectionIdFor(string $name): ?int
+    {
+        return Section::query()
+            ->whereRaw('LOWER(section_name) = ?', [mb_strtolower(trim($name))])
+            ->value('id');
     }
 
     /**
@@ -214,25 +291,39 @@ class ClassSessionController extends Controller
      */
     private function rejectConflicts(array $class, ?int $ignoreId = null): void
     {
-        $errors = [];
+        $conflicts = $this->conflicts($class, $ignoreId);
+
+        if ($conflicts !== []) {
+            throw ValidationException::withMessages($conflicts);
+        }
+    }
+
+    /**
+     * Conflicts on any of the class's days, by field. A room, faculty member
+     * or section that is new or not chosen yet can't be in another class.
+     *
+     * @param  array<string, mixed>  $class
+     * @return array<string, list<string>>
+     */
+    private function conflicts(array $class, ?int $ignoreId = null): array
+    {
+        $messages = [];
 
         foreach ($class['days'] as $day) {
-            $conflicts = app(ScheduleConflicts::class)->find([
+            $found = app(ScheduleConflicts::class)->find([
                 ...$class,
                 'day' => $day,
-                // A record being created now can't be in another class yet.
+                'room_id' => (int) $class['room_id'],
                 'faculty_id' => (int) $class['faculty_id'],
                 'section_id' => (int) $class['section_id'],
             ], $ignoreId);
 
-            foreach ($conflicts as $field => $message) {
-                $errors[$field][] = count($class['days']) > 1 ? ClassSession::DAY_NAMES[$day].': '.$message : $message;
+            foreach ($found as $field => $message) {
+                $messages[$field][] = count($class['days']) > 1 ? ClassSession::DAY_NAMES[$day].': '.$message : $message;
             }
         }
 
-        if ($errors !== []) {
-            throw ValidationException::withMessages($errors);
-        }
+        return $messages;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Support\ScheduleImport;
 
+use App\Models\AcademicTerm;
 use App\Models\ClassSession;
 use App\Models\Faculty;
 use App\Models\Room;
@@ -89,12 +90,12 @@ class TeachingLoadReview
      * @param  list<array{subject_code: string, title: string, section: string, day: string, start_time: string, end_time: string, room: string, room_id?: int|string|null, import?: bool}>  $rows
      * @return list<array{subject_code: string, title: string, section: string, day: string, start_time: string, end_time: string, room: string, room_id: int|null, import: bool, subject: Subject|null, new_section: bool, duplicate: bool, problems: list<string>}>
      */
-    public function check(array $rows, Faculty $faculty, bool $replacing): array
+    public function check(array $rows, Faculty $faculty, bool $replacing, AcademicTerm $term): array
     {
         $rooms = $this->rooms();
         $subjects = $this->subjectsByCode();
         $sections = $this->sectionsByName();
-        $currentClasses = $replacing ? collect() : $faculty->classSessions()->where('status', 'active')->get();
+        $currentClasses = $replacing ? collect() : $faculty->classSessions()->inTerm($term)->where('status', 'active')->get();
         $checked = [];
 
         foreach (array_values($rows) as $index => $row) {
@@ -132,6 +133,7 @@ class TeachingLoadReview
 
                 if ($roomId !== null && $validTimes) {
                     $problems = [...$problems, ...array_values($this->conflicts->find([
+                        'academic_term_id' => $term->id,
                         'room_id' => $roomId,
                         'faculty_id' => $faculty->id,
                         'section_id' => $section->id ?? 0,
@@ -177,17 +179,17 @@ class TeachingLoadReview
 
     /**
      * Save the ticked classes (from check(), with no problems) as active
-     * class sessions of the faculty member. When replacing, their current
-     * classes are set to inactive first, which keeps their history.
+     * class sessions of the faculty member. When replacing, their classes of
+     * the term are set to inactive first, which keeps their history.
      *
      * @param  list<array{subject_code: string, title: string, section: string, day: string, start_time: string, end_time: string, room_id: int|null, import: bool, subject: Subject|null, duplicate: bool}>  $rows
      * @return array{classes: int, subjects: int, sections: int, skipped: int}
      */
-    public function save(array $rows, Faculty $faculty, bool $replacing): array
+    public function save(array $rows, Faculty $faculty, bool $replacing, AcademicTerm $term): array
     {
-        return DB::transaction(function () use ($rows, $faculty, $replacing): array {
+        return DB::transaction(function () use ($rows, $faculty, $replacing, $term): array {
             if ($replacing) {
-                $faculty->classSessions()->where('status', 'active')->update(['status' => 'inactive']);
+                $faculty->classSessions()->inTerm($term)->where('status', 'active')->update(['status' => 'inactive']);
             }
 
             $subjects = $this->subjectsByCode();
@@ -224,6 +226,7 @@ class TeachingLoadReview
                 }
 
                 ClassSession::create([
+                    'academic_term_id' => $term->id,
                     'room_id' => $row['room_id'],
                     'faculty_id' => $faculty->id,
                     'subject_id' => $subject->id,

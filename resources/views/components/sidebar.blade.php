@@ -1,12 +1,16 @@
 <aside class="sidebar" id="sidebar">
 
     <div class="brand">
-        <h2>RoomLink</h2>
-        <span>Smart Spaces. Seamless Classes.</span>
+        <img src="{{ \App\Support\Asset::url('images/logo.svg') }}" alt="" class="brand-logo">
+
+        <div>
+            <h2>RoomLink</h2>
+            <span>Smart Spaces. Seamless Classes.</span>
+        </div>
     </div>
 
 
-    <nav class="sidebar-menu">
+    <nav class="sidebar-menu" aria-label="Main menu">
 
         <div class="sidebar-section-label">
             OVERVIEW
@@ -30,16 +34,10 @@
 
 
         <div class="sidebar-section-label">
-            CLASSROOM MANAGEMENT
+            CAMPUS MANAGEMENT
         </div>
 
-        <a
-            href="{{ route('classrooms.index') }}"
-            class="{{ request()->routeIs('classrooms.*', 'rooms.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="door" /></span>
-            <span>Classrooms</span>
-        </a>
+        <x-campus-menu />
 
 
         <div class="sidebar-section-label">
@@ -54,29 +52,7 @@
             <span>Faculty</span>
         </a>
 
-        <a
-            href="{{ route('colleges.index') }}"
-            class="{{ request()->routeIs('colleges.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="library" /></span>
-            <span>Colleges</span>
-        </a>
-
-        <a
-            href="{{ route('programs.index') }}"
-            class="{{ request()->routeIs('programs.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="graduation-cap" /></span>
-            <span>Programs</span>
-        </a>
-
-        <a
-            href="{{ route('subjects.index') }}"
-            class="{{ request()->routeIs('subjects.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="book" /></span>
-            <span>Subjects</span>
-        </a>
+        <x-curriculum-menu />
 
         <a
             href="{{ route('schedules.index') }}"
@@ -84,6 +60,35 @@
         >
             <span class="menu-icon"><x-icon name="clock" /></span>
             <span>Class Sessions</span>
+        </a>
+
+
+        <div class="sidebar-section-label">
+            MAINTENANCE AND REPORTS
+        </div>
+
+        <a
+            href="{{ route('room-issues.index') }}"
+            class="{{ request()->routeIs('room-issues.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="wrench" /></span>
+            <span>Room Issues</span>
+
+            @php
+                $pendingIssues = \App\Models\RoomIssue::where('status', \App\Models\RoomIssue::STATUS_PENDING)->count();
+            @endphp
+
+            @if($pendingIssues > 0)
+                <span class="menu-badge">{{ $pendingIssues }}</span>
+            @endif
+        </a>
+
+        <a
+            href="{{ route('reports.utilization') }}"
+            class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
+        >
+            <span class="menu-icon"><x-icon name="chart" /></span>
+            <span>Reports</span>
         </a>
 
 
@@ -125,3 +130,7 @@
     </div>
 
 </aside>
+
+@push('scripts')
+<script src="{{ \App\Support\Asset::url('js/sidebar-menu.js') }}"></script>
+@endpush

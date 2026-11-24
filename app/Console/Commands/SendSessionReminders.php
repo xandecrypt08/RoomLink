@@ -44,6 +44,7 @@ class SendSessionReminders extends Command
         $classDate = $now->toDateString();
 
         $startingSoon = ClassSession::with(['faculty.user', 'subject', 'section', 'room'])
+            ->inCurrentTerm()
             ->where('day', ClassSession::dayCodeFor($now))
             ->where('status', 'active')
             ->get()

@@ -12,7 +12,9 @@
         mb_substr($user?->first_name ?? '', 0, 1).mb_substr($user?->last_name ?? '', 0, 1)
     );
 
-    $unreadCount = $user?->role === 'faculty' ? $user->unreadNotifications()->count() : 0;
+    $hasNotifications = in_array($user?->role, ['faculty', 'admin'], true);
+
+    $unreadCount = $hasNotifications ? $user->unreadNotifications()->count() : 0;
 @endphp
 
 <header class="topbar">
@@ -42,9 +44,9 @@
 
     <div class="topbar-right">
 
-        @if($user?->role === 'faculty')
+        @if($hasNotifications)
             <a
-                href="{{ route('faculty.notifications.index') }}"
+                href="{{ route($user->isAdmin() ? 'admin.notifications.index' : 'faculty.notifications.index') }}"
                 class="notification-btn"
                 title="Notifications"
                 aria-label="Notifications{{ $unreadCount ? " ({$unreadCount} unread)" : '' }}"

@@ -8,7 +8,7 @@
 
     <div>
 
-        <span class="page-eyebrow">CLASSROOM MANAGEMENT</span>
+        <span class="page-eyebrow">CAMPUS MANAGEMENT</span>
 
         <h1>{{ $room->room_name }}</h1>
 
@@ -44,6 +44,17 @@
     </div>
 
 </div>
+
+
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-error">{{ session('error') }}</div>
+@endif
+
+@include('admin.rooms.partials.maintenance', ['issue' => null])
 
 
 <div class="details-grid">

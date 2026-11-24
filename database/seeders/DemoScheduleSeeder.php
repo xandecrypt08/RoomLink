@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AcademicTerm;
 use App\Models\Building;
 use App\Models\Campus;
 use App\Models\ClassSession;
@@ -94,6 +95,8 @@ class DemoScheduleSeeder extends Seeder
             ['section_name' => $name],
         ));
 
+        $term = AcademicTerm::current();
+
         foreach (self::WEEKDAYS as $dayIndex => $day) {
             foreach (self::SLOTS as $slot => [$startTime, $endTime]) {
                 // Rotate who teaches which slot each day, so every faculty
@@ -103,6 +106,7 @@ class DemoScheduleSeeder extends Seeder
 
                 ClassSession::updateOrCreate(
                     [
+                        'academic_term_id' => $term->id,
                         'room_id' => $rooms[$slot]->id,
                         'day' => $day,
                         'start_time' => $startTime,

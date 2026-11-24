@@ -88,6 +88,7 @@ class TemporaryClassroomRequestController extends Controller
 
         $mySessionsToday = $faculty->classSessions()
             ->with(['room', 'subject', 'section'])
+            ->inCurrentTerm()
             ->where('day', ClassSession::dayCodeFor(now()))
             ->where('status', 'active')
             ->orderBy('start_time')

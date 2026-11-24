@@ -1,16 +1,21 @@
 <?php
 
+use App\Http\Controllers\AcademicTermController;
 use App\Http\Controllers\Admin\BuildingController;
 use App\Http\Controllers\Admin\CampusController;
 use App\Http\Controllers\Admin\ClassroomController;
 use App\Http\Controllers\Admin\ClassSessionController;
 use App\Http\Controllers\Admin\CollegeController;
+use App\Http\Controllers\Admin\CurriculumController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\FloorController;
 use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\RoomIssueController;
+use App\Http\Controllers\Admin\RoomMaintenanceController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\SubjectImportController;
@@ -21,14 +26,16 @@ use App\Http\Controllers\Faculty\ClassroomSessionController;
 use App\Http\Controllers\Faculty\ClassroomTransferController;
 use App\Http\Controllers\Faculty\FacultyDashboardController;
 use App\Http\Controllers\Faculty\MyScheduleController;
-use App\Http\Controllers\Faculty\NotificationController;
+use App\Http\Controllers\Faculty\RoomIssueController as FacultyRoomIssueController;
 use App\Http\Controllers\Faculty\RoomSelectionController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestController;
 use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\TeachingLoadController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /* Authentication */
@@ -46,6 +53,11 @@ Route::get('/faculty-locator', [FacultyLocatorController::class, 'index'])
     ->middleware('auth')
     ->name('faculty-locator.index');
 
+/* Switch between semesters (admin and faculty) */
+Route::post('/academic-term', [AcademicTermController::class, 'select'])
+    ->middleware('auth')
+    ->name('academic-term.select');
+
 /* My Profile, for every role. What can be changed depends on the role (User::editableProfileFields). */
 Route::middleware('auth')->prefix('profile')->group(function () {
     Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -61,12 +73,46 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
 
+    Route::get('/dashboard/live', [DashboardController::class, 'live'])
+        ->name('admin.dashboard.live');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('admin.notifications.index');
+
+    Route::post('/notifications/read', [NotificationController::class, 'markAllRead'])
+        ->name('admin.notifications.read');
+
+    /* Room issues (RLNK-33) and room maintenance (RLNK-34) */
+    Route::resource('room-issues', RoomIssueController::class)->only(['index', 'show', 'update']);
+
+    Route::post('/room-issues/{roomIssue}/replace-qr', [RoomIssueController::class, 'replaceQr'])
+        ->name('room-issues.replace-qr');
+
+    Route::post('/rooms/{room}/maintenance', [RoomMaintenanceController::class, 'store'])
+        ->name('rooms.maintenance.store');
+
+    Route::delete('/rooms/{room}/maintenance', [RoomMaintenanceController::class, 'destroy'])
+        ->name('rooms.maintenance.destroy');
+
+    /* Reports (RLNK-35, RLNK-36) */
+    Route::get('/reports/utilization', [ReportController::class, 'utilization'])
+        ->name('reports.utilization');
+
+    Route::get('/reports/maintenance', [ReportController::class, 'maintenance'])
+        ->name('reports.maintenance');
+
+    Route::post('/academic-terms/{academicTerm}/current', [AcademicTermController::class, 'makeCurrent'])
+        ->name('academic-terms.current');
+
     /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
-    Route::get('/classrooms', [ClassroomController::class, 'index'])
+    Route::get('/campuses', [ClassroomController::class, 'index'])
         ->name('classrooms.index');
 
     // Addresses of the separate lists this page replaced.
-    foreach (['campuses', 'buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
+    Route::get('/classrooms', fn () => redirect()->route('classrooms.index'));
+    Route::get('/campus-spaces', fn () => redirect()->route('classrooms.index'));
+
+    foreach (['buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
         Route::get("/{$oldList}", fn () => redirect()->route('classrooms.index'))
             ->name("{$oldList}.index");
     }
@@ -101,6 +147,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::resource('faculties', FacultyController::class);
 
+    /* Colleges, programs and subjects on one page */
+    Route::get('/curriculum', [CurriculumController::class, 'index'])
+        ->name('curriculum.index');
+
+    foreach (['colleges', 'programs', 'subjects'] as $oldList) {
+        Route::get("/{$oldList}", fn (Request $request) => redirect()->route('curriculum.index', $request->only('program')))
+            ->name("{$oldList}.index");
+    }
+
     /* Import subjects from a curriculum document. Declared before the resource so "import" isn't read as a subject. */
     Route::get('/subjects/import', [SubjectImportController::class, 'create'])
         ->name('subjects.import.create');
@@ -111,11 +166,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/subjects/import', [SubjectImportController::class, 'store'])
         ->name('subjects.import.store');
 
-    Route::resource('subjects', SubjectController::class);
+    Route::resource('subjects', SubjectController::class)->only(['store', 'update', 'destroy']);
 
-    Route::resource('programs', ProgramController::class)->except('show');
+    Route::resource('programs', ProgramController::class)->only(['store', 'update', 'destroy']);
 
-    Route::resource('colleges', CollegeController::class)->except('show');
+    Route::resource('colleges', CollegeController::class)->only(['store', 'update', 'destroy']);
 
     /* Sections are managed on the Class Sessions page. */
     Route::get('/sections', fn () => redirect()->route('schedules.index'))
@@ -132,6 +187,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::post('/schedules/import', [TeachingLoadController::class, 'store'])
         ->name('schedules.import.store');
+
+    // Conflict warnings while a class is being filled in.
+    Route::post('/schedules/import/check', [TeachingLoadController::class, 'check'])
+        ->name('schedules.import.check');
+
+    Route::post('/schedules/check', [ClassSessionController::class, 'check'])
+        ->name('schedules.check');
 
     Route::resource('schedules', ClassSessionController::class)->except('show');
 
@@ -177,6 +239,9 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
     Route::post('/schedule/import', [TeachingLoadController::class, 'store'])
         ->name('faculty.schedule.import.store');
 
+    Route::post('/schedule/import/check', [TeachingLoadController::class, 'check'])
+        ->name('faculty.schedule.import.check');
+
     /* Classroom transfer (RLNK-24) */
     Route::get('/transfer', [ClassroomTransferController::class, 'create'])
         ->name('faculty.transfer.create');
@@ -200,6 +265,11 @@ Route::middleware(['auth', 'faculty'])->prefix('faculty')->group(function () {
 
     Route::post('/temporary-requests/{temporaryClassroomRequest}/reject', [TemporaryClassroomRequestDecisionController::class, 'reject'])
         ->name('faculty.temporary-requests.reject');
+
+    /* Report a room issue or damaged QR code (RLNK-31, RLNK-32) */
+    Route::resource('issues', FacultyRoomIssueController::class)
+        ->only(['index', 'create', 'store'])
+        ->names('faculty.issues');
 
     /* Notifications (RLNK-30) */
     Route::get('/notifications', [NotificationController::class, 'index'])

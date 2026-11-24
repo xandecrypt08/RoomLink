@@ -17,7 +17,16 @@
         </p>
     </div>
 
+    <x-term-picker />
+
 </div>
+
+
+@if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+<x-term-notice />
 
 
 {{-- SUMMARY CARDS --}}
@@ -85,188 +94,9 @@
 </div>
 
 
-{{-- MAIN DASHBOARD GRID --}}
-<div class="dashboard-grid">
-
-
-    {{-- ROOM STATUS --}}
-    <div class="dashboard-panel">
-
-        <div class="panel-header">
-
-            <div>
-                <span class="panel-eyebrow">CLASSROOMS</span>
-                <h2>Room Status</h2>
-            </div>
-
-            <a href="{{ route('classrooms.index') }}" class="panel-link">
-                View Rooms →
-            </a>
-
-        </div>
-
-
-        <div class="room-status-list">
-
-            {{-- Available --}}
-            <div class="room-status-row">
-
-                <div class="room-status-label">
-                    <span class="status-dot available"></span>
-
-                    <div>
-                        <strong>Available</strong>
-                        <small>Ready for use</small>
-                    </div>
-                </div>
-
-                <strong class="room-status-number">
-                    {{ $availableRooms }}
-                </strong>
-
-            </div>
-
-
-            {{-- Occupied --}}
-            <div class="room-status-row">
-
-                <div class="room-status-label">
-                    <span class="status-dot occupied"></span>
-
-                    <div>
-                        <strong>Occupied</strong>
-                        <small>Currently in use</small>
-                    </div>
-                </div>
-
-                <strong class="room-status-number">
-                    {{ $occupiedRooms }}
-                </strong>
-
-            </div>
-
-
-            {{-- Maintenance --}}
-            <div class="room-status-row">
-
-                <div class="room-status-label">
-                    <span class="status-dot maintenance"></span>
-
-                    <div>
-                        <strong>Maintenance</strong>
-                        <small>Unavailable</small>
-                    </div>
-                </div>
-
-                <strong class="room-status-number">
-                    {{ $maintenanceRooms }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        {{-- STATUS BAR --}}
-        @php
-            $roomTotal = max($totalRooms, 1);
-
-            $availablePercentage = ($availableRooms / $roomTotal) * 100;
-            $occupiedPercentage = ($occupiedRooms / $roomTotal) * 100;
-            $maintenancePercentage = ($maintenanceRooms / $roomTotal) * 100;
-        @endphp
-
-        <div class="room-status-bar">
-
-            @if($availablePercentage > 0)
-                <div
-                    class="status-bar-available"
-                    style="width: {{ $availablePercentage }}%"
-                ></div>
-            @endif
-
-            @if($occupiedPercentage > 0)
-                <div
-                    class="status-bar-occupied"
-                    style="width: {{ $occupiedPercentage }}%"
-                ></div>
-            @endif
-
-            @if($maintenancePercentage > 0)
-                <div
-                    class="status-bar-maintenance"
-                    style="width: {{ $maintenancePercentage }}%"
-                ></div>
-            @endif
-
-        </div>
-
-    </div>
-
-
-    {{-- HAPPENING NOW --}}
-    <div class="dashboard-panel">
-
-        <div class="panel-header">
-
-            <div>
-                <span class="panel-eyebrow">LIVE</span>
-                <h2>Happening Now</h2>
-            </div>
-
-            <span class="count-badge">{{ $activeSessions->count() }}</span>
-
-        </div>
-
-        @forelse($activeSessions as $activeSession)
-
-            <div class="live-session-row">
-
-                <span class="status-dot occupied"></span>
-
-                <div>
-                    <strong>
-                        {{ $activeSession->room->room_name }}
-
-                        @if($activeSession->wasStartedManually())
-                            <span class="manual-start-tag" title="Started without scanning: {{ $activeSession->manual_start_reason }}">
-                                Manual
-                            </span>
-                        @endif
-                    </strong>
-                    <span>
-                        {{ $activeSession->faculty->full_name }}
-                        @if($activeSession->classSession)
-                            · {{ $activeSession->classSession->subject->subject_code }}
-                            · {{ $activeSession->classSession->section->section_name }}
-                        @else
-                            · Temporary session
-                        @endif
-                    </span>
-
-                    @if($activeSession->wasStartedManually())
-                        <span class="manual-start-reason">
-                            Not scanned: {{ $activeSession->manual_start_reason }}
-                        </span>
-                    @endif
-                </div>
-
-                <small>since {{ $activeSession->started_at->format('g:i A') }}</small>
-
-            </div>
-
-        @empty
-
-            <div class="small-empty-state">
-                <strong>No classes in session</strong>
-                <span>Rooms appear here when a faculty member starts a class.</span>
-            </div>
-
-        @endforelse
-
-    </div>
-
-
+{{-- LIVE SUMMARY --}}
+<div data-live-dashboard data-live-url="{{ route('admin.dashboard.live') }}">
+    @include('admin.dashboard.live')
 </div>
 
 
@@ -278,6 +108,7 @@
         <div>
             <span class="panel-eyebrow">SCHEDULES</span>
             <h2>Class Schedules</h2>
+            <p class="panel-term">{{ \App\Support\SelectedTerm::get()->label }}</p>
         </div>
 
         <a href="{{ route('schedules.index') }}" class="panel-link">
@@ -374,3 +205,8 @@
 
 
 @endsection
+
+
+@push('scripts')
+<script src="{{ \App\Support\Asset::url('js/dashboard.js') }}"></script>
+@endpush

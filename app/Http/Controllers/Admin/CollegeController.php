@@ -7,39 +7,19 @@ use App\Models\College;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 /**
  * Colleges (COE, CAS, CME, ...) that degree programs belong to.
  */
 class CollegeController extends Controller
 {
-    public function index(): View
-    {
-        $colleges = College::withCount('programs')
-            ->orderBy('id')
-            ->get();
-
-        return view('admin.colleges.index', compact('colleges'));
-    }
-
-    public function create(): View
-    {
-        return view('admin.colleges.create');
-    }
-
     public function store(Request $request): RedirectResponse
     {
         College::create($this->validated($request));
 
         return redirect()
-            ->route('colleges.index')
+            ->route('curriculum.index')
             ->with('success', 'College created successfully.');
-    }
-
-    public function edit(College $college): View
-    {
-        return view('admin.colleges.edit', compact('college'));
     }
 
     public function update(Request $request, College $college): RedirectResponse
@@ -47,7 +27,7 @@ class CollegeController extends Controller
         $college->update($this->validated($request, $college));
 
         return redirect()
-            ->route('colleges.index')
+            ->route('curriculum.index')
             ->with('success', 'College updated successfully.');
     }
 
@@ -55,14 +35,14 @@ class CollegeController extends Controller
     {
         if ($college->programs()->exists()) {
             return redirect()
-                ->route('colleges.index')
+                ->route('curriculum.index')
                 ->with('error', 'This college cannot be deleted because it still has programs. Move or delete its programs first.');
         }
 
         $college->delete();
 
         return redirect()
-            ->route('colleges.index')
+            ->route('curriculum.index')
             ->with('success', 'College deleted successfully.');
     }
 

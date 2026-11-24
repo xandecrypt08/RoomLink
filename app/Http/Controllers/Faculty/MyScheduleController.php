@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassSession;
+use App\Support\SelectedTerm;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -19,6 +20,7 @@ class MyScheduleController extends Controller
 
         $classesByDay = $faculty === null ? collect() : $faculty->classSessions()
             ->with(['room.floor.building', 'subject', 'section'])
+            ->inTerm(SelectedTerm::get())
             ->where('status', 'active')
             ->orderedByWeek()
             ->get()

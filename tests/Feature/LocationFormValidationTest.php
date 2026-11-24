@@ -28,7 +28,7 @@ class LocationFormValidationTest extends TestCase
             'campus_name' => 'Main Campus',
         ]);
 
-        $response->assertRedirect(route('classrooms.index'));
+        $response->assertRedirect(route('classrooms.index').'#campus-'.Campus::sole()->id);
         $this->assertDatabaseHas('campuses', [
             'campus_name' => 'Main Campus',
             'campus_code' => null,

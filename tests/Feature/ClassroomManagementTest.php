@@ -36,7 +36,7 @@ class ClassroomManagementTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('classrooms.index'))
             ->assertOk()
-            ->assertSeeInOrder(['Projector', 'Main Campus', 'Science Hall', 'Ground Floor', 'COMLAB 1A'])
+            ->assertSeeInOrder(['Main Campus', 'Science Hall', 'Ground Floor', 'COMLAB 1A', 'Projector'])
             ->assertSee(route('rooms.qr', $room));
     }
 
@@ -53,7 +53,7 @@ class ClassroomManagementTest extends TestCase
      */
     public static function oldLists(): array
     {
-        return ['campuses' => ['campuses'], 'buildings' => ['buildings'], 'floors' => ['floors'], 'rooms' => ['rooms'], 'facilities' => ['facilities']];
+        return ['classrooms' => ['classrooms'], 'campus spaces' => ['campus-spaces'], 'buildings' => ['buildings'], 'floors' => ['floors'], 'rooms' => ['rooms'], 'facilities' => ['facilities']];
     }
 
     #[DataProvider('oldLists')]
@@ -155,5 +155,25 @@ class ClassroomManagementTest extends TestCase
             ->get(route('rooms.edit', $room))
             ->assertOk()
             ->assertSee('data-open-now', false);
+    }
+
+    public function test_the_sidebar_menu_leads_to_each_campus(): void
+    {
+        $campuses = Campus::factory()->count(3)->create();
+
+        $dashboard = $this->actingAs($this->admin)->get(route('admin.dashboard'))->assertOk();
+        $page = $this->actingAs($this->admin)->get(route('classrooms.index'))->assertOk();
+
+        foreach ($campuses as $campus) {
+            $dashboard->assertSee('href="'.route('classrooms.index').'#campus-'.$campus->id.'"', false);
+            $page->assertSee('id="campus-'.$campus->id.'"', false);
+        }
+    }
+
+    public function test_a_new_campus_is_shown_after_adding_it(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('campuses.store'), ['campus_name' => 'North Campus']);
+
+        $response->assertRedirect(route('classrooms.index').'#campus-'.Campus::sole()->id);
     }
 }

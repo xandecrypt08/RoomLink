@@ -17,10 +17,7 @@
         {{-- Brand --}}
         <div class="login-brand">
 
-            <div class="brand-mark">
-                <span>R</span>
-                <span>L</span>
-            </div>
+            <img src="{{ \App\Support\Asset::url('images/logo.svg') }}" alt="" class="brand-mark">
 
             <div>
                 <h1>RoomLink</h1>

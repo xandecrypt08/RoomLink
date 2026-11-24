@@ -1,10 +1,79 @@
-/* Classrooms page: search and remembering which buildings are open. */
+/* Campuses page: the chosen campus, search, and remembering which buildings are open. */
 (function () {
     var page = document.querySelector('.classroom-page');
 
     if (!page) {
         return;
     }
+
+    /* The campus chosen in the sidebar menu, or all of them; kept after saving */
+
+    var campuses = Array.prototype.slice.call(page.querySelectorAll('[data-campus]'));
+    var campusKey = 'roomlink-campus';
+    var chosen = '';
+    var noResults = page.querySelector('[data-no-results]');
+
+    function inView(campus) {
+        return chosen === '' || campus.id === chosen;
+    }
+
+    function showCampus(id) {
+        var campus = campuses.filter(function (item) { return item.id === id; })[0];
+
+        chosen = campus ? id : '';
+
+        page.querySelector('[data-campus-title]').textContent = campus ? campus.dataset.campusName : 'Campuses';
+        page.querySelector('[data-campus-scope]').textContent = campus ? 'Only this campus.' : 'All campuses';
+        page.querySelector('[data-show-all]').hidden = !campus;
+
+        // "+ Building" at the top adds to the campus being looked at.
+        page.querySelectorAll('[data-campus-preset]').forEach(function (button) {
+            var only = campus || (campuses.length === 1 ? campuses[0] : null);
+
+            button.dataset.values = JSON.stringify(only ? { campus_id: only.dataset.campusId } : {});
+        });
+
+        try {
+            sessionStorage.setItem(campusKey, chosen);
+        } catch (error) { /* storage is off; all campuses are shown */ }
+
+        filter();
+    }
+
+    // A campus chosen in the menu shows its buildings with their floors and rooms.
+    function openCampus(id) {
+        showCampus(id);
+
+        buildings.forEach(function (item) {
+            if (chosen !== '' && item.closest('[data-campus]').id === chosen) {
+                item.open = true;
+            }
+        });
+    }
+
+    function followAddress() {
+        var id = location.hash.slice(1);
+
+        if (id === 'all' || campuses.some(function (campus) { return campus.id === id; })) {
+            openCampus(id);
+            window.scrollTo(0, 0);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    window.addEventListener('hashchange', followAddress);
+
+    // Clicking the campus already in the address sends no hashchange.
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('a[href*="#"]');
+
+        if (link && link.hash === location.hash && link.pathname === location.pathname) {
+            followAddress();
+        }
+    });
 
     /* Open buildings, kept while moving around the site */
 
@@ -40,11 +109,12 @@
 
     // After saving, the address ends in the building or floor just changed.
     var target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    var opening = page.querySelector('[data-open-now]');
+    var ownCampus = (target || opening) ? (target || opening).closest('[data-campus]') : null;
     var targetBuilding = target ? target.closest('[data-building]') : null;
 
     if (targetBuilding) {
         targetBuilding.open = true;
-        target.scrollIntoView({ block: 'center' });
     }
 
     buildings.forEach(function (item) { item.addEventListener('toggle', remember); });
@@ -62,16 +132,16 @@
 
     var search = page.querySelector('[data-classroom-search]');
     var status = page.querySelector('[data-classroom-status]');
-    var noResults = page.querySelector('[data-no-results]');
 
     function filter() {
         var text = search.value.trim().toLowerCase();
         var active = text !== '' || status.value !== '';
-        var any = false;
 
         searching = searching || active;
 
-        page.querySelectorAll('[data-campus]').forEach(function (campus) {
+        var any = false;
+
+        campuses.forEach(function (campus) {
             var campusShown = false;
 
             campus.querySelectorAll('[data-building]').forEach(function (item) {
@@ -104,8 +174,8 @@
                 }
             });
 
-            campus.hidden = active && !campusShown;
-            any = any || campusShown;
+            campus.hidden = !inView(campus) || (active && !campusShown);
+            any = any || !campus.hidden;
         });
 
         noResults.hidden = !active || any;
@@ -119,4 +189,18 @@
 
     search.addEventListener('input', filter);
     status.addEventListener('change', filter);
+
+    if (!followAddress()) {
+        var saved = '';
+
+        try {
+            saved = sessionStorage.getItem(campusKey) || '';
+        } catch (error) { /* storage is off */ }
+
+        showCampus(ownCampus && saved !== '' ? ownCampus.id : saved);
+
+        if (targetBuilding) {
+            target.scrollIntoView({ block: 'center' });
+        }
+    }
 })();

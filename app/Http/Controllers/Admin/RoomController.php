@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
+use App\Support\SelectedTerm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -86,7 +87,9 @@ class RoomController extends Controller
         $room->load([
             'floor.building.campus',
             'facilities',
-            'classSessions' => fn ($query) => $query->orderedByWeek(),
+            'currentMaintenance.starter',
+            'issues' => fn ($query) => $query->open()->latest('id'),
+            'classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())->orderedByWeek(),
             'classSessions.faculty',
             'classSessions.subject',
             'classSessions.section',
@@ -96,7 +99,7 @@ class RoomController extends Controller
     }
 
     /**
-     * Rooms are edited in a pop-up on the Classrooms page.
+     * Rooms are edited in a pop-up on the Campuses page.
      */
     public function edit(Room $room): RedirectResponse
     {
@@ -132,6 +135,12 @@ class RoomController extends Controller
 
     public function destroy(Room $room)
     {
+        if ($room->issues()->exists() || $room->maintenances()->exists()) {
+            return redirect()
+                ->route('classrooms.index')
+                ->with('error', 'This room cannot be deleted because it has issue reports or maintenance history.');
+        }
+
         if ($room->classSessions()->exists() || $room->roomSessions()->exists()) {
             return redirect()
                 ->route('classrooms.index')

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Classroom Management on one page: every campus with its buildings, floors
+ * Campuses: every campus with its buildings, floors
  * and rooms, plus the facilities. Adding, editing and deleting are handled by
  * the controller of each record, which return here.
  */
@@ -27,7 +27,6 @@ class ClassroomController extends Controller
 
         return view('admin.classrooms.index', [
             'campuses' => $campuses,
-            'buildings' => $campuses->flatMap(fn (Campus $campus) => $campus->buildings),
             'floors' => $campuses->flatMap(fn (Campus $campus) => $campus->buildings->flatMap(fn (Building $building) => $building->floors)),
             'facilities' => Facility::withCount('rooms')->orderBy('facility_name')->get(),
             'editRoomId' => $request->integer('edit') ?: null,

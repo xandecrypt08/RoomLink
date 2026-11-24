@@ -19,9 +19,15 @@
 
     @stack('styles')
 
+    <link rel="icon" href="{{ \App\Support\Asset::url('images/logo.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ \App\Support\Asset::url('favicon.ico') }}" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ \App\Support\Asset::url('images/apple-touch-icon.png') }}">
+
 </head>
 
 <body>
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <div class="dashboard-container">
 
@@ -43,7 +49,7 @@
 
             @include('components.topnav')
 
-            <section class="page-body">
+            <section class="page-body" id="main-content" tabindex="-1">
 
                 @yield('content')
 

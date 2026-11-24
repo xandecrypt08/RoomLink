@@ -53,6 +53,13 @@
             padding: 50px;
         }
 
+        .brand-logo {
+            width: 56px;
+            height: 56px;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
         .brand {
             font-size: 22px;
             font-weight: 700;
@@ -195,6 +202,8 @@
     <main class="print-container">
 
         <section class="qr-card">
+
+            <img src="{{ \App\Support\Asset::url('images/logo.svg') }}" alt="" class="brand-logo">
 
             <div class="brand">
                 RoomLink

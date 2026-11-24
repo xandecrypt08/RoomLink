@@ -137,6 +137,7 @@ class ClassroomTransferController extends Controller
         return [
             'classSessions' => fn ($query) => $query
                 ->with('subject')
+                ->inCurrentTerm()
                 ->where('day', $today)
                 ->where('status', 'active'),
         ];
