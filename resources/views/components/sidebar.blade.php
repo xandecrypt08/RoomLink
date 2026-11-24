@@ -37,13 +37,7 @@
             CAMPUS MANAGEMENT
         </div>
 
-        <a
-            href="{{ route('classrooms.index') }}"
-            class="{{ request()->routeIs('classrooms.*', 'rooms.*') ? 'active' : '' }}"
-        >
-            <span class="menu-icon"><x-icon name="landmark" /></span>
-            <span>Campus Spaces</span>
-        </a>
+        <x-campus-menu />
 
 
         <div class="sidebar-section-label">
@@ -138,5 +132,5 @@
 </aside>
 
 @push('scripts')
-<script src="{{ \App\Support\Asset::url('js/curriculum-menu.js') }}"></script>
+<script src="{{ \App\Support\Asset::url('js/sidebar-menu.js') }}"></script>
 @endpush

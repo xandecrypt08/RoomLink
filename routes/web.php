@@ -105,13 +105,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         ->name('academic-terms.current');
 
     /* Classroom Management: campuses, buildings, floors, rooms and facilities on one page */
-    Route::get('/campus-spaces', [ClassroomController::class, 'index'])
+    Route::get('/campuses', [ClassroomController::class, 'index'])
         ->name('classrooms.index');
 
     // Addresses of the separate lists this page replaced.
     Route::get('/classrooms', fn () => redirect()->route('classrooms.index'));
+    Route::get('/campus-spaces', fn () => redirect()->route('classrooms.index'));
 
-    foreach (['campuses', 'buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
+    foreach (['buildings', 'floors', 'rooms', 'facilities'] as $oldList) {
         Route::get("/{$oldList}", fn () => redirect()->route('classrooms.index'))
             ->name("{$oldList}.index");
     }

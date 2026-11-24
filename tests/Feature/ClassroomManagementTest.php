@@ -53,7 +53,7 @@ class ClassroomManagementTest extends TestCase
      */
     public static function oldLists(): array
     {
-        return ['campuses' => ['campuses'], 'buildings' => ['buildings'], 'floors' => ['floors'], 'rooms' => ['rooms'], 'facilities' => ['facilities']];
+        return ['classrooms' => ['classrooms'], 'campus spaces' => ['campus-spaces'], 'buildings' => ['buildings'], 'floors' => ['floors'], 'rooms' => ['rooms'], 'facilities' => ['facilities']];
     }
 
     #[DataProvider('oldLists')]
@@ -157,28 +157,23 @@ class ClassroomManagementTest extends TestCase
             ->assertSee('data-open-now', false);
     }
 
-    public function test_each_campus_has_its_own_tab(): void
+    public function test_the_sidebar_menu_leads_to_each_campus(): void
     {
         $campuses = Campus::factory()->count(3)->create();
 
-        $response = $this->actingAs($this->admin)->get(route('classrooms.index'))->assertOk()->assertSee('Campus Spaces');
+        $dashboard = $this->actingAs($this->admin)->get(route('admin.dashboard'))->assertOk();
+        $page = $this->actingAs($this->admin)->get(route('classrooms.index'))->assertOk();
 
         foreach ($campuses as $campus) {
-            $response->assertSee('data-campus-tab="campus-'.$campus->id.'"', false);
+            $dashboard->assertSee('href="'.route('classrooms.index').'#campus-'.$campus->id.'"', false);
+            $page->assertSee('id="campus-'.$campus->id.'"', false);
         }
-
-        $this->assertSame(2, preg_match_all('/data-campus-id="\d+"\s+hidden/', $response->getContent()), 'Only the first campus is shown at first.');
     }
 
-    public function test_a_new_campus_opens_its_own_tab(): void
+    public function test_a_new_campus_is_shown_after_adding_it(): void
     {
         $response = $this->actingAs($this->admin)->post(route('campuses.store'), ['campus_name' => 'North Campus']);
 
         $response->assertRedirect(route('classrooms.index').'#campus-'.Campus::sole()->id);
-    }
-
-    public function test_the_old_classrooms_address_still_works(): void
-    {
-        $this->actingAs($this->admin)->get('/admin/classrooms')->assertRedirect(route('classrooms.index'));
     }
 }

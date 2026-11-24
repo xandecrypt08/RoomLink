@@ -2120,8 +2120,7 @@ input.profile-locked:focus {
     border-bottom: 1px solid #dfe6ea;
 }
 
-.page-tabs a,
-.page-tabs button {
+.page-tabs a {
     display: inline-flex;
     gap: 8px;
     align-items: center;
@@ -2134,13 +2133,11 @@ input.profile-locked:focus {
     white-space: nowrap;
 }
 
-.page-tabs a:hover,
-.page-tabs button:hover {
+.page-tabs a:hover {
     color: var(--brand);
 }
 
-.page-tabs a.active,
-.page-tabs button.active {
+.page-tabs a.active {
     border-bottom-color: var(--accent);
     color: var(--ink);
 }
@@ -2595,14 +2592,6 @@ table.roomlink-table.campus-table {
 }
 
 
-/* Tabs that are buttons (Campus Spaces) */
-.page-tabs button {
-    border-width: 0 0 3px;
-    background: none;
-    font-family: inherit;
-    cursor: pointer;
-}
-
 .classroom-campus .classroom-counts {
     margin-top: 8px;
 }
@@ -2692,22 +2681,22 @@ table.roomlink-table.campus-table {
 }
 
 /* ---------------------------------------------------------
-   CURRICULUM MENU (sidebar: colleges, then programs)
+   SIDEBAR MENUS (campuses; colleges, then programs)
    --------------------------------------------------------- */
 
-.curriculum-flyout[hidden],
-.curriculum-flyout ul[hidden] {
+.sidebar-flyout[hidden],
+.sidebar-flyout ul[hidden] {
     display: none;
 }
 
-.curriculum-flyout ul {
+.sidebar-flyout ul {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-.curriculum-flyout button,
-.curriculum-flyout a {
+.sidebar-flyout button,
+.sidebar-flyout a {
     display: block;
     width: 100%;
     min-height: 0;
@@ -2725,13 +2714,13 @@ table.roomlink-table.campus-table {
     box-sizing: border-box;
 }
 
-.curriculum-flyout strong {
+.sidebar-flyout strong {
     display: block;
     color: var(--ink);
     font-size: 13px;
 }
 
-.curriculum-flyout-group {
+.sidebar-flyout-group {
     padding: 10px 14px 4px;
     color: var(--brand);
     font-size: 10px;
@@ -2740,7 +2729,7 @@ table.roomlink-table.campus-table {
     text-transform: uppercase;
 }
 
-.curriculum-flyout.floating {
+.sidebar-flyout.floating {
     position: fixed;
     z-index: 60;
     width: 300px;
@@ -2751,12 +2740,12 @@ table.roomlink-table.campus-table {
     box-sizing: border-box;
 }
 
-.curriculum-flyout.floating [data-menu-college-button] {
+.sidebar-flyout.floating [data-menu-college-button] {
     position: relative;
     padding-right: 30px;
 }
 
-.curriculum-flyout.floating [data-menu-college-button]::after {
+.sidebar-flyout.floating [data-menu-college-button]::after {
     position: absolute;
     top: 50%;
     right: 14px;
@@ -2768,14 +2757,14 @@ table.roomlink-table.campus-table {
     transform: translateY(-50%) rotate(45deg);
 }
 
-.curriculum-flyout.floating .open > button,
-.curriculum-flyout.floating button:hover,
-.curriculum-flyout.floating a:hover,
-.curriculum-flyout.floating a:focus-visible {
+.sidebar-flyout.floating .open > button,
+.sidebar-flyout.floating button:hover,
+.sidebar-flyout.floating a:hover,
+.sidebar-flyout.floating a:focus-visible {
     background: var(--brand-soft);
 }
 
-.curriculum-flyout.floating .curriculum-flyout-programs {
+.sidebar-flyout.floating .sidebar-flyout-programs {
     position: absolute;
     top: 0;
     left: 100%;
@@ -2791,17 +2780,22 @@ table.roomlink-table.campus-table {
 }
 
 /* Small screens: the menu opens inside the sidebar instead. */
-.curriculum-flyout:not(.floating) {
+.sidebar-flyout:not(.floating) {
     padding-left: 22px;
 }
 
-.curriculum-flyout:not(.floating) button,
-.curriculum-flyout:not(.floating) a,
-.curriculum-flyout:not(.floating) strong,
-.curriculum-flyout:not(.floating) .curriculum-flyout-group {
+.sidebar-flyout:not(.floating) button,
+.sidebar-flyout:not(.floating) a,
+.sidebar-flyout:not(.floating) strong,
+.sidebar-flyout:not(.floating) .sidebar-flyout-group {
     color: rgba(255, 255, 255, .9);
 }
 
-.curriculum-flyout:not(.floating) .open > button {
+.sidebar-flyout:not(.floating) .open > button {
     background: rgba(255, 255, 255, .12);
+}
+
+/* A campus opened from the menu starts at the top of the page, not at its card. */
+.classroom-campus {
+    scroll-margin-top: 2000px;
 }
