@@ -17,6 +17,12 @@
     <div class="page-header-actions">
         <x-term-picker />
 
+        @if($copySources->isNotEmpty())
+            <button type="button" class="btn btn-secondary" data-open="copy" data-title="Copy Classes to {{ $term->label }}">
+                Copy a Semester
+            </button>
+        @endif
+
         <button type="button" class="btn btn-secondary" data-open="load" data-title="Import Teaching Load" data-values="{{ json_encode($facultyId ? ['faculty_id' => $facultyId] : (object) []) }}" @if($openForm === 'load') data-open-now @endif>
             Import Teaching Load
         </button>
@@ -35,6 +41,20 @@
 
 @if(session('error'))
     <div class="alert alert-error">{{ session('error') }}</div>
+@endif
+
+@if(session('skipped'))
+    <div class="alert alert-warning">
+        {{ count(session('skipped')) }} {{ Str::plural('class', count(session('skipped'))) }} not copied, because the room, faculty member or section already has a class then:
+        <ul>
+            @foreach(array_slice(session('skipped'), 0, 10) as $skippedClass)
+                <li>{{ $skippedClass }}</li>
+            @endforeach
+        </ul>
+        @if(count(session('skipped')) > 10)
+            and {{ count(session('skipped')) - 10 }} more.
+        @endif
+    </div>
 @endif
 
 <x-term-notice />
@@ -205,7 +225,7 @@
         <div class="empty-state">
             <div class="empty-state-icon"><x-icon name="clock" /></div>
             <h3>No class sessions in {{ $term->label }} yet</h3>
-            <p>Import a faculty member's teaching load, or add a class. New subjects and sections are created as you go.</p>
+            <p>Import a faculty member's teaching load, {{ $copySources->isNotEmpty() ? 'copy another semester, ' : '' }}or add a class. New subjects and sections are created as you go.</p>
         </div>
 
     @endif
@@ -394,6 +414,35 @@
         </div>
     </div>
 </x-record-dialog>
+
+@if($copySources->isNotEmpty())
+
+    <x-record-dialog kind="copy" :store-url="route('schedules.copy')" submit="Copy Classes">
+        <input type="hidden" name="academic_term_id" value="{{ $term->id }}">
+
+        <div class="form-group">
+            <label for="from_term_id">Copy from <span class="required">*</span></label>
+            <select id="from_term_id" name="from_term_id" required>
+                <option value="">Choose a semester</option>
+                @foreach($copySources as $source)
+                    <option value="{{ $source->id }}">{{ $source->label }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="copy_faculty">Whose classes</label>
+            <select id="copy_faculty" name="faculty_id">
+                <option value="">Everyone's</option>
+                @foreach($faculties as $faculty)
+                    <option value="{{ $faculty->id }}">{{ $faculty->last_name }}, {{ $faculty->first_name }}</option>
+                @endforeach
+            </select>
+            <span class="form-help">Active classes are copied with their room, faculty, subject, section and time. The original semester doesn't change, and classes that clash with ones already in {{ $term->label }} are skipped.</span>
+        </div>
+    </x-record-dialog>
+
+@endif
 
 @if($errors->any())
     <script type="application/json" data-old-input>@json(session()->getOldInput())</script>

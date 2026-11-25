@@ -204,6 +204,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/schedules/import/check', [TeachingLoadController::class, 'check'])
         ->name('schedules.import.check');
 
+    Route::post('/schedules/copy', [ClassSessionController::class, 'copy'])
+        ->name('schedules.copy');
+
     Route::post('/schedules/check', [ClassSessionController::class, 'check'])
         ->name('schedules.check');
 
