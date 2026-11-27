@@ -201,6 +201,19 @@
 
 </div>
 
+
+@unless($user->isAdmin())
+
+    <details class="content-card install-help">
+        <summary>Add RoomLink to your phone's home screen</summary>
+        <ul>
+            <li><strong>iPhone (Safari):</strong> tap Share, then Add to Home Screen.</li>
+            <li><strong>Android (Chrome):</strong> tap the three dots, then Add to Home screen or Install app.</li>
+        </ul>
+    </details>
+
+@endunless
+
 @endsection
 
 

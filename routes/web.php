@@ -33,8 +33,10 @@ use App\Http\Controllers\Faculty\TemporaryClassroomRequestDecisionController;
 use App\Http\Controllers\FacultyLocatorController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoomIssuePhotoController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\TeachingLoadController;
+use App\Http\Controllers\TimetableController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +54,16 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/faculty-locator', [FacultyLocatorController::class, 'index'])
     ->middleware('auth')
     ->name('faculty-locator.index');
+
+/* Weekly timetables of rooms, sections and faculty */
+Route::get('/timetable', TimetableController::class)
+    ->middleware('auth')
+    ->name('timetable');
+
+/* Photo of a room issue, for administrators and its reporter */
+Route::get('/room-issues/{roomIssue}/photo', RoomIssuePhotoController::class)
+    ->middleware('auth')
+    ->name('room-issues.photo');
 
 /* Switch between semesters (admin and faculty) */
 Route::post('/academic-term', [AcademicTermController::class, 'select'])
@@ -191,6 +203,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Conflict warnings while a class is being filled in.
     Route::post('/schedules/import/check', [TeachingLoadController::class, 'check'])
         ->name('schedules.import.check');
+
+    Route::post('/schedules/copy', [ClassSessionController::class, 'copy'])
+        ->name('schedules.copy');
 
     Route::post('/schedules/check', [ClassSessionController::class, 'check'])
         ->name('schedules.check');

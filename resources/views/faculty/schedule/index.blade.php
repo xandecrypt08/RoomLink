@@ -49,6 +49,10 @@
 
     @else
 
+        <div class="timetable-card wide-only">
+            <x-timetable :classes="$classes" hide="faculty" />
+        </div>
+
         <div class="table-toolbar">
             <div>
                 <h2>Weekly Classes</h2>

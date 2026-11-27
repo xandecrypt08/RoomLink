@@ -25,7 +25,7 @@
 
 <div class="content-card form-card">
 
-    <form method="POST" action="{{ route('faculty.issues.store') }}">
+    <form method="POST" action="{{ route('faculty.issues.store') }}" enctype="multipart/form-data">
 
         @csrf
 
@@ -72,6 +72,15 @@
             <label for="description">Description <span class="required" data-description-required>*</span></label>
             <textarea id="description" name="description" rows="4" maxlength="1000" placeholder="What is wrong, and where in the room?">{{ old('description') }}</textarea>
             @error('description')
+                <span class="form-error">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label for="photo">Photo</label>
+            <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp">
+            <span class="form-help">Optional. Take one or choose one, up to 10 MB. Only you and the administrator can see it.</span>
+            @error('photo')
                 <span class="form-error">{{ $message }}</span>
             @enderror
         </div>

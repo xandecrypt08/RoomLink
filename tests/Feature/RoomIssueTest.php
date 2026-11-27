@@ -12,8 +12,10 @@ use App\Models\User;
 use App\Notifications\RoomIssueReported;
 use App\Notifications\RoomIssueUpdated;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -70,6 +72,38 @@ class RoomIssueTest extends TestCase
         $this->actingAs($this->teacher)
             ->post(route('faculty.issues.store'), ['room_id' => $this->room->id, 'category' => 'ghosts', 'description' => 'x'])
             ->assertSessionHasErrors('category');
+    }
+
+    public function test_a_photo_is_shrunk_and_shown_only_to_administrators_and_the_reporter(): void
+    {
+        Storage::fake('local');
+
+        $this->actingAs($this->teacher)
+            ->post(route('faculty.issues.store'), [
+                'room_id' => $this->room->id,
+                'category' => 'furniture',
+                'description' => 'Broken chair',
+                'photo' => UploadedFile::fake()->image('chair.png', 3200, 1600),
+            ])
+            ->assertSessionHasNoErrors();
+
+        $issue = RoomIssue::sole();
+        $this->assertSame([1600, 800], array_slice(getimagesizefromstring(Storage::disk('local')->get($issue->photo)), 0, 2));
+
+        $this->actingAs($this->teacher)->get(route('room-issues.photo', $issue))->assertOk();
+        $this->actingAs($this->admin)->get(route('room-issues.photo', $issue))->assertOk();
+        $this->actingAs($this->admin)->get(route('room-issues.show', $issue))->assertSee(route('room-issues.photo', $issue));
+        $this->actingAs(User::factory()->faculty()->create())->get(route('room-issues.photo', $issue))->assertForbidden();
+        $this->actingAs($this->admin)->get(route('room-issues.photo', RoomIssue::factory()->create()))->assertNotFound();
+    }
+
+    public function test_only_photos_can_be_attached(): void
+    {
+        $this->actingAs($this->teacher)
+            ->post(route('faculty.issues.store'), ['room_id' => $this->room->id, 'category' => 'other', 'description' => 'x', 'photo' => UploadedFile::fake()->create('virus.pdf', 10)])
+            ->assertSessionHasErrors('photo');
+
+        $this->assertSame(0, RoomIssue::count());
     }
 
     public function test_faculty_only_see_their_own_reports(): void

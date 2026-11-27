@@ -61,6 +61,7 @@ class RoomIssue extends Model
         'reported_by',
         'category',
         'description',
+        'photo',
         'qr_replacement_requested',
         'status',
         'assigned_to',

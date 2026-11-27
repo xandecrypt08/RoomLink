@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\CopyTermClasses;
 use App\Http\Controllers\Controller;
+use App\Models\AcademicTerm;
 use App\Models\ClassSession;
 use App\Models\Faculty;
 use App\Models\Room;
@@ -14,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -35,6 +38,11 @@ class ClassSessionController extends Controller
                 ->orderedByWeek()
                 ->get(),
             'term' => SelectedTerm::get(),
+            'copySources' => AcademicTerm::whereKeyNot(SelectedTerm::get()->id)
+                ->whereHas('classSessions', fn ($query) => $query->where('status', 'active'))
+                ->orderByDesc('school_year')
+                ->orderByDesc('semester')
+                ->get(),
             'sections' => Section::withCount(['classSessions' => fn ($query) => $query->inTerm(SelectedTerm::get())])->orderBy('section_name')->get(),
             'subjects' => Subject::orderBy('subject_code')->get(['id', 'subject_code', 'subject_name']),
             'faculties' => Faculty::orderBy('last_name')->orderBy('first_name')->get(),
@@ -99,6 +107,35 @@ class ClassSessionController extends Controller
         }
 
         return $redirect;
+    }
+
+    /**
+     * Copy another semester's classes into the one being viewed.
+     */
+    public function copy(Request $request, CopyTermClasses $copyTermClasses): RedirectResponse
+    {
+        $to = SelectedTerm::fromForm($request);
+
+        $validated = $request->validate([
+            'from_term_id' => ['required', 'exists:academic_terms,id', Rule::notIn([$to->id])],
+            'faculty_id' => ['nullable', 'exists:faculties,id'],
+        ], [
+            'from_term_id.required' => 'Choose the semester to copy from.',
+            'from_term_id.not_in' => 'Choose a different semester to copy from.',
+        ]);
+
+        $result = $copyTermClasses->handle(
+            AcademicTerm::findOrFail($validated['from_term_id']),
+            $to,
+            isset($validated['faculty_id']) ? Faculty::find($validated['faculty_id']) : null,
+        );
+
+        SelectedTerm::set($to);
+
+        return redirect()
+            ->route('schedules.index')
+            ->with('success', $result['copied'].' '.Str::plural('class', $result['copied'])." copied to {$to->label}.")
+            ->with('skipped', $result['skipped']);
     }
 
     /**
